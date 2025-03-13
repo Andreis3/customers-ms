@@ -13,7 +13,7 @@ import (
 	. "github.com/onsi/gomega"
 )
 
-var _ = Describe("INTERNAL :: DOMAIN :: ENTITY :: ADDRES", func() {
+var _ = Describe("INTERNAL :: DOMAIN :: ENTITY :: ADDRESS", func() {
 	Describe("#Validate", func() {
 		Context("success cases", func() {
 			It("should not return an error when build new address", func() {
