@@ -4,9 +4,11 @@
 package entity_test
 
 import (
+	"fmt"
 	"time"
 
 	"github.com/andreis3/users-ms/internal/domain/entity"
+	"github.com/andreis3/users-ms/internal/domain/validator"
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
 )
@@ -41,8 +43,8 @@ var _ = Describe("INTERNAL :: DOMAIN :: ENTITY :: CUSTOMER", func() {
 
 				Expect(validate.Errors()).NotTo(BeNil())
 				Expect(validate.Errors()).To(HaveLen(8))
-				// Expect(validate.Errors()).To(ContainElement(errors.New("name: is required")))
-				// Expect(validate.Errors()).To(ContainElement(errors.New("status: is required")))
+				Expect(validate.Errors()).To(ContainElement(fmt.Errorf("email: %s", validator.NotBlankField)))
+				Expect(validate.Errors()).To(ContainElement(fmt.Errorf("first_name: %s", validator.NotBlankField)))
 			})
 		})
 	})
