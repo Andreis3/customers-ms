@@ -17,15 +17,15 @@ var _ = Describe("INTERNAL :: DOMAIN :: ENTITY :: ADDRES", func() {
 	Describe("#Validate", func() {
 		Context("success cases", func() {
 			It("should not return an error when build new address", func() {
-				entity := entity.SellerBuilder().
+				entity := entity.AddressBuilder().
 					SetID("any_id").
-					SetEmail("any_email").
-					SetPassword("any_password").
-					SetCompanyName("any_company_name").
-					SetBusinessName("any_business_name").
-					SetCNPJ("11122233344").
-					SetEmail("any_email").
-					SetFundationDate(time.Now()).
+					SetCity("any_city").
+					SetComplement("any_password").
+					SetStreet("any_street").
+					SetCountry("any_country").
+					SetNumber("any_number").
+					SetState("any_state").
+					SetPostalCode("any_postal_code").
 					SetCreatedAT(time.Now()).
 					SetUpdatedAT(time.Now()).
 					Build()
@@ -38,14 +38,14 @@ var _ = Describe("INTERNAL :: DOMAIN :: ENTITY :: ADDRES", func() {
 
 		Context("error cases", func() {
 			It("should return an error when address is empty", func() {
-				entity := entity.SellerBuilder().Build()
+				entity := entity.AddressBuilder().Build()
 
 				validate := entity.Validate()
 
 				Expect(validate.Errors()).NotTo(BeNil())
-				Expect(validate.Errors()).To(HaveLen(10))
-				Expect(validate.Errors()).To(ContainElement(fmt.Errorf("cnpj: %s", validator.NotBlankField)))
-				Expect(validate.Errors()).To(ContainElement(fmt.Errorf("company_name: %s", validator.NotBlankField)))
+				Expect(validate.Errors()).To(HaveLen(12))
+				Expect(validate.Errors()).To(ContainElement(fmt.Errorf("country: %s", validator.NotBlankField)))
+				Expect(validate.Errors()).To(ContainElement(fmt.Errorf("state: %s", validator.NotBlankField)))
 			})
 		})
 	})
