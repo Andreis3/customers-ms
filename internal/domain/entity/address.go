@@ -1,6 +1,10 @@
 package entity
 
-import "github.com/andreis3/users-ms/internal/domain/validator"
+import (
+	"time"
+
+	"github.com/andreis3/users-ms/internal/domain/validator"
+)
 
 type Address struct {
 	ID         string
@@ -11,6 +15,8 @@ type Address struct {
 	State      string
 	PostalCode string
 	Country    string
+	createAT   time.Time
+	UpdatedAT  time.Time
 	Validator  validator.Validator
 }
 
@@ -55,6 +61,16 @@ func (a *Address) SetPostalCode(postalCode string) *Address {
 
 func (a *Address) SetCountry(country string) *Address {
 	a.Country = country
+	return a
+}
+
+func (a *Address) SetCreatedAT(createdAt time.Time) *Address {
+	a.createAT = createdAt
+	return a
+}
+
+func (a *Address) SetUpdatedAT(updatedAt time.Time) *Address {
+	a.UpdatedAT = updatedAt
 	return a
 }
 
