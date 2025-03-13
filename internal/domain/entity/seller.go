@@ -12,6 +12,8 @@ type Seller struct {
 	CNPJ          string
 	BusinessName  string
 	FundationDate time.Time
+	CreateAT      time.Time
+	UpdatedAT     time.Time
 	Addresses     []Address
 	Validator     validator.Validator
 }
@@ -52,6 +54,16 @@ func (s *Seller) SetBusinessName(businessName string) *Seller {
 
 func (s *Seller) SetFundationDate(fundationDate time.Time) *Seller {
 	s.FundationDate = fundationDate
+	return s
+}
+
+func (s *Seller) SetCreatedAT(createdAt time.Time) *Seller {
+	s.CreateAT = createdAt
+	return s
+}
+
+func (s *Seller) SetUpdatedAT(updatedAt time.Time) *Seller {
+	s.UpdatedAT = updatedAt
 	return s
 }
 
