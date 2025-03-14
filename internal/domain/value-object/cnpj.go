@@ -1,19 +1,22 @@
 package valueobject
 
 import (
-	"regexp"
 	"slices"
-	"strconv"
+	"strings"
+	"unicode"
 
 	"github.com/andreis3/users-ms/internal/domain/validator"
 )
 
 const (
-	CNPJLength   = 14
-	ModuleBase   = 11
-	MinWeight    = 2
-	MaxWeight    = 9
-	BlackListMod = 2
+	CNPJLength            = 14
+	CNPJFirstDigitIdx     = 12
+	CNPJSecondDigitIdx    = 13
+	CNPJModuleDivisor     = 11
+	CNPJBlacklistLength   = 10
+	CNPJASCIIZero         = '0'
+	CNPJFirstDigitWeight  = 5
+	CNPJSecondDigitWeight = 6
 )
 
 var blackListCNPJ = []string{
@@ -33,46 +36,40 @@ func NewCNPJ(cnpj string, validator validator.Validator) *CNPJ {
 
 func (c *CNPJ) Validate() {
 	cleanedCNPJ := cleanCNPJ(c.CNPJ)
-
-	// Validações
 	c.Validator.CheckField(validator.NotBlank(cleanedCNPJ), "cnpj", validator.NotBlankField)
-	c.Validator.CheckField(len(cleanedCNPJ) == CNPJLength, "cnpj", "cnpj: must have 14 characters")
-	c.Validator.CheckField(!slices.Contains(blackListCNPJ, cleanedCNPJ), "cnpj", "cnpj: must be a valid CNPJ number")
-	c.Validator.CheckField(validateCNPJ(cleanedCNPJ), "cnpj", "cnpj: is invalid, must be a valid CNPJ number calculated with the module 11 algorithm")
+	c.Validator.CheckField(validateCNPJ(cleanedCNPJ), "cnpj", "cnpj: is invalid")
 }
 
 func cleanCNPJ(cnpj string) string {
-	regex := regexp.MustCompile("[^0-9]")
-	return regex.ReplaceAllString(cnpj, "")
+	var sb strings.Builder
+	for _, r := range cnpj {
+		if unicode.IsDigit(r) {
+			sb.WriteRune(r)
+		}
+	}
+	return sb.String()
 }
 
 func validateCNPJ(cnpj string) bool {
-	if len(cnpj) != CNPJLength {
+	if len(cnpj) != CNPJLength || slices.Contains(blackListCNPJ, cnpj) {
 		return false
 	}
-
-	return validateDigitCNPJ(cnpj, CNPJLength-2) &&
-		validateDigitCNPJ(cnpj, CNPJLength-1)
+	return validateDigitCNPJ(cnpj, CNPJFirstDigitIdx, CNPJFirstDigitWeight) &&
+		validateDigitCNPJ(cnpj, CNPJSecondDigitIdx, CNPJSecondDigitWeight)
 }
 
-func validateDigitCNPJ(cnpj string, position int) bool {
+func validateDigitCNPJ(cnpj string, position, startWeight int) bool {
 	sum := 0
-	weight := MinWeight
-
-	for i := position - 1; i >= 0; i-- {
-		num, _ := strconv.Atoi(string(cnpj[i]))
-		sum += num * weight
-		weight++
-		if weight > MaxWeight {
-			weight = MinWeight
-		}
+	for i, char := range cnpj[:position] {
+		sum += int(char-CNPJASCIIZero) * (startWeight - i)
 	}
 
-	rest := sum % ModuleBase
-	expectedDigit := 0
-	if rest >= BlackListMod {
-		expectedDigit = ModuleBase - rest
+	rest := sum % CNPJModuleDivisor
+	if rest < 2 {
+		rest = 0
+	} else {
+		rest = CNPJModuleDivisor - rest
 	}
 
-	return strconv.Itoa(expectedDigit) == string(cnpj[position])
+	return rest == int(cnpj[position]-CNPJASCIIZero)
 }

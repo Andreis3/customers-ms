@@ -10,13 +10,13 @@ import (
 
 const (
 	CPFLength         = 11
-	FirstDigitIdx     = 9
-	SecondDigitIdx    = 10
-	ModuleDivisor     = 11
-	BlacklistLength   = 10
-	ASCIIZero         = '0'
-	FirstDigitWeight  = 10
-	SecondDigitWeight = 11
+	CPFFirstDigitIdx     = 9
+	CPFSecondDigitIdx    = 10
+	CPFModuleDivisor     = 11
+	CPFBlacklistLength   = 10
+	CPFASCIIZero         = '0'
+	CPFFirstDigitWeight  = 10
+	CPFSecondDigitWeight = 11
 )
 
 var blackListCPF = []string{
@@ -54,20 +54,20 @@ func validateCPF(cpf string) bool {
 	if len(cpf) != CPFLength || slices.Contains(blackListCPF, cpf) {
 		return false
 	}
-	return validateDigit(cpf, FirstDigitIdx, FirstDigitWeight) &&
-		validateDigit(cpf, SecondDigitIdx, SecondDigitWeight)
+	return validateDigit(cpf, CPFFirstDigitIdx, CPFFirstDigitWeight) &&
+		validateDigit(cpf, CPFSecondDigitIdx, CPFSecondDigitWeight)
 }
 
 func validateDigit(cpf string, position, startWeight int) bool {
 	sum := 0
 	for i, char := range cpf[:position] {
-		sum += int(char - ASCIIZero) * (startWeight -i)
+		sum += int(char - CPFASCIIZero) * (startWeight -i)
 	}
 
-	rest := (sum * 10) % ModuleDivisor
-	if rest == BlacklistLength {
+	rest := (sum * 10) % CPFModuleDivisor
+	if rest == CPFBlacklistLength {
 		rest = 0
 	}
 
-	return rest == int(cpf[position]-ASCIIZero)
+	return rest == int(cpf[position]-CPFASCIIZero)
 }
