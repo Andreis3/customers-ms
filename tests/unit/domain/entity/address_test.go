@@ -7,10 +7,11 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/andreis3/users-ms/internal/domain/entity"
-	"github.com/andreis3/users-ms/internal/domain/validator"
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
+
+	"github.com/andreis3/users-ms/internal/domain/entity"
+	"github.com/andreis3/users-ms/internal/domain/validator"
 )
 
 var _ = Describe("INTERNAL :: DOMAIN :: ENTITY :: ADDRESS", func() {
@@ -32,7 +33,7 @@ var _ = Describe("INTERNAL :: DOMAIN :: ENTITY :: ADDRESS", func() {
 
 				validate := entity.Validate()
 
-				Expect(validate.Errors()).To(BeNil())
+				Expect(validate.Errors()).To(BeEmpty())
 			})
 		})
 
@@ -43,9 +44,9 @@ var _ = Describe("INTERNAL :: DOMAIN :: ENTITY :: ADDRESS", func() {
 				validate := entity.Validate()
 
 				Expect(validate.Errors()).NotTo(BeNil())
-				Expect(validate.Errors()).To(HaveLen(12))
-				Expect(validate.Errors()).To(ContainElement(fmt.Errorf("country: %s", validator.NotBlankField)))
-				Expect(validate.Errors()).To(ContainElement(fmt.Errorf("state: %s", validator.NotBlankField)))
+				Expect(validate.Errors()).To(HaveLen(6))
+				Expect(validate.Errors()).To(ContainElement(fmt.Sprintf("country: %s", validator.NotBlankField)))
+				Expect(validate.Errors()).To(ContainElement(fmt.Sprintf("state: %s", validator.NotBlankField)))
 			})
 		})
 	})

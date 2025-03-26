@@ -4,14 +4,13 @@ import (
 	"fmt"
 
 	"github.com/andreis3/users-ms/internal/domain/entity"
+	"github.com/andreis3/users-ms/internal/domain/errors"
 	"github.com/andreis3/users-ms/internal/domain/validator"
-	"github.com/andreis3/users-ms/internal/util"
 )
 
 type CustomerProfile struct {
 	Customer  entity.Customer
 	Addresses []entity.Address
-	util.ErrorHandler
 }
 
 func NewUserProfile(custome entity.Customer, addresses []entity.Address) *CustomerProfile {
@@ -22,7 +21,7 @@ func NewUserProfile(custome entity.Customer, addresses []entity.Address) *Custom
 	return userProfile
 }
 
-func (u *CustomerProfile) Validate() *util.ErrorHandler {
+func (u *CustomerProfile) Validate() *errors.DomainError {
 	mainValidator := validator.NewValidator()
 
 	validateUser := u.Customer.Validate()
@@ -41,5 +40,5 @@ func (u *CustomerProfile) Validate() *util.ErrorHandler {
 		return nil
 	}
 
-	return u.InvalidCustomerAndAddres(mainValidator)
+	return errors.InvalidCustomerError(mainValidator)
 }

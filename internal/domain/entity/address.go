@@ -79,11 +79,11 @@ func (a *Address) Build() *Address {
 }
 
 func (a *Address) Validate() *validator.Validator {
-	a.Validator.CheckField(validator.NotBlank(a.Street), "street", validator.NotBlankField)
-	a.Validator.CheckField(validator.NotBlank(a.Number), "number", validator.NotBlankField)
-	a.Validator.CheckField(validator.NotBlank(a.City), "city", validator.NotBlankField)
-	a.Validator.CheckField(validator.NotBlank(a.State), "state", validator.NotBlankField)
-	a.Validator.CheckField(validator.NotBlank(a.PostalCode), "postal_code", validator.NotBlankField)
-	a.Validator.CheckField(validator.NotBlank(a.Country), "country", validator.NotBlankField)
+	a.Validator.Assert(validator.NotBlank(a.Street), "street", validator.NotBlankField)
+	a.Validator.Assert(validator.NotBlank(a.Number), "number", validator.NotBlankField)
+	a.Validator.Assert(validator.NotBlank(a.City), "city", validator.NotBlankField)
+	a.Validator.Assert(validator.NotBlank(a.State), "state", validator.NotBlankField)
+	a.Validator.Assert(validator.NotBlank(a.PostalCode), "postal_code", validator.NotBlankField)
+	a.Validator.Assert(validator.NotBlank(a.Country), "country", validator.NotBlankField)
 	return &a.Validator
 }

@@ -83,9 +83,9 @@ func (s *Seller) Validate() *validator.Validator {
 		s.Validator.AddFieldError(key, value)
 	}
 
-	s.Validator.CheckField(validator.NotBlank(s.CompanyName), "company_name", validator.NotBlankField)
-	s.Validator.CheckField(validator.NotBlank(s.CNPJ), "cnpj", validator.NotBlankField)
-	s.Validator.CheckField(validator.NotBlank(s.BusinessName), "business_name", validator.NotBlankField)
+	s.Validator.Assert(validator.NotBlank(s.CompanyName), "company_name", validator.NotBlankField)
+	s.Validator.Assert(validator.NotBlank(s.CNPJ), "cnpj", validator.NotBlankField)
+	s.Validator.Assert(validator.NotBlank(s.BusinessName), "business_name", validator.NotBlankField)
 
 	return &s.Validator
 }

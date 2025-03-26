@@ -22,8 +22,8 @@ func NewEmail(email string) *Email {
 // Validate executa as validações no email
 func (e *Email) Validate() {
 	cleanedEmail := cleanEmail(e.Address)
-	e.Validator.CheckField(validator.NotBlank(cleanedEmail), "email", validator.NotBlankField)
-	e.Validator.CheckField(isValidEmail(cleanedEmail), "email", "invalid email format")
+	e.Validator.Assert(validator.NotBlank(cleanedEmail), "email", validator.NotBlankField)
+	e.Validator.Assert(isValidEmail(cleanedEmail), "email", "invalid email format")
 }
 
 // cleanEmail remove espaços em branco desnecessários do e-mail

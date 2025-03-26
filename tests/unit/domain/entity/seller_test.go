@@ -7,10 +7,11 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/andreis3/users-ms/internal/domain/entity"
-	"github.com/andreis3/users-ms/internal/domain/validator"
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
+
+	"github.com/andreis3/users-ms/internal/domain/entity"
+	"github.com/andreis3/users-ms/internal/domain/validator"
 )
 
 var _ = Describe("INTERNAL :: DOMAIN :: ENTITY :: SELLER", func() {
@@ -32,7 +33,7 @@ var _ = Describe("INTERNAL :: DOMAIN :: ENTITY :: SELLER", func() {
 
 				validate := entity.Validate()
 
-				Expect(validate.Errors()).To(BeNil())
+				Expect(validate.Errors()).To(BeEmpty())
 			})
 		})
 
@@ -43,9 +44,9 @@ var _ = Describe("INTERNAL :: DOMAIN :: ENTITY :: SELLER", func() {
 				validate := entity.Validate()
 
 				Expect(validate.Errors()).NotTo(BeNil())
-				Expect(validate.Errors()).To(HaveLen(10))
-				Expect(validate.Errors()).To(ContainElement(fmt.Errorf("cnpj: %s", validator.NotBlankField)))
-				Expect(validate.Errors()).To(ContainElement(fmt.Errorf("company_name: %s", validator.NotBlankField)))
+				Expect(validate.Errors()).To(HaveLen(5))
+				Expect(validate.Errors()).To(ContainElement(fmt.Sprintf("cnpj: %s", validator.NotBlankField)))
+				Expect(validate.Errors()).To(ContainElement(fmt.Sprintf("company_name: %s", validator.NotBlankField)))
 			})
 		})
 	})

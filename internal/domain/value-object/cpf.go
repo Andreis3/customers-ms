@@ -9,7 +9,7 @@ import (
 )
 
 const (
-	CPFLength         = 11
+	CPFLength            = 11
 	CPFFirstDigitIdx     = 9
 	CPFSecondDigitIdx    = 10
 	CPFModuleDivisor     = 11
@@ -36,8 +36,8 @@ func NewCPF(cpf string) *CPF {
 
 func (c *CPF) Validate() {
 	cleanedCPF := cleanCPF(c.CPF)
-	c.Validator.CheckField(validator.NotBlank(cleanedCPF), "cpf", validator.NotBlankField)
-	c.Validator.CheckField(validateCPF(cleanedCPF), "cpf", "cpf invalid")
+	c.Validator.Assert(validator.NotBlank(cleanedCPF), "cpf", validator.NotBlankField)
+	c.Validator.Assert(validateCPF(cleanedCPF), "cpf", "cpf invalid")
 }
 
 func cleanCPF(cpf string) string {
@@ -61,7 +61,7 @@ func validateCPF(cpf string) bool {
 func validateDigit(cpf string, position, startWeight int) bool {
 	sum := 0
 	for i, char := range cpf[:position] {
-		sum += int(char - CPFASCIIZero) * (startWeight -i)
+		sum += int(char-CPFASCIIZero) * (startWeight - i)
 	}
 
 	rest := (sum * 10) % CPFModuleDivisor

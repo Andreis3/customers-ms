@@ -36,8 +36,8 @@ func NewCNPJ(cnpj string, validator validator.Validator) *CNPJ {
 
 func (c *CNPJ) Validate() {
 	cleanedCNPJ := cleanCNPJ(c.CNPJ)
-	c.Validator.CheckField(validator.NotBlank(cleanedCNPJ), "cnpj", validator.NotBlankField)
-	c.Validator.CheckField(validateCNPJ(cleanedCNPJ), "cnpj", "cnpj: is invalid")
+	c.Validator.Assert(validator.NotBlank(cleanedCNPJ), "cnpj", validator.NotBlankField)
+	c.Validator.Assert(validateCNPJ(cleanedCNPJ), "cnpj", "cnpj: is invalid")
 }
 
 func cleanCNPJ(cnpj string) string {

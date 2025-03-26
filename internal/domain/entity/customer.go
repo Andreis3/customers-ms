@@ -83,10 +83,10 @@ func (c *Customer) Validate() *validator.Validator {
 		c.AddFieldError(key, value)
 	}
 
-	c.CheckField(validator.NotBlank(c.FirstName), "first_name", validator.NotBlankField)
-	c.CheckField(validator.NotBlank(c.LastName), "last_name", validator.NotBlankField)
-	c.CheckField(validator.NotBlank(c.CPF), "last_name", validator.NotBlankField)
-	c.CheckField(validator.NotBlank(c.DateOfBirth.GoString()), "date_of_birth", validator.NotBlankField)
+	c.Assert(validator.NotBlank(c.FirstName), "first_name", validator.NotBlankField)
+	c.Assert(validator.NotBlank(c.LastName), "last_name", validator.NotBlankField)
+	c.Assert(validator.NotBlank(c.CPF), "last_name", validator.NotBlankField)
+	c.Assert(validator.NotBlank(c.DateOfBirth.GoString()), "date_of_birth", validator.NotBlankField)
 
 	return &c.Validator
 }
