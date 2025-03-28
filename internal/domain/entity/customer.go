@@ -7,7 +7,9 @@ import (
 )
 
 type Customer struct {
-	User
+	ID          string
+	Email       string
+	Password    string
 	FirstName   string
 	LastName    string
 	CPF         string
@@ -77,12 +79,8 @@ func (c *Customer) Build() *Customer {
 }
 
 func (c *Customer) Validate() *validator.Validator {
-	user := c.User.Validate()
-
-	for key, value := range user {
-		c.AddFieldError(key, value)
-	}
-
+	c.Assert(validator.NotBlank(c.Email), "email", validator.NotBlankField)
+	c.Assert(validator.NotBlank(c.Password), "password", validator.NotBlankField)
 	c.Assert(validator.NotBlank(c.FirstName), "first_name", validator.NotBlankField)
 	c.Assert(validator.NotBlank(c.LastName), "last_name", validator.NotBlankField)
 	c.Assert(validator.NotBlank(c.CPF), "last_name", validator.NotBlankField)
