@@ -12,6 +12,8 @@ type Seller struct {
 	CNPJ          string
 	BusinessName  string
 	FundationDate time.Time
+	CreateAT      time.Time
+	UpdatedAT     time.Time
 	Addresses     []Address
 	Validator     validator.Validator
 }
@@ -55,6 +57,16 @@ func (s *Seller) SetFundationDate(fundationDate time.Time) *Seller {
 	return s
 }
 
+func (s *Seller) SetCreatedAT(createdAt time.Time) *Seller {
+	s.CreateAT = createdAt
+	return s
+}
+
+func (s *Seller) SetUpdatedAT(updatedAt time.Time) *Seller {
+	s.UpdatedAT = updatedAt
+	return s
+}
+
 func (s *Seller) SetAddresses(addresses []Address) *Seller {
 	s.Addresses = addresses
 	return s
@@ -71,9 +83,9 @@ func (s *Seller) Validate() *validator.Validator {
 		s.Validator.AddFieldError(key, value)
 	}
 
-	s.Validator.CheckField(validator.NotBlank(s.CompanyName), "company_name", validator.NotBlankField)
-	s.Validator.CheckField(validator.NotBlank(s.CNPJ), "cnpj", validator.NotBlankField)
-	s.Validator.CheckField(validator.NotBlank(s.BusinessName), "business_name", validator.NotBlankField)
+	s.Validator.Assert(validator.NotBlank(s.CompanyName), "company_name", validator.NotBlankField)
+	s.Validator.Assert(validator.NotBlank(s.CNPJ), "cnpj", validator.NotBlankField)
+	s.Validator.Assert(validator.NotBlank(s.BusinessName), "business_name", validator.NotBlankField)
 
 	return &s.Validator
 }

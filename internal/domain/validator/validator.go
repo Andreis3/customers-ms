@@ -8,15 +8,22 @@ import (
 
 const (
 	NotBlankField = "this field cannot be blank"
+	ErrMaxLength  = "cannot be longer than %d characters"
+	ErrMinLength  = "must be at least %d characters"
 )
 
 type Validator struct {
 	FieldErrors map[string]string
-	err         []error
 }
 
-func (v *Validator) Valid() bool {
-	return len(v.FieldErrors) == 0
+func NewValidator() *Validator {
+	return &Validator{
+		FieldErrors: make(map[string]string),
+	}
+}
+
+func (v *Validator) HasErrors() bool {
+	return len(v.FieldErrors) > 0
 }
 
 func (v *Validator) AddFieldError(key, message string) {
@@ -29,17 +36,19 @@ func (v *Validator) AddFieldError(key, message string) {
 	}
 }
 
-func (v *Validator) CheckField(ok bool, key, message string) {
+func (v *Validator) Assert(ok bool, key, message string) {
 	if !ok {
 		v.AddFieldError(key, message)
 	}
 }
 
-func (v *Validator) Errors() []error {
+func (v *Validator) Errors() []string {
+	errs := make([]string, 0, len(v.FieldErrors))
+
 	for key, value := range v.FieldErrors {
-		v.err = append(v.err, fmt.Errorf(`%s: %s`, key, value))
+		errs = append(errs, fmt.Sprintf(`%s: %s`, key, value))
 	}
-	return v.err
+	return errs
 }
 
 func NotBlank(value string) bool {
@@ -55,4 +64,14 @@ func MaxChars(value string, n int) bool {
 
 func MinChars(value string, n int) bool {
 	return utf8.RuneCountInString(value) >= n
+}
+
+func (v *Validator) Merge(other *Validator) {
+	if other == nil {
+		return
+	}
+
+	for key, message := range other.FieldErrors {
+		v.AddFieldError(key, message)
+	}
 }

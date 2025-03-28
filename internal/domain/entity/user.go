@@ -12,7 +12,7 @@ type User struct {
 }
 
 func (u *User) Validate() map[string]string {
-	u.Validator.CheckField(validator.NotBlank(u.Email), "email", validator.NotBlankField)
-	u.Validator.CheckField(validator.NotBlank(u.Password), "password", validator.NotBlankField)
+	u.Validator.Assert(validator.NotBlank(u.Email), "email", validator.NotBlankField)
+	u.Validator.Assert(validator.NotBlank(u.Password), "password", validator.NotBlankField)
 	return u.Validator.FieldErrors
 }
