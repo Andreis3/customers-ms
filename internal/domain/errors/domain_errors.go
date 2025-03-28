@@ -10,19 +10,19 @@ const (
 	ErrInternalProcessing   ErrorCode = "APP-500"
 )
 
-type DomainError struct {
+type DomainErrors struct {
 	Code            ErrorCode
 	Message         []string
 	OriginFunc      string
 	FriendlyMessage string
 }
 
-func (de DomainError) Error() string {
+func (de DomainErrors) Error() string {
 	return string(de.Code) + ": " + de.FriendlyMessage
 }
 
-func InvalidCustomerError(validate *validator.Validator) *DomainError {
-	return &DomainError{
+func InvalidCustomerError(validate *validator.Validator) *DomainErrors {
+	return &DomainErrors{
 		Code:            ErrInvalidBusinessRules,
 		Message:         validate.Errors(),
 		OriginFunc:      "CustomerProfile.Validate",

@@ -8,20 +8,20 @@ import (
 
 type ProtocolError struct {
 	HTTPStatus int
-	GRPCCode   int // (exemplo simplificado)
+	GRPCCode   int
 }
 
 var ErrorDictionary = map[errors.ErrorCode]ProtocolError{
 	errors.ErrInvalidBusinessRules: {
 		HTTPStatus: http.StatusBadRequest,
-		GRPCCode:   3, // INVALID_ARGUMENT (código gRPC real)
+		GRPCCode:   3,
 	},
 	errors.ErrResourceNotFound: {
 		HTTPStatus: http.StatusNotFound,
-		GRPCCode:   5, // NOT_FOUND
+		GRPCCode:   5,
 	},
 	errors.ErrInternalProcessing: {
 		HTTPStatus: http.StatusInternalServerError,
-		GRPCCode:   13, // INTERNAL
+		GRPCCode:   13,
 	},
 }
