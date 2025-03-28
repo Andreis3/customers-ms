@@ -47,6 +47,7 @@ func cleanCPF(cpf string) string {
 			sb.WriteRune(r)
 		}
 	}
+
 	return sb.String()
 }
 
