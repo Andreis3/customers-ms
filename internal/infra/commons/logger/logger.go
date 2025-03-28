@@ -56,7 +56,7 @@ func (l *Logger) ErrorJSON(msg string, info ...any) {
 }
 
 func (l *Logger) CriticalJSON(msg string, info ...any) {
-	l.loggerJSON.Log(context.Background(), LevelCritical, msg, info...) // Nível crítico = 5 (LevelError + 1)
+	l.loggerJSON.Log(context.Background(), LevelCritical, msg, info...)
 }
 
 func (l *Logger) DebugText(msg string, info ...any) {
@@ -76,5 +76,5 @@ func (l *Logger) ErrorText(msg string, info ...any) {
 }
 
 func (l *Logger) CriticalText(msg string, info ...any) {
-	l.loggerText.Log(context.Background(), LevelCritical, msg, info...) // Nível crítico = 5 (LevelError + 1)
+	l.loggerText.Log(context.Background(), LevelCritical, msg, info...)
 }

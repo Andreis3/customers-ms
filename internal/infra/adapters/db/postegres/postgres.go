@@ -7,6 +7,7 @@ import (
 	"sync"
 	"time"
 
+	"github.com/andreis3/users-ms/internal/app/interfaces"
 	"github.com/andreis3/users-ms/internal/infra/commons/configs"
 	"github.com/andreis3/users-ms/internal/infra/commons/logger"
 	"github.com/jackc/pgx/v5"
@@ -23,7 +24,7 @@ type Postgres struct {
 	pool *pgxpool.Pool
 }
 
-func PoolConnections(conf *configs.Configs) *Postgres {
+func NewPoolConnections(conf *configs.Configs) *Postgres {
 	log := logger.NewLogger()
 	singleton.Do(func() {
 		connStr := fmt.Sprintf("host=%s port=%s user=%s password=%s dbname=%s sslmode=disable",
@@ -51,6 +52,10 @@ func PoolConnections(conf *configs.Configs) *Postgres {
 	return &Postgres{pool: pool}
 }
 
+func (p *Postgres) InstanceDB() any {
+	return p.pool
+}
+
 func (p *Postgres) Exec(ctx context.Context, sql string, arguments ...any) (commandtag pgconn.CommandTag, err error) {
 	return p.pool.Exec(ctx, sql, arguments...)
 }
@@ -63,16 +68,14 @@ func (p *Postgres) QueryRow(ctx context.Context, sql string, args ...any) pgx.Ro
 	return p.pool.QueryRow(ctx, sql, args...)
 }
 
-type IInstructionDB interface {
-	Exec(ctx context.Context, sql string, arguments ...any) (commandTag pgconn.CommandTag, err error)
-	Query(ctx context.Context, sql string, args ...any) (pgx.Rows, error)
-	QueryRow(ctx context.Context, sql string, args ...any) pgx.Row
-	Prepare(ctx context.Context, name, sql string) (*pgconn.StatementDescription, error)
-}
 type Queries struct {
-	IInstructionDB
+	interfaces.InstructionDB
 }
 
-func New(db IInstructionDB) *Queries {
+func (p *Postgres) Close() {
+	pool.Close()
+}
+
+func New(db interfaces.InstructionDB) *Queries {
 	return &Queries{db}
 }
