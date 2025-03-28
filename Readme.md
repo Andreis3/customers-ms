@@ -1,7 +1,7 @@
 #customers-ms
 
 ```
-/users-service/
+/customers-service/
 ├── cmd/
 │   └── users/
 │       └── main.go
