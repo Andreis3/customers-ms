@@ -10,7 +10,7 @@ import (
 	"github.com/andreis3/users-ms/internal/infra/adapters/db/postegres"
 	"github.com/andreis3/users-ms/internal/infra/commons/configs"
 	"github.com/andreis3/users-ms/internal/infra/commons/logger"
-	"github.com/andreis3/users-ms/internal/infra/setup"
+	"github.com/andreis3/users-ms/internal/infra/routes"
 	"github.com/andreis3/users-ms/internal/util"
 	"github.com/go-chi/chi/v5"
 )
@@ -27,7 +27,7 @@ func Start(conf *configs.Configs, log logger.Logger) {
 	pool := postegres.NewPoolConnections(conf)
 
 	go func() {
-		setup.SetupRoutes(mux, pool, &log)
+		routes.SetupRoutes(mux, pool, &log)
 		end := time.Since(start)
 		log.InfoText("[Server] ", "SERVER_STARTED", fmt.Sprintf("Server started in %s", end.String()))
 		log.InfoText("[Server] ", "SERVER_STARTED", fmt.Sprintf("Server is listening on port %s", conf.ServerPort))
