@@ -23,36 +23,64 @@ func NewRegisterRoutes(mux *chi.Mux, log interfaces.Logger) *RegisterRoutes {
 }
 
 func (r *RegisterRoutes) Register() {
-	r.registerRoutes(r.mux, routes.NewHealthCheckRoutes().HealthCheckRoutes())
+
+  // Example: here you register the HealthCheck routes;
+  // For other routes, just call them the same way.
+	r.registerRoutes(routes.NewHealthCheckRoutes().HealthCheckRoutes())
 }
 
-func (r *RegisterRoutes) registerRoutes(mux *chi.Mux, routesType helpers.RouteType) {
-	message, info := "[RegisterRoutes] ", "MAPPED_ROUTES"
+// registerRoutes iterates over the returned routes 
+// and calls attachRoute for each one.
+func (r *RegisterRoutes) registerRoutes(routeDefs helpers.RouteType) {
+	for _, route := range routeDefs {
+		r.attachRoute(route)
+	}
+}
 
-	for _, route := range routesType {
-		switch route.Type {
-		case helpers.Handler:
-			switch len(route.Middlewares) > 0 {
-			case true:
-				methodAndPath := fmt.Sprintf("%s %s", route.Method, route.Path)
-				r.log.InfoText(message, info, fmt.Sprintf("%s - %s", methodAndPath, route.Description))
-				mux.With(route.Middlewares...).Handle(methodAndPath, route.Handler.(http.Handler))
-			default:
-				methodAndPath := fmt.Sprintf("%s %s", route.Method, route.Path)
-				r.log.InfoText(message, info, fmt.Sprintf("%s - %s", methodAndPath, route.Description))
-				mux.Handle(methodAndPath, route.Handler.(http.Handler))
-			}
-		case helpers.HandlerFunc:
-			switch len(route.Middlewares) > 0 {
-			case true:
-				methodAndPath := fmt.Sprintf("%s %s", route.Method, route.Path)
-				r.log.InfoText(message, info, fmt.Sprintf("%s - %s", methodAndPath, route.Description))
-				mux.With(route.Middlewares...).HandleFunc(methodAndPath, route.Handler.(func(http.ResponseWriter, *http.Request)))
-			default:
-				methodAndPath := fmt.Sprintf("%s %s", route.Method, route.Path)
-				r.log.InfoText(message, info, fmt.Sprintf("%s - %s", methodAndPath, route.Description))
-				mux.HandleFunc(methodAndPath, route.Handler.(func(http.ResponseWriter, *http.Request)))
-			}
+// attachRoute encapsulates the logic of:
+// 1) Logging method and path,
+// 2) Applying middlewares (if any),
+// 3) Registering the handler correctly.
+func (r *RegisterRoutes) attachRoute(route helpers.RouteFields) {
+	methodAndPath := fmt.Sprintf("%s %s", route.Method, route.Path)
+	r.log.InfoText("[RegisterRoutes] ", "MAPPED_ROUTES", fmt.Sprintf("%s - %s", methodAndPath, route.Description))
+
+  // If middlewares exist, we apply them via .With(...)
+  // and register within a .Group
+	if len(route.Middlewares) > 0 {
+		r.mux.With(route.Middlewares...).Group(func(m chi.Router) {
+			r.registerHandler(m, route)
+		})
+	} else {
+		// Without middlewares, we register directly
+		r.registerHandler(r.mux, route)
+	}
+}
+
+// registerHandler checks whether route.Handler is a Handler or HandlerFunc
+// and registers it according to the Type defined in helpers.RouteType.
+func (r *RegisterRoutes) registerHandler(m chi.Router, route helpers.RouteFields) {
+	switch route.Type {
+	case helpers.Handler:
+		handler, ok := route.Handler.(http.Handler)
+		if !ok {
+			r.log.ErrorText("Route registration error: invalid handler type for Handler")
+			return
 		}
+
+		// Method(...) to explicitly register the HTTP method
+		m.Method(route.Method, route.Path, handler)
+
+	case helpers.HandlerFunc:
+		hf, ok := route.Handler.(func(http.ResponseWriter, *http.Request))
+		if !ok {
+			r.log.ErrorText("Route registration error: invalid handler type for HandlerFunc")
+			return
+		}
+		// MethodFunc(...) to explicitly register the HTTP method
+		m.MethodFunc(route.Method, route.Path, hf)
+
+	default:
+		r.log.ErrorText("Route registration error: unknown route type")
 	}
 }
