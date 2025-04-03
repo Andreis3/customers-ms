@@ -29,10 +29,8 @@ type Configs struct {
 // LoadConfig loads the application configuration from either a .env file or environment variables.
 // It prioritizes the .env file if it exists, otherwise falls back to environment variables.
 func LoadConfig() (*Configs, error) {
-	viper.SetConfigName("app_config") // Name of the .env file (without extension)
-	viper.SetConfigType("env")        // Type of the configuration file
-	viper.AddConfigPath(".")          // Path to look for the .env file
-	viper.AutomaticEnv()              // Fallback to environment variables if .env is not found
+	viper.SetConfigFile(".env") // name of config file (without extension)
+	viper.AutomaticEnv()        // Fallback to environment variables if .env is not found
 
 	// Set default values for optional configuration
 	viper.SetDefault("SERVER_PORT", "8080")

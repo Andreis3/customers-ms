@@ -1,6 +1,6 @@
 run-app:
 	@echo "Running app"
-	@go run cmd/server/main.go
+	@go run cmd/main.go
 unit:
 	@go test ./tests/unit/... --tags=unit -v
 
