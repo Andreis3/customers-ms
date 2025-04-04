@@ -5,8 +5,8 @@ import (
 	"net/http"
 
 	"github.com/andreis3/users-ms/internal/app/interfaces"
-	"github.com/andreis3/users-ms/internal/interfaces/http/helpers"
-	"github.com/andreis3/users-ms/internal/interfaces/http/routes"
+	"github.com/andreis3/users-ms/internal/presentation/http/helpers"
+	"github.com/andreis3/users-ms/internal/presentation/http/routes"
 	"github.com/go-chi/chi/v5"
 )
 
@@ -23,13 +23,12 @@ func NewRegisterRoutes(mux *chi.Mux, log interfaces.Logger) *RegisterRoutes {
 }
 
 func (r *RegisterRoutes) Register() {
-
-  // Example: here you register the HealthCheck routes;
-  // For other routes, just call them the same way.
-	r.registerRoutes(routes.NewHealthCheckRoutes().HealthCheckRoutes())
+	// Example: here you register the HealthCheck routes;
+	// For other routes, just call them the same way.
+	r.registerRoutes(routes.NewHealthCheck().HealthCheck())
 }
 
-// registerRoutes iterates over the returned routes 
+// registerRoutes iterates over the returned routes
 // and calls attachRoute for each one.
 func (r *RegisterRoutes) registerRoutes(routeDefs helpers.RouteType) {
 	for _, route := range routeDefs {
@@ -45,8 +44,8 @@ func (r *RegisterRoutes) attachRoute(route helpers.RouteFields) {
 	methodAndPath := fmt.Sprintf("%s %s", route.Method, route.Path)
 	r.log.InfoText("[RegisterRoutes] ", "MAPPED_ROUTES", fmt.Sprintf("%s - %s", methodAndPath, route.Description))
 
-  // If middlewares exist, we apply them via .With(...)
-  // and register within a .Group
+	// If middlewares exist, we apply them via .With(...)
+	// and register within a .Group
 	if len(route.Middlewares) > 0 {
 		r.mux.With(route.Middlewares...).Group(func(m chi.Router) {
 			r.registerHandler(m, route)
