@@ -4,8 +4,6 @@ import (
 	"fmt"
 	"os"
 
-	// _ "net/http/pprof"
-
 	"github.com/andreis3/users-ms/internal/infra/commons/configs"
 	"github.com/andreis3/users-ms/internal/infra/commons/logger"
 	"github.com/andreis3/users-ms/internal/infra/server"
@@ -19,6 +17,5 @@ func main() {
 		log.ErrorText(fmt.Sprintf("Notification Errors loading config: %s", err.Error()))
 		os.Exit(util.ExitFailure)
 	}
-	// go func() { http.ListenAndServe("localhost:6061", nil) }()
 	server.Start(conf, *log)
 }
