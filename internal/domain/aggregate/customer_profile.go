@@ -21,7 +21,7 @@ func NewUserProfile(custome entity.Customer, addresses []entity.Address) *Custom
 	return userProfile
 }
 
-func (u *CustomerProfile) Validate() *errors.DomainErrors {
+func (u *CustomerProfile) Validate() *errors.AppErrors {
 	mainValidator := validator.NewValidator()
 
 	validateUser := u.Customer.Validate()
