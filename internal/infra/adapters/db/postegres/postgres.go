@@ -10,6 +10,7 @@ import (
 	"github.com/andreis3/users-ms/internal/app/interfaces"
 	"github.com/andreis3/users-ms/internal/infra/commons/configs"
 	"github.com/andreis3/users-ms/internal/infra/commons/logger"
+	"github.com/andreis3/users-ms/internal/util"
 	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgconn"
 	"github.com/jackc/pgx/v5/pgxpool"
@@ -45,7 +46,7 @@ func NewPoolConnections(conf *configs.Configs) *Postgres {
 		pool, err = pgxpool.NewWithConfig(context.Background(), connConfig)
 		if err != nil {
 			log.ErrorText(fmt.Sprintf("NotificationsErrors creating connection poll: %v", err))
-			os.Exit(1)
+			os.Exit(util.ExitFailure)
 		}
 	})
 
