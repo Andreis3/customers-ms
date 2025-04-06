@@ -52,8 +52,12 @@ func NewPoolConnections(conf *configs.Configs) *Postgres {
 	return &Postgres{pool: pool}
 }
 
-func (p *Postgres) InstanceDB() any {
+func (p *Postgres) Instance() any {
 	return p.pool
+}
+
+func (p *Postgres) Close() {
+	p.pool.Close()
 }
 
 func (p *Postgres) Exec(ctx context.Context, sql string, arguments ...any) (commandtag pgconn.CommandTag, err error) {
@@ -70,10 +74,6 @@ func (p *Postgres) QueryRow(ctx context.Context, sql string, args ...any) pgx.Ro
 
 type Queries struct {
 	interfaces.InstructionDB
-}
-
-func (p *Postgres) Close() {
-	pool.Close()
 }
 
 func New(db interfaces.InstructionDB) *Queries {
