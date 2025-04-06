@@ -73,9 +73,9 @@ func (p *Postgres) QueryRow(ctx context.Context, sql string, args ...any) pgx.Ro
 }
 
 type Queries struct {
-	interfaces.InstructionDB
+	interfaces.InstructionPostgres
 }
 
-func New(db interfaces.InstructionDB) *Queries {
+func New(db interfaces.InstructionPostgres) *Queries {
 	return &Queries{db}
 }
