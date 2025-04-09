@@ -19,7 +19,7 @@ var _ = Describe("INTERNAL :: DOMAIN :: ENTITY :: CUSTOMER", func() {
 		Context("success cases", func() {
 			It("should not return an error when build new customer", func() {
 				entity := entity.CustomerBuilder().
-					SetID("any_id").
+					SetID(123).
 					SetPassword("any_password").
 					SetFirstName("any_first_name").
 					SetLasName("any_last_name").

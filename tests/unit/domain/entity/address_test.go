@@ -19,7 +19,7 @@ var _ = Describe("INTERNAL :: DOMAIN :: ENTITY :: ADDRESS", func() {
 		Context("success cases", func() {
 			It("should not return an error when build new address", func() {
 				entity := entity.AddressBuilder().
-					SetID("any_id").
+					SetID(123).
 					SetCity("any_city").
 					SetComplement("any_password").
 					SetStreet("any_street").

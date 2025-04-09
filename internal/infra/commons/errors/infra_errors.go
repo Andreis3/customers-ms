@@ -13,6 +13,8 @@ const (
 	ServerErrorFriendlyMessage = "Server suffered an internal error"
 )
 
+// uow errors
+
 func ErrorTransactionAlreadyExists() *domain_errors.AppErrors {
 	return &domain_errors.AppErrors{
 		Code:            ErrInternalProcessing,
@@ -59,6 +61,18 @@ func ErrorCommitOrRollback(err error) *domain_errors.AppErrors {
 		Errors:          []string{err.Error()},
 		Cause:           InternalServerError,
 		OriginFunc:      "UnitOfWork.CommitOrRollback",
+		FriendlyMessage: ServerErrorFriendlyMessage,
+	}
+}
+
+// repository customers errors
+
+func ErrorSaveCustomer(err error) *domain_errors.AppErrors {
+	return &domain_errors.AppErrors{
+		Code:            ErrInternalProcessing,
+		Errors:          []string{err.Error()},
+		Cause:           InternalServerError,
+		OriginFunc:      "CustomerRepository.SaveCustomer",
 		FriendlyMessage: ServerErrorFriendlyMessage,
 	}
 }

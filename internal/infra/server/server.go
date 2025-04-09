@@ -8,8 +8,8 @@ import (
 	"time"
 
 	"github.com/andreis3/users-ms/internal/infra/adapters/db/postegres"
-	"github.com/andreis3/users-ms/internal/infra/commons/configs"
 	"github.com/andreis3/users-ms/internal/infra/commons/logger"
+	"github.com/andreis3/users-ms/internal/infra/configs"
 	"github.com/andreis3/users-ms/internal/infra/routes"
 	"github.com/andreis3/users-ms/internal/util"
 	"github.com/go-chi/chi/v5"

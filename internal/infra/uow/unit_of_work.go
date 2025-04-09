@@ -3,8 +3,8 @@ package uow
 import (
 	"context"
 
-	"github.com/andreis3/users-ms/internal/app/interfaces"
 	"github.com/andreis3/users-ms/internal/domain/errors"
+	"github.com/andreis3/users-ms/internal/domain/interfaces"
 	infra_errors "github.com/andreis3/users-ms/internal/infra/commons/errors"
 	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgxpool"

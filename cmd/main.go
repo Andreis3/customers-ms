@@ -4,8 +4,8 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/andreis3/users-ms/internal/infra/commons/configs"
 	"github.com/andreis3/users-ms/internal/infra/commons/logger"
+	"github.com/andreis3/users-ms/internal/infra/configs"
 	"github.com/andreis3/users-ms/internal/infra/server"
 	"github.com/andreis3/users-ms/internal/util"
 )

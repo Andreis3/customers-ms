@@ -1,7 +1,7 @@
 package routes
 
 import (
-	"github.com/andreis3/users-ms/internal/app/interfaces"
+	"github.com/andreis3/users-ms/internal/domain/interfaces"
 	"github.com/go-chi/chi/v5"
 )
 
