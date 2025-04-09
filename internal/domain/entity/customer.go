@@ -7,7 +7,7 @@ import (
 )
 
 type Customer struct {
-	ID          string
+	ID          int64
 	Email       string
 	Password    string
 	FirstName   string
@@ -24,7 +24,7 @@ func CustomerBuilder() *Customer {
 	return &Customer{}
 }
 
-func (c *Customer) SetID(id string) *Customer {
+func (c *Customer) SetID(id int64) *Customer {
 	c.ID = id
 	return c
 }

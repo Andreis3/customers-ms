@@ -7,7 +7,7 @@ import (
 )
 
 type Address struct {
-	ID         string
+	ID         int64
 	Street     string
 	Number     string
 	Complement string
@@ -24,7 +24,7 @@ func AddressBuilder() *Address {
 	return &Address{}
 }
 
-func (a *Address) SetID(id string) *Address {
+func (a *Address) SetID(id int64) *Address {
 	a.ID = id
 	return a
 }
