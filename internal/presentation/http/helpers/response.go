@@ -11,36 +11,28 @@ const (
 )
 
 type TypeResponseError struct {
-	RequestID    string `json:"request_id"`
-	StatusCode   int    `json:"status_code"`
 	CodeError    string `json:"code_error"`
 	ErrorMessage any    `json:"error_message"`
 }
 
 type TypeResponseSuccess struct {
-	RequestID  string `json:"request_id"`
-	StatusCode int    `json:"status_code"`
-	Data       any    `json:"data"`
+	Data any `json:"data"`
 }
 
-func ResponseSuccess[T any](write http.ResponseWriter, requestID string, status int, data T) {
+func ResponseSuccess[T any](write http.ResponseWriter, status int, data T) {
 	write.Header().Set(ContentType, ApplicationJSON)
 	write.WriteHeader(status)
 	result := TypeResponseSuccess{
-		RequestID:  requestID,
-		StatusCode: status,
-		Data:       data,
+		Data: data,
 	}
 	_ = json.NewEncoder(write).Encode(result)
 }
 
-func ResponseError[T any](write http.ResponseWriter, status int, requestID, codeError string, data T) {
+func ResponseError[T any](write http.ResponseWriter, status int, codeError string, data T) {
 	write.Header().Set(ContentType, ApplicationJSON)
 	write.WriteHeader(status)
 	result := TypeResponseError{
-		RequestID:    requestID,
 		CodeError:    codeError,
-		StatusCode:   status,
 		ErrorMessage: data,
 	}
 	_ = json.NewEncoder(write).Encode(result)

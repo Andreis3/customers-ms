@@ -11,14 +11,20 @@ import (
 )
 
 type RegisterRoutes struct {
-	mux *chi.Mux
-	log interfaces.Logger
+	mux            *chi.Mux
+	log            interfaces.Logger
+	customerRoutes routes.CustomerRoutes
 }
 
-func NewRegisterRoutes(mux *chi.Mux, log interfaces.Logger) *RegisterRoutes {
+func NewRegisterRoutes(
+	mux *chi.Mux,
+	log interfaces.Logger,
+	customerRoutes routes.CustomerRoutes,
+) *RegisterRoutes {
 	return &RegisterRoutes{
-		mux: mux,
-		log: log,
+		mux:            mux,
+		log:            log,
+		customerRoutes: customerRoutes,
 	}
 }
 
@@ -26,6 +32,8 @@ func (r *RegisterRoutes) Register() {
 	// Example: here you register the HealthCheck routes;
 	// For other routes, just call them the same way.
 	r.registerRoutes(routes.NewHealthCheck().HealthCheck())
+	r.registerRoutes(routes.NewMetrics().Metrics())
+	r.registerRoutes(r.customerRoutes.CustomerRoutes())
 }
 
 // registerRoutes iterates over the returned routes
