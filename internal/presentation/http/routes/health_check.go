@@ -18,9 +18,8 @@ func (r *HealthCheck) HealthCheck() helpers.RouteType {
 		{
 			Method:      http.MethodGet,
 			Path:        "/health",
-			Handler:     health.HealthCheck,
+			Handler:     health.HealthCheck(),
 			Description: "Health Check",
-			Type:        helpers.HandlerFunc,
 			Middlewares: []func(http.Handler) http.Handler{},
 		},
 	}

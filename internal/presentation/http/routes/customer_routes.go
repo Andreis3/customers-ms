@@ -7,6 +7,10 @@ import (
 	"github.com/andreis3/users-ms/internal/presentation/http/helpers"
 )
 
+const (
+	CustomersPath = "/customers"
+)
+
 type CustomerRoutes struct {
 	createCustomer customer.CreateCustomerHandler
 }
@@ -23,10 +27,9 @@ func (r *CustomerRoutes) CustomerRoutes() helpers.RouteType {
 	return helpers.RouteType{
 		{
 			Method:      http.MethodPost,
-			Path:        "/customers",
-			Handler:     r.createCustomer.Handle,
+			Path:        CustomersPath,
+			Handler:     helpers.TraceHandler(CustomersPath, r.createCustomer.Handle),
 			Description: "Create Customer",
-			Type:        helpers.HandlerFunc,
 			Middlewares: []func(http.Handler) http.Handler{},
 		},
 	}

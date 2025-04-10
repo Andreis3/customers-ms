@@ -26,14 +26,13 @@ func NewCreateCustomerHandler(
 func (handler *CreateCustomerHandler) Handle(w http.ResponseWriter, r *http.Request) {
 	start := time.Now()
 
-	end := time.Since(start)
-	handler.prometheus.ObserveRequestDuration("customers", "http", http.StatusOK, float64(end.Milliseconds()))
-
 	data := struct {
 		Status string `json:"status"`
 	}{
 		Status: "success",
 	}
 
-	helpers.ResponseSuccess[any](w, http.StatusOK, data)
+	end := time.Since(start)
+	handler.prometheus.ObserveRequestDuration("/customers", "http", http.StatusCreated, float64(end.Milliseconds()))
+	helpers.ResponseSuccess[any](w, http.StatusCreated, data)
 }

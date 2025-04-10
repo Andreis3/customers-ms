@@ -64,30 +64,14 @@ func (r *RegisterRoutes) attachRoute(route helpers.RouteFields) {
 	}
 }
 
-// registerHandler checks whether route.Handler is a Handler or HandlerFunc
-// and registers it according to the Type defined in helpers.RouteType.
+// registerHandler checks whether route.Handler is a Handler
 func (r *RegisterRoutes) registerHandler(m chi.Router, route helpers.RouteFields) {
-	switch route.Type {
-	case helpers.Handler:
-		handler, ok := route.Handler.(http.Handler)
-		if !ok {
-			r.log.ErrorText("Route registration error: invalid handler type for Handler")
-			return
-		}
-
-		// Method(...) to explicitly register the HTTP method
-		m.Method(route.Method, route.Path, handler)
-
-	case helpers.HandlerFunc:
-		hf, ok := route.Handler.(func(http.ResponseWriter, *http.Request))
-		if !ok {
-			r.log.ErrorText("Route registration error: invalid handler type for HandlerFunc")
-			return
-		}
-		// MethodFunc(...) to explicitly register the HTTP method
-		m.MethodFunc(route.Method, route.Path, hf)
-
-	default:
-		r.log.ErrorText("Route registration error: unknown route type")
+	handler, ok := route.Handler.(http.Handler)
+	if !ok {
+		r.log.CriticalText("Route registration error: invalid handler type for Handler")
+		return
 	}
+
+	// Method(...) to explicitly register the HTTP method
+	m.Method(route.Method, route.Path, handler)
 }

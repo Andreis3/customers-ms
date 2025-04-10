@@ -14,6 +14,5 @@ type RouteFields struct {
 	Path        string
 	Handler     any
 	Description string
-	Type        string
 	Middlewares []func(http.Handler) http.Handler
 }

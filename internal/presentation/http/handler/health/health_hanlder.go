@@ -28,25 +28,27 @@ type ComponentInfo struct {
 	ServiceName string `json:"service_name"`
 }
 
-func HealthCheck(w http.ResponseWriter, _ *http.Request) {
-	systemInfo := getSystemInformation()
-	response := HealthCheckResponse{
-		Status:    http.StatusText(http.StatusOK),
-		Timestamp: time.Now().Format(time.RFC3339),
-		System:    systemInfo,
-		Component: ComponentInfo{
-			ServiceName: "customers-ms",
-		},
-	}
-	jsonResponse, err := json.Marshal(response)
-	if err != nil {
-		w.WriteHeader(http.StatusInternalServerError)
-		fmt.Fprintf(w, "Failed to serialize JSON response")
-		return
-	}
-	w.Header().Set(helpers.ContentType, helpers.ApplicationJSON)
-	w.WriteHeader(http.StatusOK)
-	_, _ = w.Write(jsonResponse)
+func HealthCheck() http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
+		systemInfo := getSystemInformation()
+		response := HealthCheckResponse{
+			Status:    http.StatusText(http.StatusOK),
+			Timestamp: time.Now().Format(time.RFC3339),
+			System:    systemInfo,
+			Component: ComponentInfo{
+				ServiceName: "customers-ms",
+			},
+		}
+		jsonResponse, err := json.Marshal(response)
+		if err != nil {
+			w.WriteHeader(http.StatusInternalServerError)
+			fmt.Fprintf(w, "Failed to serialize JSON response")
+			return
+		}
+		w.Header().Set(helpers.ContentType, helpers.ApplicationJSON)
+		w.WriteHeader(http.StatusOK)
+		_, _ = w.Write(jsonResponse)
+	})
 }
 
 func getSystemInformation() SystemInformation {

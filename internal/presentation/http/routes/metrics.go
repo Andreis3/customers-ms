@@ -20,7 +20,6 @@ func (m *Metrics) Metrics() helpers.RouteType {
 			Path:        "/metrics",
 			Handler:     promhttp.Handler(),
 			Description: "Metrics Prometheus",
-			Type:        helpers.Handler,
 			Middlewares: []func(http.Handler) http.Handler{},
 		},
 	}
