@@ -76,3 +76,13 @@ func ErrorSaveCustomer(err error) *domain_errors.AppErrors {
 		FriendlyMessage: ServerErrorFriendlyMessage,
 	}
 }
+
+func ErrorCreatedBatchAddress(err error) *domain_errors.AppErrors {
+	return &domain_errors.AppErrors{
+		Code:            ErrInternalProcessing,
+		Errors:          []string{err.Error()},
+		Cause:           InternalServerError,
+		OriginFunc:      "CustomerRepository.CreatedBatchAddress",
+		FriendlyMessage: ServerErrorFriendlyMessage,
+	}
+}

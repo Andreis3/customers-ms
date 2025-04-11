@@ -8,6 +8,7 @@ import (
 
 type Address struct {
 	ID         int64
+	CustomerID int64
 	Street     string
 	Number     string
 	Complement string
@@ -15,8 +16,8 @@ type Address struct {
 	State      string
 	PostalCode string
 	Country    string
-	createAT   time.Time
-	UpdatedAT  time.Time
+	CreatedAt  time.Time
+	UpdatedAt  time.Time
 	Validator  validator.Validator
 }
 
@@ -26,6 +27,11 @@ func AddressBuilder() *Address {
 
 func (a *Address) SetID(id int64) *Address {
 	a.ID = id
+	return a
+}
+
+func (a *Address) SetCustomerID(customerID int64) *Address {
+	a.CustomerID = customerID
 	return a
 }
 
@@ -65,12 +71,12 @@ func (a *Address) SetCountry(country string) *Address {
 }
 
 func (a *Address) SetCreatedAT(createdAt time.Time) *Address {
-	a.createAT = createdAt
+	a.CreatedAt = createdAt
 	return a
 }
 
 func (a *Address) SetUpdatedAT(updatedAt time.Time) *Address {
-	a.UpdatedAT = updatedAt
+	a.UpdatedAt = updatedAt
 	return a
 }
 

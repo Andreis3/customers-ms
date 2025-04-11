@@ -19,7 +19,21 @@ type Customer struct {
 	UpdatedAT   *time.Time
 }
 
-func EntityToModel(entity entity.Customer) *Customer {
+func (c Customer) ToEntity() entity.Customer {
+	return entity.Customer{
+		ID:          pointers.ToInt64(c.ID),
+		Email:       pointers.ToString(c.Email),
+		Password:    pointers.ToString(c.Password),
+		FirstName:   pointers.ToString(c.FirstName),
+		LastName:    pointers.ToString(c.LastName),
+		CPF:         pointers.ToString(c.CPF),
+		DateOfBirth: pointers.ToTime(c.DateOfBirth),
+		CreatedAT:   pointers.ToTime(c.CreatedAT),
+		UpdatedAT:   pointers.ToTime(c.UpdatedAT),
+	}
+}
+
+func (c Customer) FromModel(entity entity.Customer) *Customer {
 	return &Customer{
 		Email:       &entity.Email,
 		Password:    &entity.Password,
@@ -29,19 +43,5 @@ func EntityToModel(entity entity.Customer) *Customer {
 		DateOfBirth: &entity.DateOfBirth,
 		CreatedAT:   &entity.CreatedAT,
 		UpdatedAT:   &entity.UpdatedAT,
-	}
-}
-
-func ModelToEntity(model Customer) entity.Customer {
-	return entity.Customer{
-		ID:          pointers.ToInt64(model.ID),
-		Email:       pointers.ToString(model.Email),
-		Password:    pointers.ToString(model.Password),
-		FirstName:   pointers.ToString(model.FirstName),
-		LastName:    pointers.ToString(model.LastName),
-		CPF:         pointers.ToString(model.CPF),
-		DateOfBirth: pointers.ToTime(model.DateOfBirth),
-		CreatedAT:   pointers.ToTime(model.CreatedAT),
-		UpdatedAT:   pointers.ToTime(model.UpdatedAT),
 	}
 }

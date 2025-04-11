@@ -10,6 +10,7 @@ import (
 
 const (
 	CustomerRepository = "customer_repository"
+	AddressRepository  = "address_repository"
 )
 
 func NewRegisterRepositories(pool *pgxpool.Pool, metrics interfaces.Prometheus) {

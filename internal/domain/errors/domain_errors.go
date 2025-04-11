@@ -17,3 +17,12 @@ func InvalidCustomerError(validate *validator.Validator) *AppErrors {
 		FriendlyMessage: "Validation failed for the provided input.",
 	}
 }
+
+func UnexpectedError(message string) *AppErrors {
+	return &AppErrors{
+		Code:            ErrInvalidBusinessRules,
+		Errors:          []string{message},
+		OriginFunc:      "UnexpectedError",
+		FriendlyMessage: "Unexpected error.",
+	}
+}
