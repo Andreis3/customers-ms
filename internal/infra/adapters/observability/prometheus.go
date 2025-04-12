@@ -2,6 +2,7 @@ package observability
 
 import (
 	"context"
+	"sync"
 
 	"go.opentelemetry.io/otel/attribute"
 	"go.opentelemetry.io/otel/exporters/prometheus"
@@ -14,15 +15,23 @@ const (
 	MeterVersion = "1.0.0"
 )
 
+var (
+	exporterInstance *prometheus.Exporter
+	exporterOnce     sync.Once
+)
+
 type Prometheus struct {
+	provider                     *metric.MeterProvider
 	counterRequestStatusCode     api.Int64Counter
 	histogramInstructionDuration api.Float64Histogram
 	histogramRequestDuration     api.Float64Histogram
 }
 
 func NewPrometheus() *Prometheus {
-	exporter, _ := prometheus.New()
-	provider := metric.NewMeterProvider(metric.WithReader(exporter))
+	exporterOnce.Do(func() {
+		exporterInstance, _ = prometheus.New()
+	})
+	provider := metric.NewMeterProvider(metric.WithReader(exporterInstance))
 	meter := provider.Meter(MeterName, api.WithInstrumentationVersion(MeterVersion))
 
 	counterRequestStatusCode, _ := meter.Int64Counter("proxy_requests_total",
@@ -45,6 +54,7 @@ func NewPrometheus() *Prometheus {
 			30000, 50000, 100000))
 
 	return &Prometheus{
+		provider:                     provider,
 		counterRequestStatusCode:     counterRequestStatusCode,
 		histogramInstructionDuration: histogramInstructionDuration,
 		histogramRequestDuration:     histogramRequestDuration,
@@ -76,4 +86,12 @@ func (p *Prometheus) ObserveRequestDuration(router, protocol string, statusCode 
 		attribute.Key("protocol").String(protocol),
 	)
 	p.histogramRequestDuration.Record(context.Background(), duration, opt)
+}
+
+func (p *Prometheus) Close() {
+	_ = p.provider.Shutdown(context.Background())
+}
+
+func (p *Prometheus) MeterProvider() *metric.MeterProvider {
+	return p.provider
 }

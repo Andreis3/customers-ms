@@ -8,6 +8,7 @@ import (
 	"time"
 
 	"github.com/andreis3/users-ms/internal/infra/adapters/db/postegres"
+	"github.com/andreis3/users-ms/internal/infra/adapters/observability"
 	"github.com/andreis3/users-ms/internal/infra/commons/logger"
 	"github.com/andreis3/users-ms/internal/infra/configs"
 	"github.com/andreis3/users-ms/internal/infra/routes"
@@ -21,6 +22,8 @@ func Start(conf *configs.Configs, log logger.Logger) {
 
 	mux := chi.NewRouter()
 
+	observability.InitTracer()
+
 	// OpenTelemetry Middleware
 	mux.Use(func(next http.Handler) http.Handler {
 		return otelhttp.NewHandler(next, "customers-ms")
@@ -31,10 +34,12 @@ func Start(conf *configs.Configs, log logger.Logger) {
 		Handler: mux,
 	}
 
-	pool := postegres.NewPoolConnections(conf)
+	prometheus := observability.NewPrometheus()
+
+	pool := postegres.NewPoolConnections(conf, prometheus)
 
 	go func() {
-		routes.SetupRoutes(mux, pool, &log)
+		routes.SetupRoutes(mux, pool, &log, prometheus)
 		end := time.Since(start)
 		log.InfoText("[Server] ", "SERVER_STARTED", fmt.Sprintf("Server started in %s", end.String()))
 		log.InfoText("[Server] ", "SERVER_STARTED", fmt.Sprintf("Server address http://localhost:%s", conf.ServerPort))
@@ -45,5 +50,5 @@ func Start(conf *configs.Configs, log logger.Logger) {
 		}
 	}()
 
-	gracefulShutdown(server, pool, log)
+	gracefulShutdown(server, pool, log, prometheus)
 }

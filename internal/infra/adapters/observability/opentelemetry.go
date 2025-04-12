@@ -19,8 +19,9 @@ func InitTracer() func(context context.Context) error {
 
 	exporter, err := otlptracehttp.New(
 		ctx,
-		otlptracehttp.WithEndpoint("http://localhost:4318"),
+		otlptracehttp.WithEndpoint("localhost:4318"),
 		otlptracehttp.WithInsecure(),
+		otlptracehttp.WithCompression(otlptracehttp.GzipCompression),
 	)
 	if err != nil {
 		log.Fatalf("failed to create the exporter: %v", err)

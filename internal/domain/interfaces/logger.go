@@ -1,5 +1,10 @@
 package interfaces
 
+import (
+	"context"
+	"log/slog"
+)
+
 type Logger interface {
 	DebugJSON(msg string, info ...any)
 	InfoJSON(msg string, info ...any)
@@ -11,4 +16,7 @@ type Logger interface {
 	WarnText(msg string, info ...any)
 	ErrorText(msg string, info ...any)
 	CriticalText(msg string, info ...any)
+	WithTrace(ctx context.Context) *slog.Logger
+	SlogJSON() *slog.Logger
+	SlogText() *slog.Logger
 }
