@@ -69,3 +69,25 @@ services:
     command: ["--config.file=/etc/tempo.yaml"]
     volumes:
       - ./docker/tempo.yaml:/etc/tempo.yaml
+
+  loki:
+    image: grafana/loki
+    container_name: loki
+    user: "${UID}:${GID}"
+    ports:
+      - "3100:3100"
+    command: -config.file=/etc/loki/loki-config.yaml
+    volumes:
+      - ./docker/loki-config.yaml:/etc/loki/loki-config.yaml
+      - ./docker/loki-data:/loki
+
+  promtail:
+    image: grafana/promtail
+    container_name: promtail
+    user: "${UID}:${GID}"
+    ports:
+      - "3101:3101"
+    volumes:
+      - ./docker/promtail-config.yaml:/etc/promtail/promtail.yaml
+      - /home/andrei-santos/tmp/app:/var/log/app
+    command: -config.file=/etc/promtail/promtail.yaml

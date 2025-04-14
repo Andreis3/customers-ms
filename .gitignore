@@ -3,3 +3,4 @@
 tmp
 docker/primary/data
 docker/replica/data
+docker/loki-data

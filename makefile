@@ -1,11 +1,17 @@
 run-app:
 	@echo "Running app"
 	@go run cmd/main.go
+
+run-app-logs:
+	@echo "Running app export archive logs"
+	@go run cmd/main.go > ~/tmp/app/customers-ms.log 2>&1
+
 unit:
 	@go test ./tests/unit/... --tags=unit -v
 
 unit-verbose:
 	ginkgo -r --race --tags=unit --randomize-all --randomize-suites --fail-on-pending
+
 unit-cover:
 	@go test ./tests/unit/... -coverpkg ./internal/... --tags=unit
 
