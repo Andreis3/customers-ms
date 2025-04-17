@@ -10,7 +10,7 @@ import (
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
 
-	"github.com/andreis3/users-ms/internal/domain/entity"
+	"github.com/andreis3/users-ms/internal/domain/entity/customer"
 	"github.com/andreis3/users-ms/internal/domain/validator"
 )
 
@@ -18,16 +18,16 @@ var _ = Describe("INTERNAL :: DOMAIN :: ENTITY :: CUSTOMER", func() {
 	Describe("#Validate", func() {
 		Context("success cases", func() {
 			It("should not return an error when build new customer", func() {
-				entity := entity.CustomerBuilder().
-					SetID(123).
-					SetPassword("any_password").
-					SetFirstName("any_first_name").
-					SetLasName("any_last_name").
-					SetCPF("11122233344").
-					SetEmail("any_email").
-					SetDateOfBirth(time.Now()).
-					SetCreatedAT(time.Now()).
-					SetUpdatedAT(time.Now()).
+				entity := customer.NewBuilder().
+					WithID(123).
+					WithEmail("any_email").
+					WithPassword("any_password").
+					WithFirstName("any_first_name").
+					WithLastName("any_last_name").
+					WithCPF("any_cpf").
+					WithDateOfBirth(time.Now()).
+					WithCreatedAt(time.Now()).
+					WithUpdatedAt(time.Now()).
 					Build()
 
 				validate := entity.Validate()
@@ -38,14 +38,14 @@ var _ = Describe("INTERNAL :: DOMAIN :: ENTITY :: CUSTOMER", func() {
 
 		Context("error cases", func() {
 			It("should return an error when customer is empty", func() {
-				entity := entity.CustomerBuilder().Build()
+				entity := customer.NewBuilder().Build()
 
 				validate := entity.Validate()
 
 				Expect(validate.Errors()).NotTo(BeNil())
 				Expect(validate.Errors()).To(HaveLen(4))
-				Expect(validate.Errors()).To(ContainElement(fmt.Sprintf("email: %s", validator.NotBlankField)))
-				Expect(validate.Errors()).To(ContainElement(fmt.Sprintf("first_name: %s", validator.NotBlankField)))
+				Expect(validate.Errors()).To(ContainElement(fmt.Sprintf("email: %s", validator.ErrNotBlank)))
+				Expect(validate.Errors()).To(ContainElement(fmt.Sprintf("first_name: %s", validator.ErrNotBlank)))
 			})
 		})
 	})

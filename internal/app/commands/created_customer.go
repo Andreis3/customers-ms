@@ -4,7 +4,7 @@ import (
 	"context"
 
 	"github.com/andreis3/users-ms/internal/domain/aggregate"
-	"github.com/andreis3/users-ms/internal/domain/entity"
+	"github.com/andreis3/users-ms/internal/domain/entity/customer"
 	"github.com/andreis3/users-ms/internal/domain/errors"
 	"github.com/andreis3/users-ms/internal/domain/interfaces"
 	"github.com/andreis3/users-ms/internal/infra/adapters/observability"
@@ -12,16 +12,21 @@ import (
 )
 
 type CreatedCustomerCommand struct {
-	uow interfaces.UnitOfWork
+	uow    interfaces.UnitOfWork
+	bcrypt interfaces.Bcrypt
 }
 
-func NewCreatedCustomer(uow interfaces.UnitOfWork) *CreatedCustomerCommand {
+func NewCreatedCustomer(
+	uow interfaces.UnitOfWork,
+	bcrypt interfaces.Bcrypt,
+) *CreatedCustomerCommand {
 	return &CreatedCustomerCommand{
-		uow: uow,
+		uow:    uow,
+		bcrypt: bcrypt,
 	}
 }
 
-func (c *CreatedCustomerCommand) Execute(ctx context.Context, data aggregate.CustomerProfile) (*entity.Customer, *errors.AppErrors) {
+func (c *CreatedCustomerCommand) Execute(ctx context.Context, data aggregate.CustomerProfile) (*customer.Customer, *errors.AppErrors) {
 	ctx, span := observability.Tracer.Start(ctx, "CreatedCustomer.Execute")
 	defer span.End()
 	err := data.Validate()
@@ -29,7 +34,7 @@ func (c *CreatedCustomerCommand) Execute(ctx context.Context, data aggregate.Cus
 		return nil, err
 	}
 
-	customerResult := &entity.Customer{}
+	customerResult := &customer.Customer{}
 
 	errUow := c.uow.Do(func(unitOfWork interfaces.UnitOfWork) *errors.AppErrors {
 		repo, err := factories.LoadCustomerFactory(unitOfWork)
@@ -38,23 +43,26 @@ func (c *CreatedCustomerCommand) Execute(ctx context.Context, data aggregate.Cus
 			return err
 		}
 
-		customer, err := repo.CustomerRepo.InsertCustomer(ctx, data.Customer)
+		resCustomer, err := repo.CustomerRepo.InsertCustomer(ctx, &data.Customer)
 		if err != nil {
 			return err
 		}
+
 		if len(data.Addresses) > 0 {
-			_, err = repo.AddressRepo.InsertBatchAddress(ctx, customer.ID, data.Addresses)
+			_, err = repo.AddressRepo.InsertBatchAddress(ctx, resCustomer.ID(), data.Addresses)
 			if err != nil {
 				span.RecordError(err)
 				return err
 			}
 		}
-		customerResult = customer
+		customerResult = resCustomer
 		return nil
 	})
+
 	if errUow != nil {
 		span.RecordError(errUow)
 		return nil, errUow
 	}
+
 	return customerResult, nil
 }

@@ -10,7 +10,7 @@ import (
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
 
-	"github.com/andreis3/users-ms/internal/domain/entity"
+	"github.com/andreis3/users-ms/internal/domain/entity/address"
 	"github.com/andreis3/users-ms/internal/domain/validator"
 )
 
@@ -18,17 +18,17 @@ var _ = Describe("INTERNAL :: DOMAIN :: ENTITY :: ADDRESS", func() {
 	Describe("#Validate", func() {
 		Context("success cases", func() {
 			It("should not return an error when build new address", func() {
-				entity := entity.AddressBuilder().
-					SetID(123).
-					SetCity("any_city").
-					SetComplement("any_password").
-					SetStreet("any_street").
-					SetCountry("any_country").
-					SetNumber("any_number").
-					SetState("any_state").
-					SetPostalCode("any_postal_code").
-					SetCreatedAT(time.Now()).
-					SetUpdatedAT(time.Now()).
+				entity := address.NewBuilder().
+					WithCustomerID(123).
+					WithStreet("any_street").
+					WithNumber("any_number").
+					WithComplement("any_complement").
+					WithCity("any_city").
+					WithState("any_state").
+					WithPostalCode("any_postal_code").
+					WithCountry("any_country").
+					WithCreatedAt(time.Now()).
+					WithUpdatedAt(time.Now()).
 					Build()
 
 				validate := entity.Validate()
@@ -39,14 +39,14 @@ var _ = Describe("INTERNAL :: DOMAIN :: ENTITY :: ADDRESS", func() {
 
 		Context("error cases", func() {
 			It("should return an error when address is empty", func() {
-				entity := entity.AddressBuilder().Build()
+				entity := address.NewBuilder().Build()
 
 				validate := entity.Validate()
 
 				Expect(validate.Errors()).NotTo(BeNil())
 				Expect(validate.Errors()).To(HaveLen(6))
-				Expect(validate.Errors()).To(ContainElement(fmt.Sprintf("country: %s", validator.NotBlankField)))
-				Expect(validate.Errors()).To(ContainElement(fmt.Sprintf("state: %s", validator.NotBlankField)))
+				Expect(validate.Errors()).To(ContainElement(fmt.Sprintf("country: %s", validator.ErrNotBlank)))
+				Expect(validate.Errors()).To(ContainElement(fmt.Sprintf("state: %s", validator.ErrNotBlank)))
 			})
 		})
 	})

@@ -4,7 +4,7 @@ import (
 	"context"
 	"time"
 
-	"github.com/andreis3/users-ms/internal/domain/entity"
+	"github.com/andreis3/users-ms/internal/domain/entity/address"
 	"github.com/andreis3/users-ms/internal/domain/errors"
 	"github.com/andreis3/users-ms/internal/domain/interfaces"
 	"github.com/andreis3/users-ms/internal/infra/adapters/db/postegres"
@@ -25,7 +25,7 @@ func NewAddressRepository(metrics interfaces.Prometheus) *AddressRepository {
 	}
 }
 
-func (c *AddressRepository) InsertBatchAddress(ctx context.Context, customerID int64, addresses []entity.Address) (*[]entity.Address, *errors.AppErrors) {
+func (c *AddressRepository) InsertBatchAddress(ctx context.Context, customerID int64, addresses []address.Address) (*[]address.Address, *errors.AppErrors) {
 	ctx, span := observability.Tracer.Start(ctx, "AddressRepository.InsertBatchAddress")
 	start := time.Now()
 	defer func() {
@@ -39,7 +39,7 @@ func (c *AddressRepository) InsertBatchAddress(ctx context.Context, customerID i
 	VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10) 
 	RETURNING id`
 
-	addressesResult := make([]entity.Address, 0, len(addresses))
+	addressesResult := make([]address.Address, 0, len(addresses))
 
 	for _, address := range addresses {
 
@@ -63,7 +63,8 @@ func (c *AddressRepository) InsertBatchAddress(ctx context.Context, customerID i
 		}
 
 		addressCopy := address
-		addressCopy.ID = id
+		addressCopy.AssignID(id)
+
 		addressesResult = append(addressesResult, addressCopy)
 	}
 

@@ -26,18 +26,20 @@ var blackListCPF = []string{
 }
 
 type CPF struct {
-	CPF       string
-	Validator validator.Validator
+	value string
 }
 
-func NewCPF(cpf string) *CPF {
-	return &CPF{CPF: cpf}
+func NewCPF(cpf string) CPF {
+	return CPF{value: cpf}
 }
 
-func (c *CPF) Validate() {
-	cleanedCPF := cleanCPF(c.CPF)
-	c.Validator.Assert(validator.NotBlank(cleanedCPF), "cpf", validator.NotBlankField)
-	c.Validator.Assert(validateCPF(cleanedCPF), "cpf", "cpf invalid")
+func (c *CPF) Validate() *validator.Validator {
+	var validate validator.Validator
+	cleanedCPF := cleanCPF(c.value)
+	validate.Assert(validator.NotBlank(cleanedCPF), "cpf", validator.ErrNotBlank)
+	validate.Assert(validateCPF(cleanedCPF), "cpf", "cpf invalid")
+
+	return &validate
 }
 
 func cleanCPF(cpf string) string {
@@ -71,4 +73,8 @@ func validateDigit(cpf string, position, startWeight int) bool {
 	}
 
 	return rest == int(cpf[position]-CPFASCIIZero)
+}
+
+func (c *CPF) String() string {
+	return c.value
 }

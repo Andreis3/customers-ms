@@ -4,7 +4,7 @@ import (
 	"context"
 	"time"
 
-	"github.com/andreis3/users-ms/internal/domain/entity"
+	"github.com/andreis3/users-ms/internal/domain/entity/customer"
 	"github.com/andreis3/users-ms/internal/domain/errors"
 	"github.com/andreis3/users-ms/internal/domain/interfaces"
 	"github.com/andreis3/users-ms/internal/infra/adapters/db/postegres"
@@ -26,7 +26,7 @@ func NewCustomerRepository(metrics interfaces.Prometheus) *CustomerRepository {
 	}
 }
 
-func (c *CustomerRepository) InsertCustomer(ctx context.Context, customer entity.Customer) (*entity.Customer, *errors.AppErrors) {
+func (c *CustomerRepository) InsertCustomer(ctx context.Context, data customer.Customer) (*customer.Customer, *errors.AppErrors) {
 	ctx, span := observability.Tracer.Start(ctx, "CustomerRepository.InsertCustomer")
 	start := time.Now()
 	defer func() {
@@ -34,7 +34,7 @@ func (c *CustomerRepository) InsertCustomer(ctx context.Context, customer entity
 		c.metrics.ObserveInstructionDBDuration("postgres", "customers", "insert", float64(end.Milliseconds()))
 		span.End()
 	}()
-	model := c.FromModel(customer)
+	model := c.FromModel(data)
 	const query = `
 	INSERT INTO customers 
 	(email, password, first_name, last_name, cpf, date_of_birth, created_at, updated_at) 
@@ -56,12 +56,12 @@ func (c *CustomerRepository) InsertCustomer(ctx context.Context, customer entity
 		return nil, infra_errors.ErrorSaveCustomer(err)
 	}
 
-	result := customer
-	result.ID = id
+	model.ID = &id
+	result := model.ToEntity()
 
 	span.SetAttributes(
 		attribute.Int64("customer_id", id),
 	)
 
-	return &result, nil
+	return result, nil
 }
