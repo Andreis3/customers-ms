@@ -1,13 +1,15 @@
 package interfaces
 
-import "github.com/andreis3/users-ms/internal/domain/errors"
+import (
+	"github.com/andreis3/users-ms/internal/domain/apperrors"
+)
 
 type RepositoryFactory func(tx any) any
 
 type UnitOfWork interface {
 	Register(name string, callback RepositoryFactory)
 	GetRepository(name string) any
-	Do(callback func(uow UnitOfWork) *errors.AppErrors) *errors.AppErrors
-	CommitOrRollback() *errors.AppErrors
-	Rollback() *errors.AppErrors
+	Do(callback func(uow UnitOfWork) *apperrors.AppErrors) *apperrors.AppErrors
+	CommitOrRollback() *apperrors.AppErrors
+	Rollback() *apperrors.AppErrors
 }

@@ -1,4 +1,4 @@
-package errors
+package apperrors
 
 import "github.com/andreis3/users-ms/internal/domain/validator"
 
@@ -24,5 +24,14 @@ func UnexpectedError(message string) *AppErrors {
 		Errors:          []string{message},
 		OriginFunc:      "UnexpectedError",
 		FriendlyMessage: "Unexpected error.",
+	}
+}
+
+func InvalidPasswordOrEmailError() *AppErrors {
+	return &AppErrors{
+		Code:            ErrInvalidBusinessRules,
+		Errors:          []string{"invalid password or email"},
+		OriginFunc:      "CustomerProfile.Validate",
+		FriendlyMessage: "Validation failed for the provided input.",
 	}
 }

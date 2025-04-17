@@ -4,12 +4,12 @@ import (
 	"context"
 	"time"
 
+	"github.com/andreis3/users-ms/internal/domain/apperrors"
 	"github.com/andreis3/users-ms/internal/domain/entity/address"
-	"github.com/andreis3/users-ms/internal/domain/errors"
 	"github.com/andreis3/users-ms/internal/domain/interfaces"
 	"github.com/andreis3/users-ms/internal/infra/adapters/db/postegres"
 	"github.com/andreis3/users-ms/internal/infra/adapters/observability"
-	infra_errors "github.com/andreis3/users-ms/internal/infra/commons/errors"
+	"github.com/andreis3/users-ms/internal/infra/commons/infraerrors"
 	"github.com/andreis3/users-ms/internal/infra/repositories/postgres/model"
 )
 
@@ -25,7 +25,7 @@ func NewAddressRepository(metrics interfaces.Prometheus) *AddressRepository {
 	}
 }
 
-func (c *AddressRepository) InsertBatchAddress(ctx context.Context, customerID int64, addresses []address.Address) (*[]address.Address, *errors.AppErrors) {
+func (c *AddressRepository) InsertBatchAddress(ctx context.Context, customerID int64, addresses []address.Address) (*[]address.Address, *apperrors.AppErrors) {
 	ctx, span := observability.Tracer.Start(ctx, "AddressRepository.InsertBatchAddress")
 	start := time.Now()
 	defer func() {
@@ -59,7 +59,7 @@ func (c *AddressRepository) InsertBatchAddress(ctx context.Context, customerID i
 			model.UpdatedAt,
 		).Scan(&id)
 		if err != nil {
-			return nil, infra_errors.ErrorCreatedBatchAddress(err)
+			return nil, infraerrors.ErrorCreatedBatchAddress(err)
 		}
 
 		addressCopy := address

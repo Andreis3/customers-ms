@@ -3,9 +3,9 @@ package uow
 import (
 	"context"
 
-	"github.com/andreis3/users-ms/internal/domain/errors"
+	"github.com/andreis3/users-ms/internal/domain/apperrors"
 	"github.com/andreis3/users-ms/internal/domain/interfaces"
-	infra_errors "github.com/andreis3/users-ms/internal/infra/commons/errors"
+	"github.com/andreis3/users-ms/internal/infra/commons/infraerrors"
 	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgxpool"
 )
@@ -44,15 +44,15 @@ func (u *UnitOfWork) GetRepository(name string) any {
 	return u.Repositories[name](u.TX)
 }
 
-func (u *UnitOfWork) Do(callback func(uow interfaces.UnitOfWork) *errors.AppErrors) *errors.AppErrors {
+func (u *UnitOfWork) Do(callback func(uow interfaces.UnitOfWork) *apperrors.AppErrors) *apperrors.AppErrors {
 	ctx := context.Background()
 	if u.TX != nil {
-		return infra_errors.ErrorTransactionAlreadyExists()
+		return infraerrors.ErrorTransactionAlreadyExists()
 	}
 
 	tx, err := u.DB.Begin(ctx)
 	if err != nil {
-		return infra_errors.ErrorOpeningTransaction(err)
+		return infraerrors.ErrorOpeningTransaction(err)
 	}
 	u.TX = tx
 
@@ -66,9 +66,9 @@ func (u *UnitOfWork) Do(callback func(uow interfaces.UnitOfWork) *errors.AppErro
 	return u.CommitOrRollback()
 }
 
-func (u *UnitOfWork) Rollback() *errors.AppErrors {
+func (u *UnitOfWork) Rollback() *apperrors.AppErrors {
 	if u.TX == nil {
-		return infra_errors.ErrorRollBackTransactionEmpty()
+		return infraerrors.ErrorRollBackTransactionEmpty()
 	}
 
 	defer func() {
@@ -77,12 +77,12 @@ func (u *UnitOfWork) Rollback() *errors.AppErrors {
 
 	err := u.TX.Rollback(context.Background())
 	if err != nil {
-		return infra_errors.ErrorExecuteRollback(err)
+		return infraerrors.ErrorExecuteRollback(err)
 	}
 	return nil
 }
 
-func (u *UnitOfWork) CommitOrRollback() *errors.AppErrors {
+func (u *UnitOfWork) CommitOrRollback() *apperrors.AppErrors {
 	ctx := context.Background()
 	defer func() {
 		u.TX = nil
@@ -96,7 +96,7 @@ func (u *UnitOfWork) CommitOrRollback() *errors.AppErrors {
 		if errRB := u.Rollback(); errRB != nil {
 			return errRB
 		}
-		return infra_errors.ErrorCommitOrRollback(err)
+		return infraerrors.ErrorCommitOrRollback(err)
 	}
 
 	return nil

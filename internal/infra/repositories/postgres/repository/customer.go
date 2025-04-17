@@ -4,12 +4,12 @@ import (
 	"context"
 	"time"
 
+	"github.com/andreis3/users-ms/internal/domain/apperrors"
 	"github.com/andreis3/users-ms/internal/domain/entity/customer"
-	"github.com/andreis3/users-ms/internal/domain/errors"
 	"github.com/andreis3/users-ms/internal/domain/interfaces"
 	"github.com/andreis3/users-ms/internal/infra/adapters/db/postegres"
 	"github.com/andreis3/users-ms/internal/infra/adapters/observability"
-	infra_errors "github.com/andreis3/users-ms/internal/infra/commons/errors"
+	"github.com/andreis3/users-ms/internal/infra/commons/infraerrors"
 	"github.com/andreis3/users-ms/internal/infra/repositories/postgres/model"
 	"go.opentelemetry.io/otel/attribute"
 )
@@ -26,7 +26,7 @@ func NewCustomerRepository(metrics interfaces.Prometheus) *CustomerRepository {
 	}
 }
 
-func (c *CustomerRepository) InsertCustomer(ctx context.Context, data customer.Customer) (*customer.Customer, *errors.AppErrors) {
+func (c *CustomerRepository) InsertCustomer(ctx context.Context, data customer.Customer) (*customer.Customer, *apperrors.AppErrors) {
 	ctx, span := observability.Tracer.Start(ctx, "CustomerRepository.InsertCustomer")
 	start := time.Now()
 	defer func() {
@@ -53,7 +53,7 @@ func (c *CustomerRepository) InsertCustomer(ctx context.Context, data customer.C
 		model.CreatedAT,
 		model.UpdatedAT).Scan(&id)
 	if err != nil {
-		return nil, infra_errors.ErrorSaveCustomer(err)
+		return nil, infraerrors.ErrorSaveCustomer(err)
 	}
 
 	model.ID = &id

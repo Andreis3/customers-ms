@@ -4,8 +4,8 @@ import (
 	"context"
 
 	"github.com/andreis3/users-ms/internal/domain/aggregate"
+	"github.com/andreis3/users-ms/internal/domain/apperrors"
 	"github.com/andreis3/users-ms/internal/domain/entity/customer"
-	"github.com/andreis3/users-ms/internal/domain/errors"
 	"github.com/andreis3/users-ms/internal/domain/interfaces"
 	"github.com/andreis3/users-ms/internal/infra/adapters/observability"
 	"github.com/andreis3/users-ms/internal/infra/factories"
@@ -26,7 +26,7 @@ func NewCreatedCustomer(
 	}
 }
 
-func (c *CreatedCustomerCommand) Execute(ctx context.Context, data aggregate.CustomerProfile) (*customer.Customer, *errors.AppErrors) {
+func (c *CreatedCustomerCommand) Execute(ctx context.Context, data aggregate.CustomerProfile) (*customer.Customer, *apperrors.AppErrors) {
 	ctx, span := observability.Tracer.Start(ctx, "CreatedCustomer.Execute")
 	defer span.End()
 	err := data.Validate()
@@ -36,20 +36,27 @@ func (c *CreatedCustomerCommand) Execute(ctx context.Context, data aggregate.Cus
 
 	customerResult := &customer.Customer{}
 
-	errUow := c.uow.Do(func(unitOfWork interfaces.UnitOfWork) *errors.AppErrors {
+	errUow := c.uow.Do(func(unitOfWork interfaces.UnitOfWork) *apperrors.AppErrors {
 		repo, err := factories.LoadCustomerFactory(unitOfWork)
 		if err != nil {
 			span.RecordError(err)
 			return err
 		}
 
-		resCustomer, err := repo.CustomerRepo.InsertCustomer(ctx, &data.Customer)
+		hash, err := c.bcrypt.Hash(data.Customer.Password())
+		if err != nil {
+			span.RecordError(err)
+			return err
+		}
+		data.Customer.AssignHashedPassword(hash)
+
+		resCustomer, err := repo.Customer.InsertCustomer(ctx, &data.Customer)
 		if err != nil {
 			return err
 		}
 
 		if len(data.Addresses) > 0 {
-			_, err = repo.AddressRepo.InsertBatchAddress(ctx, resCustomer.ID(), data.Addresses)
+			_, err = repo.Address.InsertBatchAddress(ctx, resCustomer.ID(), data.Addresses)
 			if err != nil {
 				span.RecordError(err)
 				return err

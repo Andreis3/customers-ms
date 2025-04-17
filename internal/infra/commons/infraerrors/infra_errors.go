@@ -1,11 +1,11 @@
-package errors
+package infraerrors
 
 import (
-	domain_errors "github.com/andreis3/users-ms/internal/domain/errors"
+	"github.com/andreis3/users-ms/internal/domain/apperrors"
 )
 
 const (
-	ErrInternalProcessing domain_errors.ErrorCode = "IMF-500"
+	ErrInternalProcessing apperrors.ErrorCode = "IMF-500"
 )
 
 const (
@@ -15,8 +15,8 @@ const (
 
 // uow errors
 
-func ErrorTransactionAlreadyExists() *domain_errors.AppErrors {
-	return &domain_errors.AppErrors{
+func ErrorTransactionAlreadyExists() *apperrors.AppErrors {
+	return &apperrors.AppErrors{
 		Code:            ErrInternalProcessing,
 		Errors:          []string{"Transaction already exists"},
 		Cause:           InternalServerError,
@@ -25,8 +25,8 @@ func ErrorTransactionAlreadyExists() *domain_errors.AppErrors {
 	}
 }
 
-func ErrorOpeningTransaction(err error) *domain_errors.AppErrors {
-	return &domain_errors.AppErrors{
+func ErrorOpeningTransaction(err error) *apperrors.AppErrors {
+	return &apperrors.AppErrors{
 		Code:            ErrInternalProcessing,
 		Errors:          []string{err.Error()},
 		Cause:           InternalServerError,
@@ -35,8 +35,8 @@ func ErrorOpeningTransaction(err error) *domain_errors.AppErrors {
 	}
 }
 
-func ErrorRollBackTransactionEmpty() *domain_errors.AppErrors {
-	return &domain_errors.AppErrors{
+func ErrorRollBackTransactionEmpty() *apperrors.AppErrors {
+	return &apperrors.AppErrors{
 		Code:            ErrInternalProcessing,
 		Errors:          []string{"Transaction is empty"},
 		Cause:           InternalServerError,
@@ -45,8 +45,8 @@ func ErrorRollBackTransactionEmpty() *domain_errors.AppErrors {
 	}
 }
 
-func ErrorExecuteRollback(err error) *domain_errors.AppErrors {
-	return &domain_errors.AppErrors{
+func ErrorExecuteRollback(err error) *apperrors.AppErrors {
+	return &apperrors.AppErrors{
 		Code:            ErrInternalProcessing,
 		Errors:          []string{err.Error()},
 		Cause:           InternalServerError,
@@ -55,8 +55,8 @@ func ErrorExecuteRollback(err error) *domain_errors.AppErrors {
 	}
 }
 
-func ErrorCommitOrRollback(err error) *domain_errors.AppErrors {
-	return &domain_errors.AppErrors{
+func ErrorCommitOrRollback(err error) *apperrors.AppErrors {
+	return &apperrors.AppErrors{
 		Code:            ErrInternalProcessing,
 		Errors:          []string{err.Error()},
 		Cause:           InternalServerError,
@@ -67,8 +67,8 @@ func ErrorCommitOrRollback(err error) *domain_errors.AppErrors {
 
 // repository customers errors
 
-func ErrorSaveCustomer(err error) *domain_errors.AppErrors {
-	return &domain_errors.AppErrors{
+func ErrorSaveCustomer(err error) *apperrors.AppErrors {
+	return &apperrors.AppErrors{
 		Code:            ErrInternalProcessing,
 		Errors:          []string{err.Error()},
 		Cause:           InternalServerError,
@@ -77,12 +77,33 @@ func ErrorSaveCustomer(err error) *domain_errors.AppErrors {
 	}
 }
 
-func ErrorCreatedBatchAddress(err error) *domain_errors.AppErrors {
-	return &domain_errors.AppErrors{
+func ErrorCreatedBatchAddress(err error) *apperrors.AppErrors {
+	return &apperrors.AppErrors{
 		Code:            ErrInternalProcessing,
 		Errors:          []string{err.Error()},
 		Cause:           InternalServerError,
 		OriginFunc:      "CustomerRepository.CreatedBatchAddress",
+		FriendlyMessage: ServerErrorFriendlyMessage,
+	}
+}
+
+// bcrypt
+func ErrorHashPassword(err error) *apperrors.AppErrors {
+	return &apperrors.AppErrors{
+		Code:            ErrInternalProcessing,
+		Errors:          []string{err.Error()},
+		Cause:           InternalServerError,
+		OriginFunc:      "Bcrypt.Hash",
+		FriendlyMessage: ServerErrorFriendlyMessage,
+	}
+}
+
+func ErrorCompareHash(err error) *apperrors.AppErrors {
+	return &apperrors.AppErrors{
+		Code:            ErrInternalProcessing,
+		Errors:          []string{err.Error()},
+		Cause:           InternalServerError,
+		OriginFunc:      "Bcrypt.CompareHash",
 		FriendlyMessage: ServerErrorFriendlyMessage,
 	}
 }
