@@ -21,7 +21,7 @@ type Address struct {
 	UpdatedAt  *time.Time
 }
 
-func (a Address) ToEntity() *address.Address {
+func (a Address) ToEntity() address.Address {
 	return address.NewBuilder().
 		WithID(pointers.ToInt64(a.ID)).
 		WithCustomerID(pointers.ToInt64(a.CustomerID)).
@@ -38,6 +38,7 @@ func (a Address) ToEntity() *address.Address {
 }
 
 func (a Address) FromModel(entity address.Address) *Address {
+	dateNow := time.Now()
 	return &Address{
 		CustomerID: pointers.ToInt64Pointer(entity.CustomerID()),
 		Street:     pointers.ToStringPointer(entity.Street()),
@@ -47,7 +48,7 @@ func (a Address) FromModel(entity address.Address) *Address {
 		State:      pointers.ToStringPointer(entity.State()),
 		PostalCode: pointers.ToStringPointer(entity.PostalCode()),
 		Country:    pointers.ToStringPointer(entity.Country()),
-		CreatedAt:  pointers.ToTimePointer(entity.CreatedAt()),
-		UpdatedAt:  pointers.ToTimePointer(entity.UpdatedAt()),
+		CreatedAt:  pointers.ToTimePointer(dateNow),
+		UpdatedAt:  pointers.ToTimePointer(dateNow),
 	}
 }

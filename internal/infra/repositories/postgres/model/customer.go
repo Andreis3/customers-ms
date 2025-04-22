@@ -19,7 +19,7 @@ type Customer struct {
 	UpdatedAT   *time.Time
 }
 
-func (c Customer) ToEntity() *customer.Customer {
+func (c Customer) ToEntity() customer.Customer {
 	return customer.NewBuilder().
 		WithID(pointers.ToInt64(c.ID)).
 		WithEmail(pointers.ToString(c.Email)).
@@ -34,6 +34,7 @@ func (c Customer) ToEntity() *customer.Customer {
 }
 
 func (c Customer) FromModel(customer customer.Customer) *Customer {
+	dateNow := time.Now()
 	return &Customer{
 		Email:       pointers.ToStringPointer(customer.Email()),
 		Password:    pointers.ToStringPointer(customer.Password()),
@@ -41,7 +42,7 @@ func (c Customer) FromModel(customer customer.Customer) *Customer {
 		LastName:    pointers.ToStringPointer(customer.LastName()),
 		CPF:         pointers.ToStringPointer(customer.CPF()),
 		DateOfBirth: pointers.ToTimePointer(customer.DateOfBirth()),
-		CreatedAT:   pointers.ToTimePointer(customer.CreatedAt()),
-		UpdatedAT:   pointers.ToTimePointer(customer.UpdatedAt()),
+		CreatedAT:   pointers.ToTimePointer(dateNow),
+		UpdatedAT:   pointers.ToTimePointer(dateNow),
 	}
 }

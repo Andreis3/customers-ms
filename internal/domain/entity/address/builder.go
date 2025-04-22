@@ -22,8 +22,8 @@ func NewBuilder() *AddressBuilder {
 	return &AddressBuilder{}
 }
 
-func (b *AddressBuilder) Build() *Address {
-	return &Address{
+func (b *AddressBuilder) Build() Address {
+	return Address{
 		id:         b.id,
 		customerID: b.customerID,
 		street:     b.street,

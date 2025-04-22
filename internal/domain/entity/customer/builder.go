@@ -24,8 +24,8 @@ func NewBuilder() *CustomerBuilder {
 	return &CustomerBuilder{}
 }
 
-func (b *CustomerBuilder) Build() *Customer {
-	customer := &Customer{
+func (b *CustomerBuilder) Build() Customer {
+	customer := Customer{
 		id:          b.id,
 		email:       valueobject.NewEmail(b.email),
 		password:    valueobject.NewPassword(b.password),

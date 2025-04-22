@@ -8,5 +8,5 @@ import (
 )
 
 type CustomerRepository interface {
-	InsertCustomer(ctx context.Context, data *customer.Customer) (*customer.Customer, *apperrors.AppErrors)
+	InsertCustomer(ctx context.Context, data customer.Customer) (*customer.Customer, *apperrors.AppErrors)
 }

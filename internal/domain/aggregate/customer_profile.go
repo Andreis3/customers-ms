@@ -14,7 +14,7 @@ type CustomerProfile struct {
 	Addresses []address.Address
 }
 
-func NewUserProfile(custome customer.Customer, addresses []address.Address) *CustomerProfile {
+func NewCustomerProfile(custome customer.Customer, addresses []address.Address) *CustomerProfile {
 	userProfile := &CustomerProfile{
 		Customer:  custome,
 		Addresses: addresses,

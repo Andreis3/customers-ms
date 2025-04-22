@@ -7,40 +7,61 @@ import (
 
 	"github.com/andreis3/users-ms/internal/domain/interfaces"
 	"github.com/andreis3/users-ms/internal/infra/adapters/observability"
+	"github.com/andreis3/users-ms/internal/infra/factory/command"
+	"github.com/andreis3/users-ms/internal/presentation/dtos/input"
+	"github.com/andreis3/users-ms/internal/presentation/dtos/output"
 	"github.com/andreis3/users-ms/internal/presentation/http/helpers"
 )
 
 type CreateCustomerHandler struct {
 	log        interfaces.Logger
 	prometheus interfaces.Prometheus
+	uow        interfaces.UnitOfWork
 }
 
 func NewCreateCustomerHandler(
 	log interfaces.Logger,
 	prometheus interfaces.Prometheus,
+	uow interfaces.UnitOfWork,
 ) CreateCustomerHandler {
 	return CreateCustomerHandler{
 		log:        log,
 		prometheus: prometheus,
+		uow:        uow,
 	}
 }
 
 func (handler *CreateCustomerHandler) Handle(w http.ResponseWriter, r *http.Request) {
-	_, child := observability.Tracer.Start(r.Context(), "CreateCustomerHandler.Handle")
+	ctx, child := observability.Tracer.Start(r.Context(), "CreateCustomerHandler.Handle")
+	tarceID := child.SpanContext().TraceID().String()
 	defer child.End()
 	start := time.Now()
 
-	tracerID := child.SpanContext().TraceID().String()
-	handler.log.InfoJSON("new request received", slog.String("trace_id", tracerID))
-	data := struct {
-		Status  string `json:"status"`
-		TraceID string `json:"trace_id"`
-	}{
-		Status:  "success",
-		TraceID: tracerID,
+	data, err := helpers.DecoderBodyRequest[input.CreatedCustomerDTO](r)
+	if err != nil {
+		child.RecordError(err)
+		handler.log.ErrorJSON("failed decode request body",
+			slog.String("trace_id", tarceID),
+			slog.Any("error", err))
+		helpers.ResponseError[any](w, err)
+		return
 	}
 
+	cmd := command.NewCreatedCustomerFactory(handler.uow)
+	res, err := cmd.Execute(ctx, data.MapperToAggregate())
+	if err != nil {
+		child.RecordError(err)
+		handler.log.ErrorJSON("failed execute create customer command",
+			slog.String("trace_id", tarceID),
+			slog.Any("error", err))
+		helpers.ResponseError[any](w, err)
+		return
+	}
+
+	tracerID := child.SpanContext().TraceID().String()
+
 	end := time.Since(start)
+	handler.log.InfoJSON("end request", slog.String("trace_id", tracerID), slog.Float64("duration", float64(end.Milliseconds())))
 	handler.prometheus.ObserveRequestDuration("/customers", "http", http.StatusCreated, float64(end.Milliseconds()))
-	helpers.ResponseSuccess[any](w, http.StatusCreated, data)
+	helpers.ResponseSuccess(w, http.StatusCreated, output.CustomerOutputMapper(*res))
 }

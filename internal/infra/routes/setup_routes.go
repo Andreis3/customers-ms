@@ -2,13 +2,17 @@ package routes
 
 import (
 	"github.com/andreis3/users-ms/internal/domain/interfaces"
+	"github.com/andreis3/users-ms/internal/infra/uow"
 	"github.com/andreis3/users-ms/internal/presentation/http/handler/customer"
 	"github.com/andreis3/users-ms/internal/presentation/http/routes"
 	"github.com/go-chi/chi/v5"
+	"github.com/jackc/pgx/v5/pgxpool"
 )
 
 func SetupRoutes(mux *chi.Mux, postgres interfaces.DB, log interfaces.Logger, prometheus interfaces.Prometheus) {
-	createCustomerHandler := customer.NewCreateCustomerHandler(log, prometheus)
+	postgresPool := postgres.Instance().(*pgxpool.Pool)
+	uow := uow.NewRegisterRepositories(postgresPool, prometheus)
+	createCustomerHandler := customer.NewCreateCustomerHandler(log, prometheus, uow)
 	customerRoutes := routes.NewCustomerRoutes(createCustomerHandler, log)
 	routes := NewRegisterRoutes(mux, log, *customerRoutes)
 	routes.Register()

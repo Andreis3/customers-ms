@@ -13,11 +13,20 @@ const (
 	AddressRepository  = "address_repository"
 )
 
-func NewRegisterRepositories(pool *pgxpool.Pool, metrics interfaces.Prometheus) {
+func NewRegisterRepositories(pool *pgxpool.Pool, metrics interfaces.Prometheus) interfaces.UnitOfWork {
 	uow := NewUnitOfWork(pool)
+
 	uow.Register(CustomerRepository, func(tx any) any {
 		repo := repository.NewCustomerRepository(metrics)
 		repo.DB = postegres.New(tx.(pgx.Tx))
 		return repo
 	})
+
+	uow.Register(AddressRepository, func(tx any) any {
+		repo := repository.NewAddressRepository(metrics)
+		repo.DB = postegres.New(tx.(pgx.Tx))
+		return repo
+	})
+
+	return uow
 }

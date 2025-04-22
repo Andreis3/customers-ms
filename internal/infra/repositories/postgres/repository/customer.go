@@ -63,5 +63,5 @@ func (c *CustomerRepository) InsertCustomer(ctx context.Context, data customer.C
 		attribute.Int64("customer_id", id),
 	)
 
-	return result, nil
+	return &result, nil
 }
