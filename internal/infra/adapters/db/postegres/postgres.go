@@ -7,11 +7,15 @@ import (
 	"sync"
 	"time"
 
-	"github.com/andreis3/users-ms/internal/infra/commons/configs"
+	dbtracer "github.com/amirsalarsafaei/sqlc-pgx-monitoring/dbtracer"
+	"github.com/andreis3/users-ms/internal/domain/interfaces"
 	"github.com/andreis3/users-ms/internal/infra/commons/logger"
+	"github.com/andreis3/users-ms/internal/infra/configs"
+	"github.com/andreis3/users-ms/internal/util"
 	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgconn"
 	"github.com/jackc/pgx/v5/pgxpool"
+	"go.opentelemetry.io/otel"
 )
 
 var (
@@ -23,7 +27,7 @@ type Postgres struct {
 	pool *pgxpool.Pool
 }
 
-func PoolConnections(conf *configs.Configs) *Postgres {
+func NewPoolConnections(conf *configs.Configs, metrics interfaces.Prometheus) *Postgres {
 	log := logger.NewLogger()
 	singleton.Do(func() {
 		connStr := fmt.Sprintf("host=%s port=%s user=%s password=%s dbname=%s sslmode=disable",
@@ -33,6 +37,23 @@ func PoolConnections(conf *configs.Configs) *Postgres {
 		if err != nil {
 			log.CriticalText(fmt.Sprintf("NotificationErrors parsing connection string: %v", err))
 		}
+
+		slogLogger := log.SlogJSON()
+
+		// integration opentelemetry
+		tracer, err := dbtracer.NewDBTracer(
+			conf.PostgresDBName,
+			dbtracer.WithLogger(slogLogger),
+			dbtracer.WithTraceProvider(otel.GetTracerProvider()),
+			dbtracer.WithMeterProvider(metrics.MeterProvider()),
+			dbtracer.WithLogArgs(true),
+		)
+		if err != nil {
+			log.ErrorText(fmt.Sprintf("NotificationsErrors creating connection poll: %v", err))
+			os.Exit(util.ExitFailure)
+		}
+
+		connConfig.ConnConfig.Tracer = tracer
 
 		connConfig.MinConns = conf.PostgresMinConnections
 		connConfig.MaxConns = conf.PostgresMaxConnections
@@ -44,11 +65,19 @@ func PoolConnections(conf *configs.Configs) *Postgres {
 		pool, err = pgxpool.NewWithConfig(context.Background(), connConfig)
 		if err != nil {
 			log.ErrorText(fmt.Sprintf("NotificationsErrors creating connection poll: %v", err))
-			os.Exit(1)
+			os.Exit(util.ExitFailure)
 		}
 	})
 
 	return &Postgres{pool: pool}
+}
+
+func (p *Postgres) Instance() any {
+	return p.pool
+}
+
+func (p *Postgres) Close() {
+	p.pool.Close()
 }
 
 func (p *Postgres) Exec(ctx context.Context, sql string, arguments ...any) (commandtag pgconn.CommandTag, err error) {
@@ -63,16 +92,10 @@ func (p *Postgres) QueryRow(ctx context.Context, sql string, args ...any) pgx.Ro
 	return p.pool.QueryRow(ctx, sql, args...)
 }
 
-type IInstructionDB interface {
-	Exec(ctx context.Context, sql string, arguments ...any) (commandTag pgconn.CommandTag, err error)
-	Query(ctx context.Context, sql string, args ...any) (pgx.Rows, error)
-	QueryRow(ctx context.Context, sql string, args ...any) pgx.Row
-	Prepare(ctx context.Context, name, sql string) (*pgconn.StatementDescription, error)
-}
 type Queries struct {
-	IInstructionDB
+	interfaces.InstructionPostgres
 }
 
-func New(db IInstructionDB) *Queries {
+func New(db interfaces.InstructionPostgres) *Queries {
 	return &Queries{db}
 }

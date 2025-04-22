@@ -1,0 +1,93 @@
+services:
+  postgres-primary:
+    image: postgres:17.4
+    container_name: postgres-primary
+    environment:
+      - POSTGRES_USER=admin
+      - POSTGRES_PASSWORD=admin
+      - POSTGRES_DB=customers-db
+        # variáveis utilizadas no script de inicialização para replica
+      - REPLICATION_USER=replicator
+      - REPLICATION_PASSWORD=replicator
+    volumes:
+      - ./docker/primary/data:/var/lib/postgresql/data
+      - ./docker/primary/initdb:/docker-entrypoint-initdb.d
+      - ./docker/primary/postgressql.conf:/etc/postgresql/postgresql.conf
+    user: "${UID}:${GID}"
+    ports:
+      - "5432:5432"
+    command: ["postgres", "-c", "config_file=/etc/postgresql/postgresql.conf"]
+
+  postgres-replica:
+    image: postgres:17.4
+    container_name: postgres-replica
+    depends_on:
+      - postgres-primary
+    environment:
+      - POSTGRES_USER=admin
+      - POSTGRES_PASSWORD=admin
+      - POSTGRES_DB=customers-db
+      - POSTGRES_REPLICATION_USER=replicator
+      - POSTGRES_REPLICATION_PASSWORD=replicator
+      # variáveis informando o host da primary (postgres-primary)
+      - PRIMARY_HOST=postgres-primary
+    volumes:
+      - ./docker/replica/data:/var/lib/postgresql/data
+      - ./docker/replica/init-replica.sh:/docker-entrypoint-initdb.d/init-replica.sh
+    user: "${UID}:${GID}"
+    ports:
+      - "5433:5432"
+
+  prometheus:
+    image: prom/prometheus
+    container_name: prometheus
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./docker/prometheus.yml:/etc/prometheus/prometheus.yml
+    command:
+      - "--config.file=/etc/prometheus/prometheus.yml"
+
+  grafana:
+    image: grafana/grafana
+    container_name: grafana
+    ports:
+      - "3000:3000"
+    depends_on:
+      - prometheus
+    environment:
+      - GF_SECURITY_ADMIN_PASSWORD=admin
+      - GF_SECURITY_ADMIN_USER=admin
+
+  tempo:
+    image: grafana/tempo:2.3.1
+    container_name: tempo
+    ports:
+      - "3200:3200" # Grafana Tempo HTTP
+      - "4317:4317" # OTLP gRPC
+      - "4318:4318" # OTLP HTTP
+    command: ["--config.file=/etc/tempo.yaml"]
+    volumes:
+      - ./docker/tempo.yaml:/etc/tempo.yaml
+
+  loki:
+    image: grafana/loki
+    container_name: loki
+    user: "${UID}:${GID}"
+    ports:
+      - "3100:3100"
+    command: -config.file=/etc/loki/loki-config.yaml
+    volumes:
+      - ./docker/loki-config.yaml:/etc/loki/loki-config.yaml
+      - ./docker/loki-data:/loki
+
+  promtail:
+    image: grafana/promtail
+    container_name: promtail
+    user: "${UID}:${GID}"
+    ports:
+      - "3101:3101"
+    volumes:
+      - ./docker/promtail-config.yaml:/etc/promtail/promtail.yaml
+      - /home/andrei-santos/tmp/app:/var/log/app
+    command: -config.file=/etc/promtail/promtail.yaml

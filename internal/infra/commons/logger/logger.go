@@ -7,6 +7,7 @@ import (
 	"time"
 
 	"github.com/lmittmann/tint"
+	"go.opentelemetry.io/otel/trace"
 )
 
 const LevelCritical = slog.LevelError + 1
@@ -28,6 +29,29 @@ func NewLogger() *Logger {
 			Level:      slog.LevelDebug,
 			TimeFormat: time.DateTime,
 			NoColor:    false,
+			ReplaceAttr: func(groups []string, a slog.Attr) slog.Attr {
+				if a.Key == slog.LevelKey {
+					switch a.Value.Any().(type) {
+					case slog.Level:
+						level := a.Value.Any().(slog.Level)
+						switch level {
+						case LevelCritical:
+							a.Value = slog.StringValue("\033[31mCRITICAL\033[0m")
+						case slog.LevelDebug:
+							a.Value = slog.StringValue("\033[34mDEBUG\033[0m")
+						case slog.LevelInfo:
+							a.Value = slog.StringValue("\033[32mINFO\033[0m")
+						case slog.LevelWarn:
+							a.Value = slog.StringValue("\033[33mWARN\033[0m")
+						case slog.LevelError:
+							a.Value = slog.StringValue("\033[31mERROR\033[0m")
+						default:
+							a.Value = slog.StringValue(level.String())
+						}
+					}
+				}
+				return a
+			},
 		}),
 	)
 	slog.SetDefault(loggerJSON)
@@ -77,4 +101,24 @@ func (l *Logger) ErrorText(msg string, info ...any) {
 
 func (l *Logger) CriticalText(msg string, info ...any) {
 	l.loggerText.Log(context.Background(), LevelCritical, msg, info...) // Nível crítico = 5 (LevelError + 1)
+}
+
+func (l *Logger) WithTrace(ctx context.Context) *slog.Logger {
+	spanCtx := trace.SpanContextFromContext(ctx)
+
+	if !spanCtx.HasTraceID() {
+		return &l.loggerJSON
+	}
+	return l.loggerJSON.With(
+		slog.String("trace_id", spanCtx.TraceID().String()),
+		slog.String("span_id", spanCtx.SpanID().String()),
+	)
+}
+
+func (l *Logger) SlogJSON() *slog.Logger {
+	return &l.loggerJSON
+}
+
+func (l *Logger) SlogText() *slog.Logger {
+	return &l.loggerText
 }

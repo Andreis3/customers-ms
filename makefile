@@ -1,11 +1,17 @@
 run-app:
 	@echo "Running app"
-	@go run cmd/server/main.go
+	@go run cmd/main.go
+
+run-app-logs:
+	@echo "Running app export archive logs"
+	@go run cmd/main.go > ~/tmp/app/customers-ms.log 2>&1
+
 unit:
 	@go test ./tests/unit/... --tags=unit -v
 
 unit-verbose:
 	ginkgo -r --race --tags=unit --randomize-all --randomize-suites --fail-on-pending
+
 unit-cover:
 	@go test ./tests/unit/... -coverpkg ./internal/... --tags=unit
 
@@ -15,10 +21,10 @@ unit-report:
 	&& go tool cover -html=coverage/cover.out -o coverage/cover.html \
 	&& go tool cover -func=coverage/cover.out -o coverage/cover.functions.html
 
-docker-up:
+up:
 	@docker compose -f docker-compose.yml up -d --build
 
-docker-down:
+down:
 	@docker compose -f docker-compose.yml down
 
 tag:
@@ -32,5 +38,6 @@ integration:
 		unit-report,
 		integration,
 		docker-dev,
-		docker-down,
+		up,
+		down,
 		tag,
