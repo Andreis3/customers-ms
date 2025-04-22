@@ -33,15 +33,15 @@ func NewCreateCustomerHandler(
 
 func (handler *CreateCustomerHandler) Handle(w http.ResponseWriter, r *http.Request) {
 	ctx, child := observability.Tracer.Start(r.Context(), "CreateCustomerHandler.Handle")
-	tarceID := child.SpanContext().TraceID().String()
-	defer child.End()
 	start := time.Now()
+	traceID := child.SpanContext().TraceID().String()
+	defer child.End()
 
 	data, err := helpers.DecoderBodyRequest[input.CreatedCustomerDTO](r)
 	if err != nil {
 		child.RecordError(err)
 		handler.log.ErrorJSON("failed decode request body",
-			slog.String("trace_id", tarceID),
+			slog.String("trace_id", traceID),
 			slog.Any("error", err))
 		helpers.ResponseError[any](w, err)
 		return
@@ -49,19 +49,17 @@ func (handler *CreateCustomerHandler) Handle(w http.ResponseWriter, r *http.Requ
 
 	cmd := command.NewCreatedCustomerFactory(handler.uow)
 	res, err := cmd.Execute(ctx, data.MapperToAggregate())
+	end := time.Since(start)
+	handler.log.InfoJSON("end request", slog.String("trace_id", traceID), slog.Float64("duration", float64(end.Milliseconds())))
 	if err != nil {
 		child.RecordError(err)
 		handler.log.ErrorJSON("failed execute create customer command",
-			slog.String("trace_id", tarceID),
+			slog.String("trace_id", traceID),
 			slog.Any("error", err))
 		helpers.ResponseError[any](w, err)
 		return
 	}
 
-	tracerID := child.SpanContext().TraceID().String()
-
-	end := time.Since(start)
-	handler.log.InfoJSON("end request", slog.String("trace_id", tracerID), slog.Float64("duration", float64(end.Milliseconds())))
 	handler.prometheus.ObserveRequestDuration("/customers", "http", http.StatusCreated, float64(end.Milliseconds()))
 	helpers.ResponseSuccess(w, http.StatusCreated, output.CustomerOutputMapper(*res))
 }

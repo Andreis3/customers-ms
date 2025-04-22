@@ -13,7 +13,7 @@ func NewBcrypt() *BcryptCrypto {
 }
 
 func (b *BcryptCrypto) Hash(data string) (string, *apperrors.AppErrors) {
-	bytes, err := bcrypt.GenerateFromPassword([]byte(data), bcrypt.DefaultCost)
+	bytes, err := bcrypt.GenerateFromPassword([]byte(data), 5)
 	if err != nil {
 		return "", infraerrors.ErrorHashPassword(err)
 	}
