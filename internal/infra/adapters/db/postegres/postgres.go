@@ -46,7 +46,7 @@ func NewPoolConnections(conf *configs.Configs, metrics interfaces.Prometheus) *P
 			dbtracer.WithLogger(slogLogger),
 			dbtracer.WithTraceProvider(otel.GetTracerProvider()),
 			dbtracer.WithMeterProvider(metrics.MeterProvider()),
-			dbtracer.WithLogArgs(true),
+			dbtracer.WithLogArgs(false),
 		)
 		if err != nil {
 			log.ErrorText(fmt.Sprintf("NotificationsErrors creating connection poll: %v", err))
@@ -55,11 +55,14 @@ func NewPoolConnections(conf *configs.Configs, metrics interfaces.Prometheus) *P
 
 		connConfig.ConnConfig.Tracer = tracer
 
+		// connConfig.ConnConfig.DefaultQueryExecMode = pgx.QueryExecModeExec
+		// connConfig.ConnConfig.StatementCacheCapacity = 200
+
 		connConfig.MinConns = conf.PostgresMinConnections
 		connConfig.MaxConns = conf.PostgresMaxConnections
 		connConfig.MaxConnIdleTime = conf.PostgresMaxConnLifetime
 		connConfig.MaxConnIdleTime = conf.PostgresMaxConnIdleTime
-		connConfig.HealthCheckPeriod = 1 * time.Minute
+		connConfig.HealthCheckPeriod = 15 * time.Second
 		connConfig.ConnConfig.RuntimeParams["application_name"] = conf.ApplicationName
 
 		pool, err = pgxpool.NewWithConfig(context.Background(), connConfig)
@@ -90,6 +93,10 @@ func (p *Postgres) Query(ctx context.Context, sql string, args ...any) (pgx.Rows
 
 func (p *Postgres) QueryRow(ctx context.Context, sql string, args ...any) pgx.Row {
 	return p.pool.QueryRow(ctx, sql, args...)
+}
+
+func (p *Postgres) SendBatch(ctx context.Context, b *pgx.Batch) pgx.BatchResults {
+	return p.pool.SendBatch(ctx, b)
 }
 
 type Queries struct {

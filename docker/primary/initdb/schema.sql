@@ -1,3 +1,16 @@
+-- cria ou atualiza o role de réplica para todo o cluster
+DO $$
+BEGIN
+  IF NOT EXISTS (SELECT 1 FROM pg_roles WHERE rolname='replicationuser') THEN
+    CREATE ROLE replicationUser
+      WITH REPLICATION LOGIN
+      PASSWORD 'admin';
+  ELSE
+    ALTER ROLE replicationUser
+      WITH ENCRYPTED PASSWORD 'admin';
+  END IF;
+END
+$$;
 
 ------------------------------------------------------------------
 --- Level 1 -> Product

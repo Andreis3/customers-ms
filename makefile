@@ -25,7 +25,7 @@ up:
 	@docker compose -f docker-compose.yml up -d --build
 
 down:
-	@docker compose -f docker-compose.yml down
+	@docker compose -f docker-compose.yml down -v
 
 tag:
 	scripts/bump_version.sh

@@ -9,8 +9,8 @@ import (
 	"github.com/andreis3/users-ms/internal/domain/interfaces"
 	"github.com/andreis3/users-ms/internal/infra/adapters/db/postegres"
 	"github.com/andreis3/users-ms/internal/infra/adapters/observability"
-	"github.com/andreis3/users-ms/internal/infra/commons/infraerrors"
 	"github.com/andreis3/users-ms/internal/infra/repositories/postgres/model"
+	"github.com/jackc/pgx/v5"
 )
 
 type AddressRepository struct {
@@ -33,20 +33,18 @@ func (c *AddressRepository) InsertBatchAddress(ctx context.Context, customerID i
 		c.metrics.ObserveInstructionDBDuration("postgres", "addresses", "insert", float64(end.Milliseconds()))
 		span.End()
 	}()
+
+	batch := &pgx.Batch{}
+
 	query := `
 	INSERT INTO addresses 
 	(customer_id, street, number, complement, city, state, postal_code, country, created_at, updated_at) 
 	VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10) 
 	RETURNING id`
 
-	addressesResult := make([]address.Address, 0, len(addresses))
-
 	for _, address := range addresses {
-
 		model := c.FromModel(address)
-		var id int64
-
-		err := c.DB.QueryRow(ctx, query,
+		batch.Queue(query,
 			customerID,
 			model.Street,
 			model.Number,
@@ -57,10 +55,19 @@ func (c *AddressRepository) InsertBatchAddress(ctx context.Context, customerID i
 			model.Country,
 			model.CreatedAt,
 			model.UpdatedAt,
-		).Scan(&id)
-		if err != nil {
-			return nil, infraerrors.ErrorCreatedBatchAddress(err)
-		}
+		)
+	}
+
+	br := c.DB.SendBatch(ctx, batch)
+	defer br.Close()
+
+	addressesResult := make([]address.Address, 0, len(addresses))
+
+	for _, address := range addresses {
+
+		var id int64
+
+		_ = br.QueryRow().Scan(&id)
 
 		addressCopy := address
 		addressCopy.AssignID(id)
