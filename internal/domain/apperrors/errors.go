@@ -3,6 +3,7 @@ package apperrors
 type AppErrors struct {
 	Code            ErrorCode
 	Errors          []string
+	Map             map[string]any
 	OriginFunc      string
 	Cause           string
 	FriendlyMessage string

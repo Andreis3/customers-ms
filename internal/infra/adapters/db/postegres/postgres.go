@@ -47,6 +47,8 @@ func NewPoolConnections(conf *configs.Configs, metrics interfaces.Prometheus) *P
 			dbtracer.WithTraceProvider(otel.GetTracerProvider()),
 			dbtracer.WithMeterProvider(metrics.MeterProvider()),
 			dbtracer.WithLogArgs(false),
+			dbtracer.WithIncludeSQLText(false),
+			dbtracer.WithLogArgsLenLimit(1000),
 		)
 		if err != nil {
 			log.ErrorText(fmt.Sprintf("NotificationsErrors creating connection poll: %v", err))

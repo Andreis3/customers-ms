@@ -12,6 +12,7 @@ const (
 func InvalidCustomerError(validate *validator.Validator) *AppErrors {
 	return &AppErrors{
 		Code:            ErrInvalidBusinessRules,
+		Map:             validate.FieldErrorsFlat(),
 		Errors:          validate.Errors(),
 		OriginFunc:      "CustomerProfile.Validate",
 		FriendlyMessage: "Validation failed for the provided input.",

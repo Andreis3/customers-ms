@@ -14,7 +14,9 @@ const (
 )
 
 type TypeResponseError struct {
-	FriendlyMessage any `json:"friendlyMessage"`
+	CodeError       string         `json:"code_error"`
+	ErrorFields     map[string]any `json:"error_fields"`
+	FriendlyMessage any            `json:"friendly_message"`
 }
 
 type TypeResponseSuccess struct {
@@ -36,6 +38,8 @@ func ResponseError[T any](write http.ResponseWriter, err *apperrors.AppErrors) {
 	write.WriteHeader(status)
 
 	result := TypeResponseError{
+		CodeError:       string(err.Code),
+		ErrorFields:     err.Map,
 		FriendlyMessage: err.FriendlyMessage,
 	}
 

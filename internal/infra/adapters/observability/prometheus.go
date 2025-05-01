@@ -16,8 +16,9 @@ const (
 )
 
 var (
-	exporterInstance *prometheus.Exporter
-	exporterOnce     sync.Once
+	exporterInstance      *prometheus.Exporter
+	meterProviderInstance *metric.MeterProvider
+	exporterOnce          sync.Once
 )
 
 type Prometheus struct {
@@ -30,9 +31,9 @@ type Prometheus struct {
 func NewPrometheus() *Prometheus {
 	exporterOnce.Do(func() {
 		exporterInstance, _ = prometheus.New()
+		meterProviderInstance = metric.NewMeterProvider(metric.WithReader(exporterInstance))
 	})
-	provider := metric.NewMeterProvider(metric.WithReader(exporterInstance))
-	meter := provider.Meter(MeterName, api.WithInstrumentationVersion(MeterVersion))
+	meter := meterProviderInstance.Meter(MeterName, api.WithInstrumentationVersion(MeterVersion))
 
 	counterRequestStatusCode, _ := meter.Int64Counter("proxy_requests_total",
 		api.WithDescription("Total number of proxy requests"))
@@ -54,7 +55,7 @@ func NewPrometheus() *Prometheus {
 			30000, 50000, 100000))
 
 	return &Prometheus{
-		provider:                     provider,
+		provider:                     meterProviderInstance,
 		counterRequestStatusCode:     counterRequestStatusCode,
 		histogramInstructionDuration: histogramInstructionDuration,
 		histogramRequestDuration:     histogramRequestDuration,

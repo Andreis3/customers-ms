@@ -7,8 +7,7 @@ import (
 type RepositoryFactory func(tx any) any
 
 type UnitOfWork interface {
-	Do(callback func(uow UnitOfWork) *apperrors.AppErrors) *apperrors.AppErrors
-	CommitOrRollback() *apperrors.AppErrors
-	Rollback() *apperrors.AppErrors
-	TXExecute() InstructionPostgres
+	Do(callback func(txUow UnitOfWork) *apperrors.AppErrors) *apperrors.AppErrors
+	CustomerRepository() CustomerRepository
+	AddressRepository() AddressRepository
 }
