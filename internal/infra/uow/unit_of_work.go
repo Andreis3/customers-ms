@@ -27,23 +27,6 @@ func NewUnitOfWork(db *pgxpool.Pool) *UnitOfWork {
 	}
 }
 
-func (uow *UnitOfWork) Register(name string, callback interfaces.RepositoryFactory) {
-	uow.Repositories[name] = callback
-}
-
-func (u *UnitOfWork) GetRepository(name string) any {
-	ctx := context.Background()
-	if u.TX == nil {
-		tx, err := u.DB.Begin(ctx)
-		if err != nil {
-			return nil
-		}
-		u.TX = tx
-	}
-
-	return u.Repositories[name](u.TX)
-}
-
 func (u *UnitOfWork) Do(callback func(uow interfaces.UnitOfWork) *apperrors.AppErrors) *apperrors.AppErrors {
 	ctx := context.Background()
 	if u.TX != nil {
@@ -100,4 +83,8 @@ func (u *UnitOfWork) CommitOrRollback() *apperrors.AppErrors {
 	}
 
 	return nil
+}
+
+func (u *UnitOfWork) TXExecute() interfaces.InstructionPostgres {
+	return u.TX
 }

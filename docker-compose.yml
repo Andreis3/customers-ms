@@ -3,6 +3,8 @@ services:
     image: postgres:17.4
     container_name: postgres-primary
     restart: always
+    cap_add:
+      - SYS_TIME
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U admin -d customers-db"]
       interval: 5s
@@ -15,7 +17,7 @@ services:
     volumes:
       - primary-data:/var/lib/postgresql/data
       - ./docker/primary/config:/config
-      - ./docker/primary/initdb:/docker-entrypoint-initdb.d # <— aqui!
+      - ./docker/primary/initdb:/docker-entrypoint-initdb.d
       - primary-archive:/mnt/archive
     entrypoint:
       - bash
@@ -29,7 +31,6 @@ services:
         # então chama o entrypoint oficial para continuar o bootstrap
         exec docker-entrypoint.sh postgres \
         -c config_file=/config/postgresql.conf
-
     networks:
       - pgnet
 
@@ -37,6 +38,8 @@ services:
     image: postgres:17.4
     container_name: postgres-replica1
     restart: always
+    cap_add:
+      - SYS_TIME
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U admin -d customers-db"]
       interval: 5s
@@ -80,7 +83,6 @@ services:
         # 4) por fim, delega ao entrypoint oficial que baixa privilégios e inicia o postgres
         exec docker-entrypoint.sh postgres \
              -c config_file=/config/postgresql.conf
-
     networks:
       - pgnet
 
@@ -88,6 +90,8 @@ services:
     image: postgres:17.4
     container_name: postgres-replica2
     restart: always
+    cap_add:
+      - SYS_TIME
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U admin -d postgres"]
       interval: 5s
@@ -146,7 +150,7 @@ services:
       postgres-replica2:
         condition: service_healthy
     ports:
-      - "6432:5432"
+      - "5432:5432"
     environment:
       PGPOOL_BACKEND_NODES: "0:postgres-primary:5432:0,1:postgres-replica1:5432:2,2:postgres-replica2:5432:2"
       PGPOOL_SR_CHECK_USER: replicationuser
@@ -156,7 +160,6 @@ services:
       PGPOOL_POSTGRES_USERNAME: admin
       PGPOOL_POSTGRES_PASSWORD: admin
 
-      # *** as duas variáveis abaixo são obrigatórias: ***
       PGPOOL_ADMIN_USERNAME: pooladmin
       PGPOOL_ADMIN_PASSWORD: pooladminpass
     volumes:
@@ -171,7 +174,7 @@ services:
     ports:
       - "9090:9090"
     volumes:
-      - ./docker/prometheus.yml:/etc/prometheus/prometheus.yml
+      - ./docker/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml
     command:
       - "--config.file=/etc/prometheus/prometheus.yml"
 
@@ -195,7 +198,7 @@ services:
       - "4318:4318" # OTLP HTTP
     command: ["--config.file=/etc/tempo.yaml"]
     volumes:
-      - ./docker/tempo.yaml:/etc/tempo.yaml
+      - ./docker/tempo/tempo.yaml:/etc/tempo.yaml
 
   loki:
     image: grafana/loki
@@ -205,8 +208,8 @@ services:
       - "3100:3100"
     command: -config.file=/etc/loki/loki-config.yaml
     volumes:
-      - ./docker/loki-config.yaml:/etc/loki/loki-config.yaml
-      - ./docker/loki-data:/loki
+      - ./docker/loki/loki-config.yaml:/etc/loki/loki-config.yaml
+      - ./docker/loki/loki-data:/loki
 
   promtail:
     image: grafana/promtail
@@ -215,7 +218,7 @@ services:
     ports:
       - "3101:3101"
     volumes:
-      - ./docker/promtail-config.yaml:/etc/promtail/promtail.yaml
+      - ./docker/promtail/promtail-config.yaml:/etc/promtail/promtail.yaml
 
 volumes:
   primary-data:

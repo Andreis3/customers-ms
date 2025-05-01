@@ -1,9 +1,9 @@
 package factories
 
 import (
-	"github.com/andreis3/users-ms/internal/domain/apperrors"
 	"github.com/andreis3/users-ms/internal/domain/interfaces"
-	"github.com/andreis3/users-ms/internal/infra/uow"
+	"github.com/andreis3/users-ms/internal/infra/adapters/observability"
+	"github.com/andreis3/users-ms/internal/infra/repositories/postgres/repository"
 )
 
 type CreateCustomer struct {
@@ -11,17 +11,14 @@ type CreateCustomer struct {
 	Address  interfaces.AddressRepository
 }
 
-func LoadCustomerFactory(unitOfWork interfaces.UnitOfWork) (*CreateCustomer, *apperrors.AppErrors) {
-	customerRepo, ok := unitOfWork.GetRepository(uow.CustomerRepository).(interfaces.CustomerRepository)
-	if !ok {
-		return nil, apperrors.UnexpectedError("unexpected repository")
-	}
-	addressRepo, ok := unitOfWork.GetRepository(uow.AddressRepository).(interfaces.AddressRepository)
-	if !ok {
-		return nil, apperrors.UnexpectedError("unexpected repository")
-	}
+func LoadCustomerFactory(db interfaces.InstructionPostgres) *CreateCustomer {
+	prometheus := observability.NewPrometheus()
+
+	customerRepo := repository.NewCustomerRepository(db, prometheus)
+
+	addressRepo := repository.NewAddressRepository(db, prometheus)
 	return &CreateCustomer{
 		Customer: customerRepo,
 		Address:  addressRepo,
-	}, nil
+	}
 }

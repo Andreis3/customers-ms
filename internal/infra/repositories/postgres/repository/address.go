@@ -7,20 +7,23 @@ import (
 	"github.com/andreis3/users-ms/internal/domain/apperrors"
 	"github.com/andreis3/users-ms/internal/domain/entity/address"
 	"github.com/andreis3/users-ms/internal/domain/interfaces"
-	"github.com/andreis3/users-ms/internal/infra/adapters/db/postegres"
 	"github.com/andreis3/users-ms/internal/infra/adapters/observability"
 	"github.com/andreis3/users-ms/internal/infra/repositories/postgres/model"
 	"github.com/jackc/pgx/v5"
 )
 
 type AddressRepository struct {
-	DB      *postegres.Queries
+	DB      interfaces.InstructionPostgres
 	metrics interfaces.Prometheus
 	model.Address
 }
 
-func NewAddressRepository(metrics interfaces.Prometheus) *AddressRepository {
+func NewAddressRepository(
+	db interfaces.InstructionPostgres,
+	metrics interfaces.Prometheus,
+) *AddressRepository {
 	return &AddressRepository{
+		DB:      db,
 		metrics: metrics,
 	}
 }
@@ -36,7 +39,7 @@ func (c *AddressRepository) InsertBatchAddress(ctx context.Context, customerID i
 
 	batch := &pgx.Batch{}
 
-	query := `
+	query := `-- name: InsertAddress :one
 	INSERT INTO addresses 
 	(customer_id, street, number, complement, city, state, postal_code, country, created_at, updated_at) 
 	VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10) 

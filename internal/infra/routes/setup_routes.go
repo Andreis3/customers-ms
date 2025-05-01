@@ -11,7 +11,7 @@ import (
 
 func SetupRoutes(mux *chi.Mux, postgres interfaces.DB, log interfaces.Logger, prometheus interfaces.Prometheus) {
 	postgresPool := postgres.Instance().(*pgxpool.Pool)
-	uow := uow.NewRegisterRepositories(postgresPool, prometheus)
+	uow := uow.NewUnitOfWork(postgresPool)
 	createCustomerHandler := customer.NewCreateCustomerHandler(log, prometheus, uow)
 	customerRoutes := routes.NewCustomerRoutes(createCustomerHandler, log)
 	routes := NewRegisterRoutes(mux, log, *customerRoutes)
