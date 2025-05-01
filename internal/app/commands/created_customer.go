@@ -9,7 +9,6 @@ import (
 	"github.com/andreis3/users-ms/internal/domain/entity/customer"
 	"github.com/andreis3/users-ms/internal/domain/interfaces"
 	"github.com/andreis3/users-ms/internal/infra/adapters/observability"
-	"github.com/andreis3/users-ms/internal/infra/factories"
 )
 
 type CreatedCustomerCommand struct {
@@ -49,8 +48,7 @@ func (c *CreatedCustomerCommand) Execute(ctx context.Context, input aggregate.Cu
 
 	customerResult := &customer.Customer{}
 
-	errUow := c.uow.Do(func(unitOfWork interfaces.UnitOfWork) *apperrors.AppErrors {
-		repo, err := factories.LoadCustomerFactory(c.uow)
+	errUow := c.uow.Do(func(uow interfaces.UnitOfWork) *apperrors.AppErrors {
 		if err != nil {
 			child.RecordError(err)
 			c.log.ErrorJSON("Failed load customer repository",
@@ -69,7 +67,7 @@ func (c *CreatedCustomerCommand) Execute(ctx context.Context, input aggregate.Cu
 		}
 		input.Customer.AssignHashedPassword(hash)
 
-		resCustomer, err := repo.Customer.InsertCustomer(ctx, input.Customer)
+		resCustomer, err := uow.CustomerRepository().InsertCustomer(ctx, input.Customer)
 		if err != nil {
 			child.RecordError(err)
 			c.log.ErrorJSON("Failed insert customer",
@@ -79,7 +77,7 @@ func (c *CreatedCustomerCommand) Execute(ctx context.Context, input aggregate.Cu
 		}
 
 		if len(input.Addresses) > 0 {
-			_, err = repo.Address.InsertBatchAddress(ctx, resCustomer.ID(), input.Addresses)
+			_, err = uow.AddressRepository().InsertBatchAddress(ctx, resCustomer.ID(), input.Addresses)
 			if err != nil {
 				child.RecordError(err)
 				c.log.ErrorJSON("Failed insert address",

@@ -76,10 +76,10 @@ func (v *Validator) Errors() []string {
 	return errs
 }
 
-func (v *Validator) FieldErrorsFlat() map[string]string {
-	flat := make(map[string]string, len(v.FieldErrors))
+func (v *Validator) FieldErrorsFlat() map[string]any {
+	flat := make(map[string]any, len(v.FieldErrors))
 	for key, messages := range v.FieldErrors {
-		flat[key] = strings.Join(messages, ", ")
+		flat[key] = strings.Join(messages, " \u2022 ")
 	}
 	return flat
 }
@@ -99,4 +99,3 @@ func MaxChars(value string, n int) bool {
 func MinChars(value string, n int) bool {
 	return utf8.RuneCountInString(value) >= n
 }
-

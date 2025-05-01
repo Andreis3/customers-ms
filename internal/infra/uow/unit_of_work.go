@@ -6,6 +6,7 @@ import (
 	"github.com/andreis3/users-ms/internal/domain/apperrors"
 	"github.com/andreis3/users-ms/internal/domain/interfaces"
 	"github.com/andreis3/users-ms/internal/infra/commons/infraerrors"
+	"github.com/andreis3/users-ms/internal/infra/repositories/postgres/repository"
 	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgxpool"
 )
@@ -15,36 +16,20 @@ const (
 )
 
 type UnitOfWork struct {
-	DB           *pgxpool.Pool
-	TX           pgx.Tx
-	Repositories map[string]interfaces.RepositoryFactory
+	DB         *pgxpool.Pool
+	TX         pgx.Tx
+	prometheus interfaces.Prometheus
 }
 
-func NewUnitOfWork(db *pgxpool.Pool) *UnitOfWork {
+func NewUnitOfWork(db *pgxpool.Pool, prometheus interfaces.Prometheus) *UnitOfWork {
 	return &UnitOfWork{
-		DB:           db,
-		Repositories: make(map[string]interfaces.RepositoryFactory),
+		DB:         db,
+		prometheus: prometheus,
 	}
 }
 
-func (uow *UnitOfWork) Register(name string, callback interfaces.RepositoryFactory) {
-	uow.Repositories[name] = callback
-}
-
-func (u *UnitOfWork) GetRepository(name string) any {
-	ctx := context.Background()
-	if u.TX == nil {
-		tx, err := u.DB.Begin(ctx)
-		if err != nil {
-			return nil
-		}
-		u.TX = tx
-	}
-
-	return u.Repositories[name](u.TX)
-}
-
-func (u *UnitOfWork) Do(callback func(uow interfaces.UnitOfWork) *apperrors.AppErrors) *apperrors.AppErrors {
+// Do handles transaction lifecycle safely.
+func (u *UnitOfWork) Do(fn func(uow interfaces.UnitOfWork) *apperrors.AppErrors) *apperrors.AppErrors {
 	ctx := context.Background()
 	if u.TX != nil {
 		return infraerrors.ErrorTransactionAlreadyExists()
@@ -55,49 +40,28 @@ func (u *UnitOfWork) Do(callback func(uow interfaces.UnitOfWork) *apperrors.AppE
 		return infraerrors.ErrorOpeningTransaction(err)
 	}
 	u.TX = tx
+	defer func() { u.TX = nil }()
 
-	if err := callback(u); err != nil {
-		if errRB := u.Rollback(); errRB != nil {
-			return errRB
+	if err := fn(u); err != nil {
+		rollbackErr := u.TX.Rollback(ctx)
+		if rollbackErr != nil {
+			return infraerrors.ErrorExecuteRollback(rollbackErr)
 		}
 		return err
 	}
 
-	return u.CommitOrRollback()
-}
-
-func (u *UnitOfWork) Rollback() *apperrors.AppErrors {
-	if u.TX == nil {
-		return infraerrors.ErrorRollBackTransactionEmpty()
-	}
-
-	defer func() {
-		u.TX = nil
-	}()
-
-	err := u.TX.Rollback(context.Background())
-	if err != nil {
-		return infraerrors.ErrorExecuteRollback(err)
-	}
-	return nil
-}
-
-func (u *UnitOfWork) CommitOrRollback() *apperrors.AppErrors {
-	ctx := context.Background()
-	defer func() {
-		u.TX = nil
-	}()
-
-	if u.TX == nil {
-		return nil
-	}
-
 	if err := u.TX.Commit(ctx); err != nil {
-		if errRB := u.Rollback(); errRB != nil {
-			return errRB
-		}
 		return infraerrors.ErrorCommitOrRollback(err)
 	}
 
 	return nil
+}
+
+// --- Repository Accessors (Always fresh instances tied to current TX) --- //
+func (u *UnitOfWork) CustomerRepository() interfaces.CustomerRepository {
+	return repository.NewCustomerRepository(u.TX, u.prometheus)
+}
+
+func (u *UnitOfWork) AddressRepository() interfaces.AddressRepository {
+	return repository.NewAddressRepository(u.TX, u.prometheus)
 }

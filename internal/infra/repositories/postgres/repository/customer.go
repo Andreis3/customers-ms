@@ -7,7 +7,6 @@ import (
 	"github.com/andreis3/users-ms/internal/domain/apperrors"
 	"github.com/andreis3/users-ms/internal/domain/entity/customer"
 	"github.com/andreis3/users-ms/internal/domain/interfaces"
-	"github.com/andreis3/users-ms/internal/infra/adapters/db/postegres"
 	"github.com/andreis3/users-ms/internal/infra/adapters/observability"
 	"github.com/andreis3/users-ms/internal/infra/commons/infraerrors"
 	"github.com/andreis3/users-ms/internal/infra/repositories/postgres/model"
@@ -15,13 +14,17 @@ import (
 )
 
 type CustomerRepository struct {
-	DB      *postegres.Queries
+	DB      interfaces.InstructionPostgres
 	metrics interfaces.Prometheus
 	model.Customer
 }
 
-func NewCustomerRepository(metrics interfaces.Prometheus) *CustomerRepository {
+func NewCustomerRepository(
+	db interfaces.InstructionPostgres,
+	metrics interfaces.Prometheus,
+) *CustomerRepository {
 	return &CustomerRepository{
+		DB:      db,
 		metrics: metrics,
 	}
 }
@@ -35,7 +38,7 @@ func (c *CustomerRepository) InsertCustomer(ctx context.Context, data customer.C
 		span.End()
 	}()
 	model := c.FromModel(data)
-	const query = `
+	const query = `-- name: InsertCustomer :one
 	INSERT INTO customers 
 	(email, password, first_name, last_name, cpf, date_of_birth, created_at, updated_at) 
 	VALUES ($1, $2, $3, $4, $5, $6, $7, $8) 
