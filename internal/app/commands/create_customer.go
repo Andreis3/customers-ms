@@ -59,7 +59,9 @@ func (c *CreateCustomerCommand) Execute(ctx context.Context, input aggregate.Cus
 		}
 		input.Customer.AssignHashedPassword(hash)
 
-		customer, err = uow.CustomerRepository().InsertCustomer(ctx, input.Customer)
+		customerRepository := uow.CustomerRepository()
+
+		customer, err = customerRepository.InsertCustomer(ctx, input.Customer)
 		if err != nil {
 			child.RecordError(err)
 			c.log.ErrorJSON("Failed insert customer",
@@ -69,7 +71,8 @@ func (c *CreateCustomerCommand) Execute(ctx context.Context, input aggregate.Cus
 		}
 
 		if len(input.Addresses) > 0 {
-			_, err = uow.AddressRepository().InsertBatchAddress(ctx, customer.ID(), input.Addresses)
+			addressRepository := uow.AddressRepository()
+			_, err = addressRepository.InsertBatchAddress(ctx, customer.ID(), input.Addresses)
 			if err != nil {
 				child.RecordError(err)
 				c.log.ErrorJSON("Failed insert address",
