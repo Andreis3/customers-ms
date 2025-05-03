@@ -8,6 +8,6 @@ import (
 	"github.com/andreis3/users-ms/internal/domain/entity/customer"
 )
 
-type CreatedCustomerInterface interface {
+type ICreateCustomer interface {
 	Execute(ctx context.Context, input aggregate.CustomerProfile) (*customer.Customer, *apperrors.AppErrors)
 }

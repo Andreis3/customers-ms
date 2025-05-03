@@ -11,25 +11,25 @@ import (
 	"github.com/andreis3/users-ms/internal/infra/adapters/observability"
 )
 
-type CreatedCustomerCommand struct {
+type CreateCustomerCommand struct {
 	uow    interfaces.UnitOfWork
 	bcrypt interfaces.Bcrypt
 	log    interfaces.Logger
 }
 
-func NewCreatedCustomer(
+func NewCreateCustomer(
 	uow interfaces.UnitOfWork,
 	bcrypt interfaces.Bcrypt,
 	log interfaces.Logger,
-) *CreatedCustomerCommand {
-	return &CreatedCustomerCommand{
+) *CreateCustomerCommand {
+	return &CreateCustomerCommand{
 		uow:    uow,
 		bcrypt: bcrypt,
 		log:    log,
 	}
 }
 
-func (c *CreatedCustomerCommand) Execute(ctx context.Context, input aggregate.CustomerProfile) (*customer.Customer, *apperrors.AppErrors) {
+func (c *CreateCustomerCommand) Execute(ctx context.Context, input aggregate.CustomerProfile) (*customer.Customer, *apperrors.AppErrors) {
 	ctx, child := observability.Tracer.Start(ctx, "CreatedCustomer.Execute")
 	defer child.End()
 	traceID := child.SpanContext().TraceID().String()
@@ -46,17 +46,9 @@ func (c *CreatedCustomerCommand) Execute(ctx context.Context, input aggregate.Cu
 		return nil, err
 	}
 
-	customerResult := &customer.Customer{}
+	var customer *customer.Customer
 
 	errUow := c.uow.Do(func(uow interfaces.UnitOfWork) *apperrors.AppErrors {
-		if err != nil {
-			child.RecordError(err)
-			c.log.ErrorJSON("Failed load customer repository",
-				slog.String("trace_id", traceID),
-				slog.Any("error", err))
-			return err
-		}
-
 		hash, err := c.bcrypt.Hash(input.Customer.Password())
 		if err != nil {
 			child.RecordError(err)
@@ -67,7 +59,7 @@ func (c *CreatedCustomerCommand) Execute(ctx context.Context, input aggregate.Cu
 		}
 		input.Customer.AssignHashedPassword(hash)
 
-		resCustomer, err := uow.CustomerRepository().InsertCustomer(ctx, input.Customer)
+		customer, err = uow.CustomerRepository().InsertCustomer(ctx, input.Customer)
 		if err != nil {
 			child.RecordError(err)
 			c.log.ErrorJSON("Failed insert customer",
@@ -77,7 +69,7 @@ func (c *CreatedCustomerCommand) Execute(ctx context.Context, input aggregate.Cu
 		}
 
 		if len(input.Addresses) > 0 {
-			_, err = uow.AddressRepository().InsertBatchAddress(ctx, resCustomer.ID(), input.Addresses)
+			_, err = uow.AddressRepository().InsertBatchAddress(ctx, customer.ID(), input.Addresses)
 			if err != nil {
 				child.RecordError(err)
 				c.log.ErrorJSON("Failed insert address",
@@ -86,7 +78,6 @@ func (c *CreatedCustomerCommand) Execute(ctx context.Context, input aggregate.Cu
 				return err
 			}
 		}
-		customerResult = resCustomer
 		return nil
 	})
 
@@ -98,5 +89,5 @@ func (c *CreatedCustomerCommand) Execute(ctx context.Context, input aggregate.Cu
 		return nil, errUow
 	}
 
-	return customerResult, nil
+	return customer, nil
 }
