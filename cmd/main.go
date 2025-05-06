@@ -14,11 +14,7 @@ func main() {
 
 	srv := di.InitializeServer(conf)
 
-	go func() {
-		if err := srv.HTTPServer.ListenAndServe(); err != nil {
-			panic(err)
-		}
-	}()
+	go srv.Start()
 
 	srv.GracefulShutdown()
 }

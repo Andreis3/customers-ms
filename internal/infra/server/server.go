@@ -51,16 +51,18 @@ func NewServer(conf *configs.Configs, log *logger.Logger) *Server {
 	log.InfoText("[Server] ", "SERVER_STARTED", fmt.Sprintf("Server started in %s", time.Since(start)))
 	log.InfoText("[Server] ", "SERVER_STARTED", fmt.Sprintf("Server address http://localhost:%s", conf.ServerPort))
 
-	if err := server.ListenAndServe(); err != nil && !errors.Is(err, http.ErrServerClosed) {
-		log.CriticalText("[Server] ", "SERVER_ERROR", err.Error())
-		os.Exit(util.ExitFailure)
-	}
-
 	return &Server{
 		HTTPServer: server,
 		Postgres:   pool,
 		Log:        *log,
 		Prometheus: prometheus,
+	}
+}
+
+func (s *Server) Start() {
+	if err := s.HTTPServer.ListenAndServe(); err != nil && !errors.Is(err, http.ErrServerClosed) {
+		s.Log.CriticalText("[Server] ", "SERVER_ERROR", err.Error())
+		os.Exit(util.ExitFailure)
 	}
 }
 
@@ -82,5 +84,5 @@ func (s *Server) GracefulShutdown() {
 	s.Prometheus.Close()
 	s.Log.InfoText("Shutdown complete exit code 0...")
 
-	os.Exit(0)
+	os.Exit(util.ExitSuccess)
 }
