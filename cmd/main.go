@@ -1,21 +1,24 @@
 package main
 
 import (
-	"fmt"
-	"os"
-
-	"github.com/andreis3/users-ms/internal/infra/commons/logger"
-	"github.com/andreis3/users-ms/internal/infra/configs"
-	"github.com/andreis3/users-ms/internal/infra/server"
-	"github.com/andreis3/users-ms/internal/util"
+	"github.com/andreis3/customers-ms/internal/di"
+	"github.com/andreis3/customers-ms/internal/infra/configs"
 )
 
 func main() {
-	log := logger.NewLogger()
-	conf, err := configs.LoadConfig()
-	if err != nil {
-		log.ErrorText(fmt.Sprintf("Notification Errors loading config: %s", err.Error()))
-		os.Exit(util.ExitFailure)
+	conf := configs.LoadConfig()
+
+	if conf == nil {
+		panic("Failed to load configuration")
 	}
-	server.Start(conf, *log)
+
+	srv := di.InitializeServer(conf)
+
+	go func() {
+		if err := srv.HTTPServer.ListenAndServe(); err != nil {
+			panic(err)
+		}
+	}()
+
+	srv.GracefulShutdown()
 }

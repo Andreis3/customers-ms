@@ -4,11 +4,11 @@ import (
 	"context"
 	"time"
 
-	"github.com/andreis3/users-ms/internal/domain/apperrors"
-	"github.com/andreis3/users-ms/internal/domain/entity/address"
-	"github.com/andreis3/users-ms/internal/domain/interfaces"
-	"github.com/andreis3/users-ms/internal/infra/adapters/observability"
-	"github.com/andreis3/users-ms/internal/infra/repositories/postgres/model"
+	"github.com/andreis3/customers-ms/internal/domain/apperrors"
+	"github.com/andreis3/customers-ms/internal/domain/entity/address"
+	"github.com/andreis3/customers-ms/internal/domain/interfaces"
+	"github.com/andreis3/customers-ms/internal/infra/adapters/observability"
+	"github.com/andreis3/customers-ms/internal/infra/repositories/postgres/model"
 	"github.com/jackc/pgx/v5"
 )
 

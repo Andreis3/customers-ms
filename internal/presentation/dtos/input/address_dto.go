@@ -1,6 +1,6 @@
 package input
 
-import "github.com/andreis3/users-ms/internal/domain/entity/address"
+import "github.com/andreis3/customers-ms/internal/domain/entity/address"
 
 type AddressDTO struct {
 	Street     string `json:"street"`

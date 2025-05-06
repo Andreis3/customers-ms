@@ -3,9 +3,9 @@ package commands
 import (
 	"context"
 
-	"github.com/andreis3/users-ms/internal/domain/aggregate"
-	"github.com/andreis3/users-ms/internal/domain/apperrors"
-	"github.com/andreis3/users-ms/internal/domain/entity/customer"
+	"github.com/andreis3/customers-ms/internal/domain/aggregate"
+	"github.com/andreis3/customers-ms/internal/domain/apperrors"
+	"github.com/andreis3/customers-ms/internal/domain/entity/customer"
 )
 
 type ICreateCustomer interface {

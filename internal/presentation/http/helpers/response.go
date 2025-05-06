@@ -4,8 +4,8 @@ import (
 	"encoding/json"
 	"net/http"
 
-	"github.com/andreis3/users-ms/internal/domain/apperrors"
-	"github.com/andreis3/users-ms/internal/presentation/errors"
+	"github.com/andreis3/customers-ms/internal/domain/apperrors"
+	"github.com/andreis3/customers-ms/internal/presentation/errors"
 )
 
 const (

@@ -1,8 +1,8 @@
 package output
 
 import (
-	"github.com/andreis3/users-ms/internal/domain/entity/customer"
-	"github.com/andreis3/users-ms/internal/util"
+	"github.com/andreis3/customers-ms/internal/domain/entity/customer"
+	"github.com/andreis3/customers-ms/internal/util"
 )
 
 type CreatedCustomerDTO struct {

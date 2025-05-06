@@ -4,11 +4,11 @@ import (
 	"context"
 	"log/slog"
 
-	"github.com/andreis3/users-ms/internal/domain/aggregate"
-	"github.com/andreis3/users-ms/internal/domain/apperrors"
-	"github.com/andreis3/users-ms/internal/domain/entity/customer"
-	"github.com/andreis3/users-ms/internal/domain/interfaces"
-	"github.com/andreis3/users-ms/internal/infra/adapters/observability"
+	"github.com/andreis3/customers-ms/internal/domain/aggregate"
+	"github.com/andreis3/customers-ms/internal/domain/apperrors"
+	"github.com/andreis3/customers-ms/internal/domain/entity/customer"
+	"github.com/andreis3/customers-ms/internal/domain/interfaces"
+	"github.com/andreis3/customers-ms/internal/infra/adapters/observability"
 )
 
 type CreateCustomerCommand struct {

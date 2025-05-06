@@ -3,10 +3,10 @@ package uow
 import (
 	"context"
 
-	"github.com/andreis3/users-ms/internal/domain/apperrors"
-	"github.com/andreis3/users-ms/internal/domain/interfaces"
-	"github.com/andreis3/users-ms/internal/infra/commons/infraerrors"
-	"github.com/andreis3/users-ms/internal/infra/repositories/postgres/repository"
+	"github.com/andreis3/customers-ms/internal/domain/apperrors"
+	"github.com/andreis3/customers-ms/internal/domain/interfaces"
+	"github.com/andreis3/customers-ms/internal/infra/commons/infraerrors"
+	"github.com/andreis3/customers-ms/internal/infra/repositories/postgres/repository"
 	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgxpool"
 )

@@ -1,6 +1,6 @@
 package apperrors
 
-import "github.com/andreis3/users-ms/internal/domain/validator"
+import "github.com/andreis3/customers-ms/internal/domain/validator"
 
 type ErrorCode string
 

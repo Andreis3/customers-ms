@@ -3,7 +3,7 @@ package address
 import (
 	"time"
 
-	"github.com/andreis3/users-ms/internal/domain/validator"
+	"github.com/andreis3/customers-ms/internal/domain/validator"
 )
 
 type Address struct {

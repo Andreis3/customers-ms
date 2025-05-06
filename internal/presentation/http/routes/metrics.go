@@ -3,7 +3,7 @@ package routes
 import (
 	"net/http"
 
-	"github.com/andreis3/users-ms/internal/presentation/http/helpers"
+	"github.com/andreis3/customers-ms/internal/presentation/http/helpers"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
 )
 

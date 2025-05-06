@@ -3,10 +3,10 @@ package routes
 import (
 	"net/http"
 
-	"github.com/andreis3/users-ms/internal/domain/interfaces"
-	"github.com/andreis3/users-ms/internal/presentation/http/handler/customer"
-	"github.com/andreis3/users-ms/internal/presentation/http/helpers"
-	"github.com/andreis3/users-ms/internal/presentation/http/middlewares"
+	"github.com/andreis3/customers-ms/internal/domain/interfaces"
+	"github.com/andreis3/customers-ms/internal/presentation/http/handler/customer"
+	"github.com/andreis3/customers-ms/internal/presentation/http/helpers"
+	"github.com/andreis3/customers-ms/internal/presentation/http/middlewares"
 )
 
 const (

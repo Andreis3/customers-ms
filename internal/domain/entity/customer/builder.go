@@ -3,8 +3,8 @@ package customer
 import (
 	"time"
 
-	"github.com/andreis3/users-ms/internal/domain/entity/address"
-	valueobject "github.com/andreis3/users-ms/internal/domain/value-object"
+	"github.com/andreis3/customers-ms/internal/domain/entity/address"
+	valueobject "github.com/andreis3/customers-ms/internal/domain/value-object"
 )
 
 type CustomerBuilder struct {

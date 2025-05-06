@@ -1,7 +1,6 @@
 package configs
 
 import (
-	"fmt"
 	"time"
 
 	"github.com/spf13/viper"
@@ -28,7 +27,7 @@ type Configs struct {
 
 // LoadConfig loads the application configuration from either a .env file or environment variables.
 // It prioritizes the .env file if it exists, otherwise falls back to environment variables.
-func LoadConfig() (*Configs, error) {
+func LoadConfig() *Configs {
 	viper.SetConfigFile(".env") // name of config file (without extension)
 	viper.AutomaticEnv()        // Fallback to environment variables if .env is not found
 
@@ -43,15 +42,15 @@ func LoadConfig() (*Configs, error) {
 	if err := viper.ReadInConfig(); err != nil {
 		// If the .env file is not found, ignore the error and rely on environment variables
 		if _, ok := err.(viper.ConfigFileNotFoundError); !ok {
-			return nil, fmt.Errorf("eror reading config file: %w", err)
+			return nil
 		}
 	}
 
 	var cfg Configs
 
 	if err := viper.Unmarshal(&cfg); err != nil {
-		return nil, fmt.Errorf("error unmarshaling config: %w", err)
+		return nil
 	}
 
-	return &cfg, nil
+	return &cfg
 }

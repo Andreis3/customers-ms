@@ -1,8 +1,8 @@
 package factories
 
 import (
-	"github.com/andreis3/users-ms/internal/app/commands"
-	"github.com/andreis3/users-ms/internal/domain/interfaces"
+	"github.com/andreis3/customers-ms/internal/app/commands"
+	"github.com/andreis3/customers-ms/internal/domain/interfaces"
 )
 
 type createCustomerFactory struct {

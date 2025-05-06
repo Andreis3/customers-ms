@@ -1,7 +1,7 @@
 package interfaces
 
 import (
-	"github.com/andreis3/users-ms/internal/domain/apperrors"
+	"github.com/andreis3/customers-ms/internal/domain/apperrors"
 )
 
 type RepositoryFactory func(tx any) any

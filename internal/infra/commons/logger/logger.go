@@ -57,10 +57,12 @@ func NewLogger() *Logger {
 	slog.SetDefault(loggerJSON)
 	slog.SetDefault(loggerText)
 
-	return &Logger{
+	logger := &Logger{
 		loggerJSON: *loggerJSON,
 		loggerText: *loggerText,
 	}
+
+	return logger
 }
 
 func (l *Logger) DebugJSON(msg string, info ...any) {

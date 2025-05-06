@@ -5,12 +5,12 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/andreis3/users-ms/internal/domain/interfaces"
-	"github.com/andreis3/users-ms/internal/infra/adapters/observability"
-	"github.com/andreis3/users-ms/internal/infra/factories"
-	"github.com/andreis3/users-ms/internal/presentation/dtos/input"
-	"github.com/andreis3/users-ms/internal/presentation/dtos/output"
-	"github.com/andreis3/users-ms/internal/presentation/http/helpers"
+	"github.com/andreis3/customers-ms/internal/domain/interfaces"
+	"github.com/andreis3/customers-ms/internal/infra/adapters/observability"
+	"github.com/andreis3/customers-ms/internal/infra/factories"
+	"github.com/andreis3/customers-ms/internal/presentation/dtos/input"
+	"github.com/andreis3/customers-ms/internal/presentation/dtos/output"
+	"github.com/andreis3/customers-ms/internal/presentation/http/helpers"
 )
 
 type CreateCustomerHandler struct {

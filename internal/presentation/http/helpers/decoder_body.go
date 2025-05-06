@@ -5,7 +5,7 @@ import (
 	"errors"
 	"net/http"
 
-	"github.com/andreis3/users-ms/internal/domain/apperrors"
+	"github.com/andreis3/customers-ms/internal/domain/apperrors"
 )
 
 func DecoderBodyRequest[T any](req *http.Request) (T, *apperrors.AppErrors) {

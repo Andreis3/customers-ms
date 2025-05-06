@@ -1,11 +1,11 @@
 package routes
 
 import (
-	"github.com/andreis3/users-ms/internal/domain/interfaces"
-	"github.com/andreis3/users-ms/internal/infra/adapters/crypto"
-	"github.com/andreis3/users-ms/internal/infra/uow"
-	"github.com/andreis3/users-ms/internal/presentation/http/handler/customer"
-	"github.com/andreis3/users-ms/internal/presentation/http/routes"
+	"github.com/andreis3/customers-ms/internal/domain/interfaces"
+	"github.com/andreis3/customers-ms/internal/infra/adapters/crypto"
+	"github.com/andreis3/customers-ms/internal/infra/uow"
+	"github.com/andreis3/customers-ms/internal/presentation/http/handler/customer"
+	"github.com/andreis3/customers-ms/internal/presentation/http/routes"
 	"github.com/go-chi/chi/v5"
 	"github.com/jackc/pgx/v5/pgxpool"
 )
