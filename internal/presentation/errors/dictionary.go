@@ -3,8 +3,7 @@ package errors
 import (
 	"net/http"
 
-	"github.com/andreis3/customers-ms/internal/domain/apperrors"
-	"github.com/andreis3/customers-ms/internal/infra/commons/infraerrors"
+	apperror "github.com/andreis3/customers-ms/internal/domain/app-error"
 )
 
 type ProtocolError struct {
@@ -12,16 +11,16 @@ type ProtocolError struct {
 	GRPCCode   int
 }
 
-var ErrorDictionary = map[apperrors.ErrorCode]ProtocolError{
-	apperrors.ErrInvalidBusinessRules: {
+var ErrorDictionary = map[apperror.Code]ProtocolError{
+	apperror.ErrInvalidBusinessRules: {
 		HTTPStatus: http.StatusBadRequest,
 		GRPCCode:   3,
 	},
-	apperrors.ErrResourceNotFound: {
+	apperror.ErrResourceNotFound: {
 		HTTPStatus: http.StatusNotFound,
 		GRPCCode:   5,
 	},
-	infraerrors.ErrInternalProcessing: {
+	apperror.ErrInternalProcessing: {
 		HTTPStatus: http.StatusInternalServerError,
 		GRPCCode:   13,
 	},

@@ -3,10 +3,10 @@ package interfaces
 import (
 	"context"
 
-	"github.com/andreis3/customers-ms/internal/domain/apperrors"
+	apperror "github.com/andreis3/customers-ms/internal/domain/app-error"
 	"github.com/andreis3/customers-ms/internal/domain/entity/customer"
 )
 
 type CustomerRepository interface {
-	InsertCustomer(ctx context.Context, data customer.Customer) (*customer.Customer, *apperrors.AppErrors)
+	InsertCustomer(ctx context.Context, data customer.Customer) (*customer.Customer, *apperror.Error)
 }

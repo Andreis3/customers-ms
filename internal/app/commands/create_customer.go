@@ -5,7 +5,7 @@ import (
 	"log/slog"
 
 	"github.com/andreis3/customers-ms/internal/domain/aggregate"
-	"github.com/andreis3/customers-ms/internal/domain/apperrors"
+	apperror "github.com/andreis3/customers-ms/internal/domain/app-error"
 	"github.com/andreis3/customers-ms/internal/domain/entity/customer"
 	"github.com/andreis3/customers-ms/internal/domain/interfaces"
 	"github.com/andreis3/customers-ms/internal/infra/adapters/observability"
@@ -29,7 +29,7 @@ func NewCreateCustomer(
 	}
 }
 
-func (c *CreateCustomerCommand) Execute(ctx context.Context, input aggregate.CustomerProfile) (*customer.Customer, *apperrors.AppErrors) {
+func (c *CreateCustomerCommand) Execute(ctx context.Context, input aggregate.CustomerProfile) (*customer.Customer, *apperror.Error) {
 	ctx, child := observability.Tracer.Start(ctx, "CreatedCustomer.Execute")
 	defer child.End()
 	traceID := child.SpanContext().TraceID().String()
@@ -48,7 +48,7 @@ func (c *CreateCustomerCommand) Execute(ctx context.Context, input aggregate.Cus
 
 	var customer *customer.Customer
 
-	errUow := c.uow.Do(func(uow interfaces.UnitOfWork) *apperrors.AppErrors {
+	errUow := c.uow.Do(func(uow interfaces.UnitOfWork) *apperror.Error {
 		hash, err := c.bcrypt.Hash(input.Customer.Password())
 		if err != nil {
 			child.RecordError(err)

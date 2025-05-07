@@ -3,7 +3,7 @@ package aggregate
 import (
 	"fmt"
 
-	"github.com/andreis3/customers-ms/internal/domain/apperrors"
+	apperror "github.com/andreis3/customers-ms/internal/domain/app-error"
 	"github.com/andreis3/customers-ms/internal/domain/entity/address"
 	"github.com/andreis3/customers-ms/internal/domain/entity/customer"
 	"github.com/andreis3/customers-ms/internal/domain/validator"
@@ -22,7 +22,7 @@ func NewCustomerProfile(custome customer.Customer, addresses []address.Address) 
 	return userProfile
 }
 
-func (u *CustomerProfile) Validate() *apperrors.AppErrors {
+func (u *CustomerProfile) Validate() *apperror.Error {
 	mainValidator := validator.New()
 
 	validateUser := u.Customer.Validate()
@@ -43,5 +43,5 @@ func (u *CustomerProfile) Validate() *apperrors.AppErrors {
 		return nil
 	}
 
-	return apperrors.InvalidCustomerError(mainValidator)
+	return apperror.InvalidCustomerError(mainValidator)
 }

@@ -4,11 +4,10 @@ import (
 	"context"
 	"time"
 
-	"github.com/andreis3/customers-ms/internal/domain/apperrors"
+	apperror "github.com/andreis3/customers-ms/internal/domain/app-error"
 	"github.com/andreis3/customers-ms/internal/domain/entity/customer"
 	"github.com/andreis3/customers-ms/internal/domain/interfaces"
 	"github.com/andreis3/customers-ms/internal/infra/adapters/observability"
-	"github.com/andreis3/customers-ms/internal/infra/commons/infraerrors"
 	"github.com/andreis3/customers-ms/internal/infra/repositories/postgres/model"
 	"go.opentelemetry.io/otel/attribute"
 )
@@ -29,7 +28,7 @@ func NewCustomerRepository(
 	}
 }
 
-func (c *CustomerRepository) InsertCustomer(ctx context.Context, data customer.Customer) (*customer.Customer, *apperrors.AppErrors) {
+func (c *CustomerRepository) InsertCustomer(ctx context.Context, data customer.Customer) (*customer.Customer, *apperror.Error) {
 	ctx, span := observability.Tracer.Start(ctx, "CustomerRepository.InsertCustomer")
 	start := time.Now()
 	defer func() {
@@ -56,7 +55,7 @@ func (c *CustomerRepository) InsertCustomer(ctx context.Context, data customer.C
 		model.CreatedAT,
 		model.UpdatedAT).Scan(&id)
 	if err != nil {
-		return nil, infraerrors.ErrorSaveCustomer(err)
+		return nil, apperror.ErrorSaveCustomer(err)
 	}
 
 	model.ID = &id

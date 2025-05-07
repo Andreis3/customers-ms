@@ -4,7 +4,7 @@ import (
 	"context"
 	"time"
 
-	"github.com/andreis3/customers-ms/internal/domain/apperrors"
+	apperror "github.com/andreis3/customers-ms/internal/domain/app-error"
 	"github.com/andreis3/customers-ms/internal/domain/entity/address"
 	"github.com/andreis3/customers-ms/internal/domain/interfaces"
 	"github.com/andreis3/customers-ms/internal/infra/adapters/observability"
@@ -28,7 +28,7 @@ func NewAddressRepository(
 	}
 }
 
-func (c *AddressRepository) InsertBatchAddress(ctx context.Context, customerID int64, addresses []address.Address) (*[]address.Address, *apperrors.AppErrors) {
+func (c *AddressRepository) InsertBatchAddress(ctx context.Context, customerID int64, addresses []address.Address) (*[]address.Address, *apperror.Error) {
 	ctx, span := observability.Tracer.Start(ctx, "AddressRepository.InsertBatchAddress")
 	start := time.Now()
 	defer func() {

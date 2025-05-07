@@ -3,9 +3,8 @@ package uow
 import (
 	"context"
 
-	"github.com/andreis3/customers-ms/internal/domain/apperrors"
+	apperror "github.com/andreis3/customers-ms/internal/domain/app-error"
 	"github.com/andreis3/customers-ms/internal/domain/interfaces"
-	"github.com/andreis3/customers-ms/internal/infra/commons/infraerrors"
 	"github.com/andreis3/customers-ms/internal/infra/repositories/postgres/repository"
 	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgxpool"
@@ -29,15 +28,15 @@ func NewUnitOfWork(db *pgxpool.Pool, prometheus interfaces.Prometheus) *UnitOfWo
 }
 
 // Do handles transaction lifecycle safely.
-func (u *UnitOfWork) Do(fn func(uow interfaces.UnitOfWork) *apperrors.AppErrors) *apperrors.AppErrors {
+func (u *UnitOfWork) Do(fn func(uow interfaces.UnitOfWork) *apperror.Error) *apperror.Error {
 	ctx := context.Background()
 	if u.TX != nil {
-		return infraerrors.ErrorTransactionAlreadyExists()
+		return apperror.ErrorTransactionAlreadyExists()
 	}
 
 	tx, err := u.DB.Begin(ctx)
 	if err != nil {
-		return infraerrors.ErrorOpeningTransaction(err)
+		return apperror.ErrorOpeningTransaction(err)
 	}
 	u.TX = tx
 	defer func() { u.TX = nil }()
@@ -45,13 +44,13 @@ func (u *UnitOfWork) Do(fn func(uow interfaces.UnitOfWork) *apperrors.AppErrors)
 	if err := fn(u); err != nil {
 		rollbackErr := u.TX.Rollback(ctx)
 		if rollbackErr != nil {
-			return infraerrors.ErrorExecuteRollback(rollbackErr)
+			return apperror.ErrorExecuteRollback(rollbackErr)
 		}
 		return err
 	}
 
 	if err := u.TX.Commit(ctx); err != nil {
-		return infraerrors.ErrorCommitOrRollback(err)
+		return apperror.ErrorCommitOrRollback(err)
 	}
 
 	return nil

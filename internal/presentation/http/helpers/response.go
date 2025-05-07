@@ -4,7 +4,7 @@ import (
 	"encoding/json"
 	"net/http"
 
-	"github.com/andreis3/customers-ms/internal/domain/apperrors"
+	apperror "github.com/andreis3/customers-ms/internal/domain/app-error"
 	"github.com/andreis3/customers-ms/internal/presentation/errors"
 )
 
@@ -32,7 +32,7 @@ func ResponseSuccess[T any](write http.ResponseWriter, status int, data T) {
 	_ = json.NewEncoder(write).Encode(result)
 }
 
-func ResponseError[T any](write http.ResponseWriter, err *apperrors.AppErrors) {
+func ResponseError[T any](write http.ResponseWriter, err *apperror.Error) {
 	status := errors.ErrorDictionary[err.Code].HTTPStatus
 	write.Header().Set(ContentType, ApplicationJSON)
 	write.WriteHeader(status)

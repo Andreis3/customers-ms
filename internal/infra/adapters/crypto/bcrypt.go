@@ -1,8 +1,7 @@
 package crypto
 
 import (
-	"github.com/andreis3/customers-ms/internal/domain/apperrors"
-	"github.com/andreis3/customers-ms/internal/infra/commons/infraerrors"
+	apperror "github.com/andreis3/customers-ms/internal/domain/app-error"
 	"golang.org/x/crypto/bcrypt"
 )
 
@@ -12,10 +11,10 @@ func NewBcrypt() *BcryptCrypto {
 	return &BcryptCrypto{}
 }
 
-func (b *BcryptCrypto) Hash(data string) (string, *apperrors.AppErrors) {
+func (b *BcryptCrypto) Hash(data string) (string, *apperror.Error) {
 	bytes, err := bcrypt.GenerateFromPassword([]byte(data), 5)
 	if err != nil {
-		return "", infraerrors.ErrorHashPassword(err)
+		return "", apperror.ErrorHashPassword(err)
 	}
 	return string(bytes), nil
 }

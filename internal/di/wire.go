@@ -4,9 +4,9 @@
 package di
 
 import (
-	"github.com/andreis3/users-ms/internal/infra/commons/logger"
-	"github.com/andreis3/users-ms/internal/infra/configs"
-	"github.com/andreis3/users-ms/internal/infra/server"
+	"github.com/andreis3/customers-ms/internal/infra/commons/logger"
+	"github.com/andreis3/customers-ms/internal/infra/configs"
+	"github.com/andreis3/customers-ms/internal/infra/server"
 	"github.com/google/wire"
 )
 
