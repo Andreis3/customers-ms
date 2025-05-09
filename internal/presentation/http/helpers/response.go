@@ -15,7 +15,7 @@ const (
 
 type TypeResponseError struct {
 	CodeError       string         `json:"code_error"`
-	ErrorFields     map[string]any `json:"error_fields"`
+	ErrorFields     map[string]any `json:"error_fields,omitempty"`
 	FriendlyMessage any            `json:"friendly_message"`
 }
 

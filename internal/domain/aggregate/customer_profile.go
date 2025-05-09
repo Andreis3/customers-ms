@@ -25,14 +25,14 @@ func NewCustomerProfile(custome customer.Customer, addresses []address.Address) 
 func (u *CustomerProfile) Validate() *apperror.Error {
 	mainValidator := validator.New()
 
-	validateUser := u.Customer.Validate()
-	mainValidator.Merge(validateUser)
+	validateCustomer := u.Customer.Validate()
+	mainValidator.Merge(validateCustomer)
 
 	for i, address := range u.Addresses {
 		addresValidator := address.Validate()
 
 		for key, messages := range addresValidator.FieldErrors {
-			prefixedKey := fmt.Sprintf("address[%d].%s", i, key)
+			prefixedKey := fmt.Sprintf("addresses[%d].%s", i, key)
 			for _, msg := range messages {
 				mainValidator.AddFieldError(prefixedKey, msg)
 			}

@@ -33,7 +33,7 @@ func (e Error) Error() string {
 func InvalidCustomerError(validate *validator.Validator) *Error {
 	return &Error{
 		Code:            ErrInvalidBusinessRules,
-		Map:             validate.FieldErrorsFlat(),
+		Map:             validate.FieldErrorsGrouped(),
 		Errors:          validate.Errors(),
 		OriginFunc:      "CustomerProfile.Validate",
 		FriendlyMessage: "Validation failed for the provided input.",
