@@ -23,6 +23,8 @@ type Configs struct {
 	RedisPassword           string        `mapstructure:"REDIS_PASSWORD"`              // Redis password
 	RedisDB                 int           `mapstructure:"REDIS_DB"`                    // Redis database number
 	ApplicationName         string        `mapstructure:"APPLICATION_NAME"`            // name of application
+	JWTSecret               string        `mapstructure:"JWT_SECRET"`                  // JWT secret
+	JWTExpiry               time.Duration `mapstructure:"JWT_EXPIRY"`                  // JWT expiry
 }
 
 // LoadConfig loads the application configuration from either a .env file or environment variables.

@@ -152,18 +152,19 @@ services:
     ports:
       - "5432:5432"
     environment:
-      PGPOOL_BACKEND_NODES: "0:postgres-primary:5432:0,1:postgres-replica1:5432:2,2:postgres-replica2:5432:2"
-      PGPOOL_SR_CHECK_USER: replicationuser
-      PGPOOL_SR_CHECK_PASSWORD: admin
-      PGPOOL_SR_CHECK_DATABASE: postgres
-      PGPOOL_ENABLE_LOAD_BALANCING: "yes"
-      PGPOOL_POSTGRES_USERNAME: admin
-      PGPOOL_POSTGRES_PASSWORD: admin
+      - PGPOOL_USER_CONF_FILE=/config/pgpool.conf
+      - PGPOOL_BACKEND_NODES=0:postgres-primary:5432:0,1:postgres-replica1:5432:2,2:postgres-replica2:5432:2
+      - PGPOOL_SR_CHECK_USER=replicationuser
+      - PGPOOL_SR_CHECK_PASSWORD=admin
+      - PGPOOL_SR_CHECK_DATABASE=postgres
+      - PGPOOL_ENABLE_LOAD_BALANCING=yes
+      - PGPOOL_POSTGRES_USERNAME=admin
+      - PGPOOL_POSTGRES_PASSWORD=admin
 
-      PGPOOL_ADMIN_USERNAME: pooladmin
-      PGPOOL_ADMIN_PASSWORD: pooladminpass
+      - PGPOOL_ADMIN_USERNAME=pooladmin
+      - PGPOOL_ADMIN_PASSWORD=pooladminpass
     volumes:
-      - ./docker/pgpool/conf:/bitnami/pgpool/conf:ro
+      - ./docker/pgpool/conf:/config
       - ./docker/pgpool/failover.sh:/opt/bitnami/pgpool/failover.sh:ro
     networks:
       - pgnet

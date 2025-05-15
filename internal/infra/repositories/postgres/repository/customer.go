@@ -67,3 +67,44 @@ func (c *CustomerRepository) InsertCustomer(ctx context.Context, data customer.C
 
 	return &result, nil
 }
+
+func (c *CustomerRepository) FindCustomerByEmail(ctx context.Context, email string) (*customer.Customer, *apperror.Error) {
+	ctx, span := observability.Tracer.Start(ctx, "CustomerRepository.FindCustomerByEmail")
+	start := time.Now()
+
+	defer func() {
+		end := time.Since(start)
+		c.metrics.ObserveInstructionDBDuration("postgres", "customers", "select", float64(end.Milliseconds()))
+		span.End()
+	}()
+
+	const query = `
+	SELECT id, email, password, first_name, last_name, cpf, date_of_birth, created_at, updated_at
+	FROM customers
+	WHERE email = $1`
+
+	var model model.Customer
+
+	err := c.DB.QueryRow(ctx, query, email).Scan(
+		&model.ID,
+		&model.Email,
+		&model.Password,
+		&model.FirstName,
+		&model.LastName,
+		&model.CPF,
+		&model.DateOfBirth,
+		&model.CreatedAT,
+		&model.UpdatedAT,
+	)
+	if err != nil {
+		return nil, apperror.ErrorFindCustomerByEmail(err)
+	}
+
+	result := model.ToEntity()
+
+	span.SetAttributes(
+		attribute.Int64("customer_id", *model.ID),
+	)
+
+	return &result, nil
+}

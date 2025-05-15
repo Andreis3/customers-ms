@@ -8,6 +8,8 @@ const (
 	ErrInvalidBusinessRules Code = "DM-400"
 	ErrResourceNotFound     Code = "DM-404"
 	ErrInternalProcessing   Code = "IMF-500"
+	ErrUnauthorized         Code = "DM-401"
+	ErrForbidden            Code = "DM-403"
 )
 
 const (
@@ -55,6 +57,15 @@ func InvalidPasswordOrEmailError() *Error {
 		Errors:          []string{"invalid password or email"},
 		OriginFunc:      "CustomerProfile.Validate",
 		FriendlyMessage: "Validation failed for the provided input.",
+	}
+}
+
+func ErrCustomerAlreadyExists() *Error {
+	return &Error{
+		Code:            ErrInvalidBusinessRules,
+		Errors:          []string{"customer already exists"},
+		OriginFunc:      "CustomerProfile.Validate",
+		FriendlyMessage: "Already exists a customer with this email.",
 	}
 }
 
@@ -120,6 +131,16 @@ func ErrorSaveCustomer(err error) *Error {
 	}
 }
 
+func ErrorFindCustomerByEmail(err error) *Error {
+	return &Error{
+		Code:            ErrInternalProcessing,
+		Errors:          []string{err.Error()},
+		Cause:           InternalServerError,
+		OriginFunc:      "CustomerRepository.FindCustomerByEmail",
+		FriendlyMessage: ServerErrorFriendlyMessage,
+	}
+}
+
 func ErrorCreatedBatchAddress(err error) *Error {
 	return &Error{
 		Code:            ErrInternalProcessing,
@@ -147,6 +168,57 @@ func ErrorCompareHash(err error) *Error {
 		Errors:          []string{err.Error()},
 		Cause:           InternalServerError,
 		OriginFunc:      "Bcrypt.CompareHash",
+		FriendlyMessage: ServerErrorFriendlyMessage,
+	}
+}
+
+/********JWT Errors********/
+func ErrorCreateToken(err error) *Error {
+	return &Error{
+		Code:            ErrInternalProcessing,
+		Errors:          []string{err.Error()},
+		Cause:           InternalServerError,
+		OriginFunc:      "JWT.CreateToken",
+		FriendlyMessage: ServerErrorFriendlyMessage,
+	}
+}
+
+func ErrorValidateToken(err error) *Error {
+	return &Error{
+		Code:            ErrInternalProcessing,
+		Errors:          []string{err.Error()},
+		Cause:           InternalServerError,
+		OriginFunc:      "JWT.ValidateToken",
+		FriendlyMessage: ServerErrorFriendlyMessage,
+	}
+}
+
+func ErrorInvalidTokenAlgorithmError() *Error {
+	return &Error{
+		Code:            ErrInternalProcessing,
+		Errors:          []string{"invalid token algorithm"},
+		Cause:           InternalServerError,
+		OriginFunc:      "JWT.ValidateToken",
+		FriendlyMessage: ServerErrorFriendlyMessage,
+	}
+}
+
+func ErrorRefreshToken(err error) *Error {
+	return &Error{
+		Code:            ErrInternalProcessing,
+		Errors:          []string{err.Error()},
+		Cause:           InternalServerError,
+		OriginFunc:      "JWT.RefreshToken",
+		FriendlyMessage: ServerErrorFriendlyMessage,
+	}
+}
+
+func ErrorValidateTokenMessage(message string) *Error {
+	return &Error{
+		Code:            ErrInternalProcessing,
+		Errors:          []string{message},
+		Cause:           InternalServerError,
+		OriginFunc:      "JWT.ValidateToken",
 		FriendlyMessage: ServerErrorFriendlyMessage,
 	}
 }

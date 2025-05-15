@@ -24,11 +24,12 @@ func NewCreateCustomerHandler(
 	prometheus interfaces.Prometheus,
 	crypto interfaces.Bcrypt,
 	uow interfaces.UnitOfWork,
+	customerService interfaces.CustomerService,
 ) CreateCustomerHandler {
 	return CreateCustomerHandler{
 		log:        log,
 		prometheus: prometheus,
-		factory:    factories.NewCreateCustomerFactory(uow, crypto, log),
+		factory:    factories.NewCreateCustomerFactory(uow, crypto, log, customerService),
 	}
 }
 

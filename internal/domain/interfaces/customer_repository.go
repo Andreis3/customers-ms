@@ -9,4 +9,5 @@ import (
 
 type CustomerRepository interface {
 	InsertCustomer(ctx context.Context, data customer.Customer) (*customer.Customer, *apperror.Error)
+	FindCustomerByEmail(ctx context.Context, email string) (*customer.Customer, *apperror.Error)
 }

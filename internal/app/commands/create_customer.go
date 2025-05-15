@@ -12,20 +12,23 @@ import (
 )
 
 type CreateCustomerCommand struct {
-	uow    interfaces.UnitOfWork
-	bcrypt interfaces.Bcrypt
-	log    interfaces.Logger
+	uow             interfaces.UnitOfWork
+	bcrypt          interfaces.Bcrypt
+	log             interfaces.Logger
+	customerService interfaces.CustomerService
 }
 
 func NewCreateCustomer(
 	uow interfaces.UnitOfWork,
 	bcrypt interfaces.Bcrypt,
 	log interfaces.Logger,
+	customerService interfaces.CustomerService,
 ) *CreateCustomerCommand {
 	return &CreateCustomerCommand{
-		uow:    uow,
-		bcrypt: bcrypt,
-		log:    log,
+		uow:             uow,
+		bcrypt:          bcrypt,
+		log:             log,
+		customerService: customerService,
 	}
 }
 
@@ -44,6 +47,14 @@ func (c *CreateCustomerCommand) Execute(ctx context.Context, input aggregate.Cus
 			slog.String("trace_id", traceID),
 			slog.Any("error", err.Errors))
 		return nil, err
+	}
+
+	customerAlreadyExists := c.customerService.ExistCustomerByEmail(ctx, input.Customer.Email())
+	if customerAlreadyExists {
+		child.RecordError(apperror.ErrCustomerAlreadyExists())
+		c.log.ErrorJSON("Customer already exists",
+			slog.String("trace_id", traceID))
+		return nil, apperror.ErrCustomerAlreadyExists()
 	}
 
 	var customer *customer.Customer

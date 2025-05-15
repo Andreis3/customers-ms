@@ -31,6 +31,7 @@ func NewAddressRepository(
 func (c *AddressRepository) InsertBatchAddress(ctx context.Context, customerID int64, addresses []address.Address) (*[]address.Address, *apperror.Error) {
 	ctx, span := observability.Tracer.Start(ctx, "AddressRepository.InsertBatchAddress")
 	start := time.Now()
+
 	defer func() {
 		end := time.Since(start)
 		c.metrics.ObserveInstructionDBDuration("postgres", "addresses", "insert", float64(end.Milliseconds()))
@@ -39,7 +40,7 @@ func (c *AddressRepository) InsertBatchAddress(ctx context.Context, customerID i
 
 	batch := &pgx.Batch{}
 
-	query := `-- name: InsertAddress :one
+	query := `
 	INSERT INTO addresses 
 	(customer_id, street, number, complement, city, state, postal_code, country, created_at, updated_at) 
 	VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10) 

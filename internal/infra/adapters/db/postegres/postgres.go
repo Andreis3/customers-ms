@@ -24,7 +24,7 @@ var (
 )
 
 type Postgres struct {
-	pool *pgxpool.Pool
+	Pool *pgxpool.Pool
 }
 
 func NewPoolConnections(conf *configs.Configs, metrics interfaces.Prometheus) *Postgres {
@@ -56,10 +56,6 @@ func NewPoolConnections(conf *configs.Configs, metrics interfaces.Prometheus) *P
 		}
 
 		connConfig.ConnConfig.Tracer = tracer
-
-		// connConfig.ConnConfig.DefaultQueryExecMode = pgx.QueryExecModeExec
-		// connConfig.ConnConfig.StatementCacheCapacity = 200
-
 		connConfig.MinConns = conf.PostgresMinConnections
 		connConfig.MaxConns = conf.PostgresMaxConnections
 		connConfig.MaxConnIdleTime = conf.PostgresMaxConnLifetime
@@ -74,31 +70,31 @@ func NewPoolConnections(conf *configs.Configs, metrics interfaces.Prometheus) *P
 		}
 	})
 
-	return &Postgres{pool: pool}
+	return &Postgres{Pool: pool}
 }
 
 func (p *Postgres) Instance() any {
-	return p.pool
+	return p.Pool
 }
 
 func (p *Postgres) Close() {
-	p.pool.Close()
+	p.Pool.Close()
 }
 
 func (p *Postgres) Exec(ctx context.Context, sql string, arguments ...any) (commandtag pgconn.CommandTag, err error) {
-	return p.pool.Exec(ctx, sql, arguments...)
+	return p.Pool.Exec(ctx, sql, arguments...)
 }
 
 func (p *Postgres) Query(ctx context.Context, sql string, args ...any) (pgx.Rows, error) {
-	return p.pool.Query(ctx, sql, args...)
+	return p.Pool.Query(ctx, sql, args...)
 }
 
 func (p *Postgres) QueryRow(ctx context.Context, sql string, args ...any) pgx.Row {
-	return p.pool.QueryRow(ctx, sql, args...)
+	return p.Pool.QueryRow(ctx, sql, args...)
 }
 
 func (p *Postgres) SendBatch(ctx context.Context, b *pgx.Batch) pgx.BatchResults {
-	return p.pool.SendBatch(ctx, b)
+	return p.Pool.SendBatch(ctx, b)
 }
 
 type Queries struct {

@@ -6,9 +6,10 @@ import (
 )
 
 type createCustomerFactory struct {
-	uow   interfaces.UnitOfWork
-	crypt interfaces.Bcrypt
-	log   interfaces.Logger
+	uow             interfaces.UnitOfWork
+	crypt           interfaces.Bcrypt
+	log             interfaces.Logger
+	customerService interfaces.CustomerService
 }
 
 type ICreateCustomerFactory interface {
@@ -19,10 +20,11 @@ func NewCreateCustomerFactory(
 	uow interfaces.UnitOfWork,
 	crypto interfaces.Bcrypt,
 	log interfaces.Logger,
+	customerService interfaces.CustomerService,
 ) ICreateCustomerFactory {
-	return &createCustomerFactory{uow: uow, crypt: crypto, log: log}
+	return &createCustomerFactory{uow: uow, crypt: crypto, log: log, customerService: customerService}
 }
 
 func (f *createCustomerFactory) Build() commands.ICreateCustomer {
-	return commands.NewCreateCustomer(f.uow, f.crypt, f.log)
+	return commands.NewCreateCustomer(f.uow, f.crypt, f.log, f.customerService)
 }
