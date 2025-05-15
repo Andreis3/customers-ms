@@ -5,6 +5,8 @@ go 1.24.0
 require (
 	github.com/amirsalarsafaei/sqlc-pgx-monitoring v1.4.0
 	github.com/go-chi/chi/v5 v5.2.1
+	github.com/golang-jwt/jwt/v5 v5.2.2
+	github.com/google/wire v0.6.0
 	github.com/jackc/pgx/v5 v5.7.4
 	github.com/lmittmann/tint v1.0.7
 	github.com/onsi/ginkgo/v2 v2.23.3
@@ -33,11 +35,9 @@ require (
 	github.com/go-logr/stdr v1.2.2 // indirect
 	github.com/go-task/slim-sprig/v3 v3.0.0 // indirect
 	github.com/go-viper/mapstructure/v2 v2.2.1 // indirect
-	github.com/golang-jwt/jwt/v5 v5.2.2 // indirect
 	github.com/google/go-cmp v0.7.0 // indirect
 	github.com/google/pprof v0.0.0-20250317173921-a4b03ec1a45e // indirect
 	github.com/google/uuid v1.6.0 // indirect
-	github.com/google/wire v0.6.0 // indirect
 	github.com/grpc-ecosystem/grpc-gateway/v2 v2.26.1 // indirect
 	github.com/jackc/chunkreader/v2 v2.0.1 // indirect
 	github.com/jackc/pgconn v1.14.3 // indirect
