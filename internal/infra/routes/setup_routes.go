@@ -19,7 +19,18 @@ func SetupRoutes(mux *chi.Mux, connPostgres *postegres.Postgres, log interfaces.
 	customerRepository := repository.NewCustomerRepository(pool, prometheus)
 	customerService := services.NewCustomerService(customerRepository)
 	createCustomerHandler := customer.NewCreateCustomerHandler(log, prometheus, crypto, uow, customerService)
+
+	// Routes
 	customerRoutes := routes.NewCustomerRoutes(createCustomerHandler, log)
-	routes := NewRegisterRoutes(mux, log, *customerRoutes)
+	healthRoutes := routes.NewHealthCheck()
+	metricsRoutes := routes.NewMetrics()
+
+	routes := NewRegisterRoutes(
+		mux,
+		log,
+		healthRoutes,
+		metricsRoutes,
+		customerRoutes,
+	)
 	routes.Register()
 }

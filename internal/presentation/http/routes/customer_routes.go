@@ -9,10 +9,6 @@ import (
 	"github.com/andreis3/customers-ms/internal/presentation/http/middlewares"
 )
 
-const (
-	CustomersPath = "/customers"
-)
-
 type CustomerRoutes struct {
 	createCustomer customer.CreateCustomerHandler
 	log            interfaces.Logger
@@ -28,16 +24,16 @@ func NewCustomerRoutes(
 	}
 }
 
-func (r *CustomerRoutes) CustomerRoutes() helpers.RouteType {
-	return helpers.RouteType{
+func (r *CustomerRoutes) Routes() helpers.RouteType {
+	prefix := "/v1/api/customers"
+	return helpers.WithPrefix(prefix, helpers.RouteType{
 		{
 			Method:      http.MethodPost,
-			Path:        CustomersPath,
-			Handler:     helpers.TraceHandler(CustomersPath, r.createCustomer.Handle),
+			Handler:     helpers.TraceHandler(http.MethodPost, prefix, r.createCustomer.Handle),
 			Description: "Create Customer",
 			Middlewares: []func(http.Handler) http.Handler{
 				middlewares.LoggingMiddleware(r.log),
 			},
 		},
-	}
+	})
 }

@@ -13,7 +13,7 @@ func NewHealthCheck() *HealthCheck {
 	return &HealthCheck{}
 }
 
-func (r *HealthCheck) HealthCheck() helpers.RouteType {
+func (r *HealthCheck) Routes() helpers.RouteType {
 	return helpers.RouteType{
 		{
 			Method:      http.MethodGet,

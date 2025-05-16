@@ -13,7 +13,7 @@ func NewMetrics() *Metrics {
 	return &Metrics{}
 }
 
-func (m *Metrics) Metrics() helpers.RouteType {
+func (m *Metrics) Routes() helpers.RouteType {
 	return helpers.RouteType{
 		{
 			Method:      http.MethodGet,
