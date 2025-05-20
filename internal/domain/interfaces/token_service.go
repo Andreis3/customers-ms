@@ -7,7 +7,7 @@ import (
 )
 
 type TokenService interface {
-	CreateToken(customer customer.Customer) (string, *apperror.Error)
+	CreateToken(customer customer.Customer) (*valueobject.TokenClaims, *apperror.Error)
 	ValidateToken(tokenString string) (*valueobject.TokenClaims, *apperror.Error)
-	RefreshToken(tokenString string) (string, *apperror.Error)
+	RefreshToken(tokenString string) (*valueobject.TokenClaims, *apperror.Error)
 }

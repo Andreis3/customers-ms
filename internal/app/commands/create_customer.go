@@ -53,7 +53,8 @@ func (c *CreateCustomerCommand) Execute(ctx context.Context, input aggregate.Cus
 	if customerAlreadyExists {
 		child.RecordError(apperror.ErrCustomerAlreadyExists())
 		c.log.ErrorJSON("Customer already exists",
-			slog.String("trace_id", traceID))
+			slog.String("trace_id", traceID),
+			slog.Any("error", apperror.ErrCustomerAlreadyExists))
 		return nil, apperror.ErrCustomerAlreadyExists()
 	}
 

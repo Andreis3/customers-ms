@@ -7,7 +7,7 @@ import (
 )
 
 type Auth interface {
-	GenerateToken(customer customer.Customer) (string, *apperror.Error)
+	GenerateToken(customer customer.Customer) (*valueobject.TokenClaims, *apperror.Error)
 	ValidateToken(tokenString string) (*valueobject.TokenClaims, *apperror.Error)
-	RefreshToken(tokenString string) (string, *apperror.Error)
+	RefreshToken(tokenString string) (*valueobject.TokenClaims, *apperror.Error)
 }

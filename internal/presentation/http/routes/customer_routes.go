@@ -14,7 +14,7 @@ type CustomerRoutes struct {
 	log            interfaces.Logger
 }
 
-func NewCustomerRoutes(
+func NewCustomer(
 	createCustomer customer.CreateCustomerHandler,
 	log interfaces.Logger,
 ) *CustomerRoutes {

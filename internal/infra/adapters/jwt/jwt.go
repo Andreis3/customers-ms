@@ -15,24 +15,26 @@ type JWT struct {
 	expiry time.Duration
 }
 
-func NewJWT(conf configs.Configs) *JWT {
+func NewJWT(conf *configs.Configs) *JWT {
 	return &JWT{
 		secret: []byte(conf.JWTSecret),
 		expiry: conf.JWTExpiry,
 	}
 }
 
-func (j *JWT) CreateToken(customer customer.Customer) (string, *apperror.Error) {
+func (j *JWT) CreateToken(customer customer.Customer) (*valueobject.TokenClaims, *apperror.Error) {
 	claims := j.createJWTMapClaims(customer)
 
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
 
 	tokenString, err := token.SignedString(j.secret)
 	if err != nil {
-		return "", apperror.ErrorCreateToken(err)
+		return nil, apperror.ErrorCreateToken(err)
 	}
 
-	return tokenString, nil
+	tokenClaims := j.createTokenClaims(customer, tokenString)
+
+	return &tokenClaims, nil
 }
 
 func (j *JWT) ValidateToken(tokenString string) (*valueobject.TokenClaims, *apperror.Error) {
@@ -43,10 +45,10 @@ func (j *JWT) ValidateToken(tokenString string) (*valueobject.TokenClaims, *appe
 	return tokenClaims, nil
 }
 
-func (j *JWT) RefreshToken(tokenString string) (string, *apperror.Error) {
+func (j *JWT) RefreshToken(tokenString string) (*valueobject.TokenClaims, *apperror.Error) {
 	tokenClaims, err := j.parseToken(tokenString)
 	if err != nil {
-		return "", err
+		return nil, err
 	}
 
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, toMapClaims(tokenClaims))
@@ -54,10 +56,12 @@ func (j *JWT) RefreshToken(tokenString string) (string, *apperror.Error) {
 	newToken, errSig := token.SignedString(j.secret)
 
 	if errSig != nil {
-		return "", apperror.ErrorRefreshToken(errSig)
+		return nil, apperror.ErrorRefreshToken(errSig)
 	}
 
-	return newToken, nil
+	tokenClaims.Token = newToken
+
+	return tokenClaims, nil
 }
 
 func (j *JWT) parseToken(tokenString string) (*valueobject.TokenClaims, *apperror.Error) {
@@ -101,6 +105,16 @@ func (j *JWT) parseToken(tokenString string) (*valueobject.TokenClaims, *apperro
 		Email:      email,
 		ExpiresAt:  time.Unix(int64(exp), 0),
 	}, nil
+}
+
+func (j *JWT) createTokenClaims(customer customer.Customer, tokenString string) valueobject.TokenClaims {
+	return valueobject.TokenClaims{
+		CustomerID: customer.ID(),
+		FullName:   customer.FullName(),
+		Email:      customer.Email(),
+		Token:      tokenString,
+		ExpiresAt:  time.Now().Add(j.expiry),
+	}
 }
 
 func (j *JWT) createJWTMapClaims(customer customer.Customer) jwt.MapClaims {

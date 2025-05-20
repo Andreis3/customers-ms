@@ -3,25 +3,43 @@ package errors
 import (
 	"net/http"
 
+	"google.golang.org/grpc/codes"
+
 	apperror "github.com/andreis3/customers-ms/internal/domain/app-error"
 )
 
 type ProtocolError struct {
 	HTTPStatus int
-	GRPCCode   int
+	GRPCCode   codes.Code
 }
 
 var ErrorDictionary = map[apperror.Code]ProtocolError{
-	apperror.ErrInvalidBusinessRules: {
+	apperror.BadRequestCode: {
 		HTTPStatus: http.StatusBadRequest,
-		GRPCCode:   3,
+		GRPCCode:   codes.InvalidArgument,
 	},
-	apperror.ErrResourceNotFound: {
+	apperror.NotFoundCode: {
 		HTTPStatus: http.StatusNotFound,
-		GRPCCode:   5,
+		GRPCCode:   codes.NotFound,
 	},
-	apperror.ErrInternalProcessing: {
+	apperror.InternalServerErrorCode: {
 		HTTPStatus: http.StatusInternalServerError,
-		GRPCCode:   13,
+		GRPCCode:   codes.Internal,
+	},
+	apperror.UnauthorizedCode: {
+		HTTPStatus: http.StatusUnauthorized,
+		GRPCCode:   codes.Unauthenticated,
+	},
+	apperror.ForbiddenCode: {
+		HTTPStatus: http.StatusForbidden,
+		GRPCCode:   codes.PermissionDenied,
+	},
+	apperror.ConflictCode: {
+		HTTPStatus: http.StatusConflict,
+		GRPCCode:   codes.AlreadyExists,
+	},
+	apperror.UnprocessableEntityCode: {
+		HTTPStatus: http.StatusUnprocessableEntity,
+		GRPCCode:   codes.InvalidArgument,
 	},
 }

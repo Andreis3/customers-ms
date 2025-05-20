@@ -41,7 +41,7 @@ func NewServer(conf *configs.Configs, log *logger.Logger) *Server {
 		return otelhttp.NewHandler(next, "customers-ms")
 	})
 
-	routes.SetupRoutes(mux, pool, log, prometheus)
+	routes.SetupRoutes(mux, pool, log, prometheus, conf)
 
 	server := &http.Server{
 		Addr:    fmt.Sprintf("0.0.0.0:%s", conf.ServerPort),

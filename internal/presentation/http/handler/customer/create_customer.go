@@ -7,7 +7,7 @@ import (
 
 	"github.com/andreis3/customers-ms/internal/domain/interfaces"
 	"github.com/andreis3/customers-ms/internal/infra/adapters/observability"
-	"github.com/andreis3/customers-ms/internal/infra/factories"
+	"github.com/andreis3/customers-ms/internal/infra/factories/app"
 	"github.com/andreis3/customers-ms/internal/presentation/dtos/input"
 	"github.com/andreis3/customers-ms/internal/presentation/dtos/output"
 	"github.com/andreis3/customers-ms/internal/presentation/http/helpers"
@@ -16,7 +16,7 @@ import (
 type CreateCustomerHandler struct {
 	log        interfaces.Logger
 	prometheus interfaces.Prometheus
-	factory    factories.ICreateCustomerFactory
+	factory    app.ICreateCustomerFactory
 }
 
 func NewCreateCustomerHandler(
@@ -29,7 +29,7 @@ func NewCreateCustomerHandler(
 	return CreateCustomerHandler{
 		log:        log,
 		prometheus: prometheus,
-		factory:    factories.NewCreateCustomerFactory(uow, crypto, log, customerService),
+		factory:    app.NewCreateCustomerFactory(uow, crypto, log, customerService),
 	}
 }
 

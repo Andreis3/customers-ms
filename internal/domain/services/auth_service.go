@@ -19,7 +19,7 @@ func NewAuthService(
 	}
 }
 
-func (a *AuthService) GenerateToken(customer customer.Customer) (string, *apperror.Error) {
+func (a *AuthService) GenerateToken(customer customer.Customer) (*valueobject.TokenClaims, *apperror.Error) {
 	return a.tokenService.CreateToken(customer)
 }
 
@@ -27,6 +27,6 @@ func (a *AuthService) ValidateToken(tokenString string) (*valueobject.TokenClaim
 	return a.tokenService.ValidateToken(tokenString)
 }
 
-func (a *AuthService) RefreshToken(tokenString string) (string, *apperror.Error) {
+func (a *AuthService) RefreshToken(tokenString string) (*valueobject.TokenClaims, *apperror.Error) {
 	return a.tokenService.RefreshToken(tokenString)
 }

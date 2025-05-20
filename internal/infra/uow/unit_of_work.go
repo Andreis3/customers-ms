@@ -34,10 +34,15 @@ func (u *UnitOfWork) Do(fn func(uow interfaces.UnitOfWork) *apperror.Error) *app
 		return apperror.ErrorTransactionAlreadyExists()
 	}
 
-	tx, err := u.DB.Begin(ctx)
+	tx, err := u.DB.BeginTx(ctx, pgx.TxOptions{
+		BeginQuery:  "BEGIN",
+		CommitQuery: "COMMIT",
+		AccessMode:  pgx.ReadWrite,
+	})
 	if err != nil {
 		return apperror.ErrorOpeningTransaction(err)
 	}
+
 	u.TX = tx
 	defer func() { u.TX = nil }()
 

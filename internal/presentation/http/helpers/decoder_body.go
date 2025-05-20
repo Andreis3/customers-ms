@@ -30,7 +30,7 @@ func DecoderBodyRequest[T any](req *http.Request) (T, *apperror.Error) {
 
 func ErrorJSONSyntaxError(err error) *apperror.Error {
 	return &apperror.Error{
-		Code:            apperror.ErrInvalidBusinessRules,
+		Code:            apperror.BadRequestCode,
 		Errors:          []string{err.Error()},
 		Cause:           "json syntax error",
 		OriginFunc:      "json.Unmarshal",
@@ -40,7 +40,7 @@ func ErrorJSONSyntaxError(err error) *apperror.Error {
 
 func ErrorJSONUnmarshalTypeError(err error) *apperror.Error {
 	return &apperror.Error{
-		Code:            apperror.ErrInvalidBusinessRules,
+		Code:            apperror.BadRequestCode,
 		Errors:          []string{err.Error()},
 		Cause:           "json unmarshal type error",
 		OriginFunc:      "json.Unmarshal",
@@ -50,7 +50,7 @@ func ErrorJSONUnmarshalTypeError(err error) *apperror.Error {
 
 func ErrorJSON(err error) *apperror.Error {
 	return &apperror.Error{
-		Code:            apperror.ErrInvalidBusinessRules,
+		Code:            apperror.BadRequestCode,
 		Errors:          []string{err.Error()},
 		Cause:           "json error",
 		OriginFunc:      "json.Unmarshal",

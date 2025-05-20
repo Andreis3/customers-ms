@@ -4,12 +4,13 @@ import (
 	"context"
 	"time"
 
+	"go.opentelemetry.io/otel/attribute"
+
 	apperror "github.com/andreis3/customers-ms/internal/domain/app-error"
 	"github.com/andreis3/customers-ms/internal/domain/entity/customer"
 	"github.com/andreis3/customers-ms/internal/domain/interfaces"
 	"github.com/andreis3/customers-ms/internal/infra/adapters/observability"
 	"github.com/andreis3/customers-ms/internal/infra/repositories/postgres/model"
-	"go.opentelemetry.io/otel/attribute"
 )
 
 type CustomerRepository struct {
@@ -37,7 +38,7 @@ func (c *CustomerRepository) InsertCustomer(ctx context.Context, data customer.C
 		span.End()
 	}()
 	model := c.FromModel(data)
-	const query = `-- name: InsertCustomer :one
+	const query = `
 	INSERT INTO customers 
 	(email, password, first_name, last_name, cpf, date_of_birth, created_at, updated_at) 
 	VALUES ($1, $2, $3, $4, $5, $6, $7, $8) 
@@ -85,17 +86,16 @@ func (c *CustomerRepository) FindCustomerByEmail(ctx context.Context, email stri
 
 	var model model.Customer
 
-	err := c.DB.QueryRow(ctx, query, email).Scan(
-		&model.ID,
-		&model.Email,
-		&model.Password,
-		&model.FirstName,
-		&model.LastName,
-		&model.CPF,
-		&model.DateOfBirth,
-		&model.CreatedAT,
-		&model.UpdatedAT,
-	)
+	rows, err := c.DB.Query(ctx, query, email)
+	if err != nil {
+		return nil, apperror.ErrorFindCustomerByEmail(err)
+	}
+	defer rows.Close()
+
+	if !rows.Next() {
+		return nil, nil
+	}
+	err = rows.Scan(&model.ID, &model.Email, &model.Password, &model.FirstName, &model.LastName, &model.CPF, &model.DateOfBirth, &model.CreatedAT, &model.UpdatedAT)
 	if err != nil {
 		return nil, apperror.ErrorFindCustomerByEmail(err)
 	}

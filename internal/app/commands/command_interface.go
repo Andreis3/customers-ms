@@ -11,3 +11,7 @@ import (
 type ICreateCustomer interface {
 	Execute(ctx context.Context, input aggregate.CustomerProfile) (*customer.Customer, *apperror.Error)
 }
+
+type IAuthenticateCustomer interface {
+	Execute(ctx context.Context, input AuthenticateCustomerInput) (*AuthenticateCustomerOutput, *apperror.Error)
+}

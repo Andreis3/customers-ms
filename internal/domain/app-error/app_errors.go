@@ -5,16 +5,19 @@ import "github.com/andreis3/customers-ms/internal/domain/validator"
 type Code string
 
 const (
-	ErrInvalidBusinessRules Code = "DM-400"
-	ErrResourceNotFound     Code = "DM-404"
-	ErrInternalProcessing   Code = "IMF-500"
-	ErrUnauthorized         Code = "DM-401"
-	ErrForbidden            Code = "DM-403"
+	BadRequestCode          Code = "DM-400"
+	NotFoundCode            Code = "DM-404"
+	InternalServerErrorCode Code = "IMF-500"
+	UnauthorizedCode        Code = "DM-401"
+	ForbiddenCode           Code = "DM-403"
+	ConflictCode            Code = "DM-409"
+	UnprocessableEntityCode Code = "DM-422"
 )
 
 const (
 	InternalServerError        = "Internal server error"
 	ServerErrorFriendlyMessage = "Internal server error"
+	InvalidCredentialsMessage  = "Invalid credentials"
 )
 
 type Error struct {
@@ -34,7 +37,7 @@ func (e Error) Error() string {
 
 func InvalidCustomerError(validate *validator.Validator) *Error {
 	return &Error{
-		Code:            ErrInvalidBusinessRules,
+		Code:            BadRequestCode,
 		Map:             validate.FieldErrorsGrouped(),
 		Errors:          validate.Errors(),
 		OriginFunc:      "CustomerProfile.Validate",
@@ -44,7 +47,7 @@ func InvalidCustomerError(validate *validator.Validator) *Error {
 
 func UnexpectedError(message string) *Error {
 	return &Error{
-		Code:            ErrInvalidBusinessRules,
+		Code:            BadRequestCode,
 		Errors:          []string{message},
 		OriginFunc:      "UnexpectedError",
 		FriendlyMessage: "Unexpected error.",
@@ -53,7 +56,7 @@ func UnexpectedError(message string) *Error {
 
 func InvalidPasswordOrEmailError() *Error {
 	return &Error{
-		Code:            ErrInvalidBusinessRules,
+		Code:            BadRequestCode,
 		Errors:          []string{"invalid password or email"},
 		OriginFunc:      "CustomerProfile.Validate",
 		FriendlyMessage: "Validation failed for the provided input.",
@@ -62,7 +65,7 @@ func InvalidPasswordOrEmailError() *Error {
 
 func ErrCustomerAlreadyExists() *Error {
 	return &Error{
-		Code:            ErrInvalidBusinessRules,
+		Code:            BadRequestCode,
 		Errors:          []string{"customer already exists"},
 		OriginFunc:      "CustomerProfile.Validate",
 		FriendlyMessage: "Already exists a customer with this email.",
@@ -72,7 +75,7 @@ func ErrCustomerAlreadyExists() *Error {
 /********UnitOfWork Errors********/
 func ErrorTransactionAlreadyExists() *Error {
 	return &Error{
-		Code:            ErrInternalProcessing,
+		Code:            InternalServerErrorCode,
 		Errors:          []string{"Transaction already exists"},
 		Cause:           InternalServerError,
 		OriginFunc:      "UnitOfWork.Do",
@@ -82,7 +85,7 @@ func ErrorTransactionAlreadyExists() *Error {
 
 func ErrorOpeningTransaction(err error) *Error {
 	return &Error{
-		Code:            ErrInternalProcessing,
+		Code:            InternalServerErrorCode,
 		Errors:          []string{err.Error()},
 		Cause:           InternalServerError,
 		OriginFunc:      "UnitOfWork.Do",
@@ -92,7 +95,7 @@ func ErrorOpeningTransaction(err error) *Error {
 
 func ErrorRollBackTransactionEmpty() *Error {
 	return &Error{
-		Code:            ErrInternalProcessing,
+		Code:            InternalServerErrorCode,
 		Errors:          []string{"Transaction is empty"},
 		Cause:           InternalServerError,
 		OriginFunc:      "UnitOfWork.Rollback",
@@ -102,7 +105,7 @@ func ErrorRollBackTransactionEmpty() *Error {
 
 func ErrorExecuteRollback(err error) *Error {
 	return &Error{
-		Code:            ErrInternalProcessing,
+		Code:            InternalServerErrorCode,
 		Errors:          []string{err.Error()},
 		Cause:           InternalServerError,
 		OriginFunc:      "UnitOfWork.Rollback",
@@ -112,7 +115,7 @@ func ErrorExecuteRollback(err error) *Error {
 
 func ErrorCommitOrRollback(err error) *Error {
 	return &Error{
-		Code:            ErrInternalProcessing,
+		Code:            InternalServerErrorCode,
 		Errors:          []string{err.Error()},
 		Cause:           InternalServerError,
 		OriginFunc:      "UnitOfWork.CommitOrRollback",
@@ -123,7 +126,7 @@ func ErrorCommitOrRollback(err error) *Error {
 /********Repository Errors********/
 func ErrorSaveCustomer(err error) *Error {
 	return &Error{
-		Code:            ErrInternalProcessing,
+		Code:            InternalServerErrorCode,
 		Errors:          []string{err.Error()},
 		Cause:           InternalServerError,
 		OriginFunc:      "CustomerRepository.SaveCustomer",
@@ -133,7 +136,7 @@ func ErrorSaveCustomer(err error) *Error {
 
 func ErrorFindCustomerByEmail(err error) *Error {
 	return &Error{
-		Code:            ErrInternalProcessing,
+		Code:            InternalServerErrorCode,
 		Errors:          []string{err.Error()},
 		Cause:           InternalServerError,
 		OriginFunc:      "CustomerRepository.FindCustomerByEmail",
@@ -143,7 +146,7 @@ func ErrorFindCustomerByEmail(err error) *Error {
 
 func ErrorCreatedBatchAddress(err error) *Error {
 	return &Error{
-		Code:            ErrInternalProcessing,
+		Code:            InternalServerErrorCode,
 		Errors:          []string{err.Error()},
 		Cause:           InternalServerError,
 		OriginFunc:      "CustomerRepository.CreatedBatchAddress",
@@ -154,7 +157,7 @@ func ErrorCreatedBatchAddress(err error) *Error {
 /********Bcrypt Errors********/
 func ErrorHashPassword(err error) *Error {
 	return &Error{
-		Code:            ErrInternalProcessing,
+		Code:            InternalServerErrorCode,
 		Errors:          []string{err.Error()},
 		Cause:           InternalServerError,
 		OriginFunc:      "Bcrypt.Hash",
@@ -164,7 +167,7 @@ func ErrorHashPassword(err error) *Error {
 
 func ErrorCompareHash(err error) *Error {
 	return &Error{
-		Code:            ErrInternalProcessing,
+		Code:            InternalServerErrorCode,
 		Errors:          []string{err.Error()},
 		Cause:           InternalServerError,
 		OriginFunc:      "Bcrypt.CompareHash",
@@ -175,7 +178,7 @@ func ErrorCompareHash(err error) *Error {
 /********JWT Errors********/
 func ErrorCreateToken(err error) *Error {
 	return &Error{
-		Code:            ErrInternalProcessing,
+		Code:            InternalServerErrorCode,
 		Errors:          []string{err.Error()},
 		Cause:           InternalServerError,
 		OriginFunc:      "JWT.CreateToken",
@@ -185,7 +188,7 @@ func ErrorCreateToken(err error) *Error {
 
 func ErrorValidateToken(err error) *Error {
 	return &Error{
-		Code:            ErrInternalProcessing,
+		Code:            InternalServerErrorCode,
 		Errors:          []string{err.Error()},
 		Cause:           InternalServerError,
 		OriginFunc:      "JWT.ValidateToken",
@@ -195,7 +198,7 @@ func ErrorValidateToken(err error) *Error {
 
 func ErrorInvalidTokenAlgorithmError() *Error {
 	return &Error{
-		Code:            ErrInternalProcessing,
+		Code:            InternalServerErrorCode,
 		Errors:          []string{"invalid token algorithm"},
 		Cause:           InternalServerError,
 		OriginFunc:      "JWT.ValidateToken",
@@ -205,7 +208,7 @@ func ErrorInvalidTokenAlgorithmError() *Error {
 
 func ErrorRefreshToken(err error) *Error {
 	return &Error{
-		Code:            ErrInternalProcessing,
+		Code:            InternalServerErrorCode,
 		Errors:          []string{err.Error()},
 		Cause:           InternalServerError,
 		OriginFunc:      "JWT.RefreshToken",
@@ -215,10 +218,20 @@ func ErrorRefreshToken(err error) *Error {
 
 func ErrorValidateTokenMessage(message string) *Error {
 	return &Error{
-		Code:            ErrInternalProcessing,
+		Code:            InternalServerErrorCode,
 		Errors:          []string{message},
-		Cause:           InternalServerError,
+		Cause:           InvalidCredentialsMessage,
 		OriginFunc:      "JWT.ValidateToken",
-		FriendlyMessage: ServerErrorFriendlyMessage,
+		FriendlyMessage: InvalidCredentialsMessage,
+	}
+}
+
+func ErrorInvalidCredentials() *Error {
+	return &Error{
+		Code:            UnauthorizedCode,
+		Errors:          []string{"invalid credentials"},
+		Cause:           InvalidCredentialsMessage,
+		OriginFunc:      "JWT.ValidateToken",
+		FriendlyMessage: InvalidCredentialsMessage,
 	}
 }

@@ -30,6 +30,11 @@ func NewLogger() *Logger {
 			TimeFormat: time.DateTime,
 			NoColor:    false,
 			ReplaceAttr: func(groups []string, a slog.Attr) slog.Attr {
+				if a.Key == "password" {
+					a.Value = slog.StringValue("********")
+					return a
+				}
+
 				if a.Key == slog.LevelKey {
 					switch a.Value.Any().(type) {
 					case slog.Level:

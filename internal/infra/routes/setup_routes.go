@@ -2,28 +2,18 @@ package routes
 
 import (
 	"github.com/andreis3/customers-ms/internal/domain/interfaces"
-	"github.com/andreis3/customers-ms/internal/domain/services"
-	"github.com/andreis3/customers-ms/internal/infra/adapters/crypto"
 	"github.com/andreis3/customers-ms/internal/infra/adapters/db/postegres"
-	"github.com/andreis3/customers-ms/internal/infra/repositories/postgres/repository"
-	"github.com/andreis3/customers-ms/internal/infra/uow"
-	"github.com/andreis3/customers-ms/internal/presentation/http/handler/customer"
+	"github.com/andreis3/customers-ms/internal/infra/configs"
+	"github.com/andreis3/customers-ms/internal/infra/factories/presentation"
 	"github.com/andreis3/customers-ms/internal/presentation/http/routes"
 	"github.com/go-chi/chi/v5"
 )
 
-func SetupRoutes(mux *chi.Mux, connPostgres *postegres.Postgres, log interfaces.Logger, prometheus interfaces.Prometheus) {
-	pool := connPostgres.Pool
-	crypto := crypto.NewBcrypt()
-	uow := uow.NewUnitOfWork(pool, prometheus)
-	customerRepository := repository.NewCustomerRepository(pool, prometheus)
-	customerService := services.NewCustomerService(customerRepository)
-	createCustomerHandler := customer.NewCreateCustomerHandler(log, prometheus, crypto, uow, customerService)
-
-	// Routes
-	customerRoutes := routes.NewCustomerRoutes(createCustomerHandler, log)
+func SetupRoutes(mux *chi.Mux, connPostgres *postegres.Postgres, log interfaces.Logger, prometheus interfaces.Prometheus, conf *configs.Configs) {
 	healthRoutes := routes.NewHealthCheck()
 	metricsRoutes := routes.NewMetrics()
+	customerRoutes := presentation.MakeCustomerRouter(connPostgres, log, prometheus)
+	authRoutes := presentation.MakeAuthRouter(connPostgres, log, prometheus, conf)
 
 	routes := NewRegisterRoutes(
 		mux,
@@ -31,6 +21,7 @@ func SetupRoutes(mux *chi.Mux, connPostgres *postegres.Postgres, log interfaces.
 		healthRoutes,
 		metricsRoutes,
 		customerRoutes,
+		authRoutes,
 	)
 	routes.Register()
 }
