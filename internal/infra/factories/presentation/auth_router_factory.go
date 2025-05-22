@@ -21,5 +21,5 @@ func MakeAuthRouter(connPostgres *postegres.Postgres, log commons.Logger, promet
 	authService := services.NewAuthService(tokenService)
 	bcrypt := crypto.NewBcrypt()
 	authHandler := login.NewGenerateTokenHandler(log, prometheus, customerRepository, authService, bcrypt)
-	return routes.NewAuthRoutes(log, authHandler)
+	return routes.NewLoginRoutes(log, authHandler)
 }

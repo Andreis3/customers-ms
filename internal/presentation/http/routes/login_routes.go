@@ -14,7 +14,7 @@ type LoginRoutes struct {
 	authHandler login.GenerateTokenHandler
 }
 
-func NewAuthRoutes(
+func NewLoginRoutes(
 	log commons.Logger,
 	authHandler login.GenerateTokenHandler,
 ) *LoginRoutes {
