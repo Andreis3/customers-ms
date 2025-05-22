@@ -9,7 +9,7 @@ import (
 	"github.com/andreis3/customers-ms/internal/domain/interfaces/service"
 )
 
-type IAuthenticateCustomerFactory interface {
+type AuthenticateCustomerFactory interface {
 	Build() command.AuthenticateCustomer
 }
 
@@ -25,7 +25,7 @@ func NewAuthenticateCustomerFactory(
 	customerRepository repository.CustomerRepository,
 	authService service.Auth,
 	bcrypt adapter.Bcrypt,
-) IAuthenticateCustomerFactory {
+) AuthenticateCustomerFactory {
 	return &authenticateCustomerFactory{
 		log:                log,
 		customerRepository: customerRepository,

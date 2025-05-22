@@ -19,7 +19,7 @@ import (
 type CreateCustomerHandler struct {
 	log        commons.Logger
 	prometheus adapter.Prometheus
-	factory    app.ICreateCustomerFactory
+	factory    app.CreateCustomerFactory
 }
 
 func NewCreateCustomerHandler(

@@ -19,7 +19,7 @@ import (
 type GenerateTokenHandler struct {
 	log        commons.Logger
 	prometheus adapter.Prometheus
-	factory    app.IAuthenticateCustomerFactory
+	factory    app.AuthenticateCustomerFactory
 }
 
 func NewGenerateTokenHandler(

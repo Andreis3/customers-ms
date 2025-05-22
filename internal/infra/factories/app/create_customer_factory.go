@@ -9,6 +9,10 @@ import (
 	"github.com/andreis3/customers-ms/internal/domain/interfaces/uow"
 )
 
+type CreateCustomerFactory interface {
+	Build() command.CreateCustomer
+}
+
 type createCustomerFactory struct {
 	uow             uow.UnitOfWork
 	crypt           adapter.Bcrypt
@@ -16,16 +20,12 @@ type createCustomerFactory struct {
 	customerService service.CustomerService
 }
 
-type ICreateCustomerFactory interface {
-	Build() command.CreateCustomer
-}
-
 func NewCreateCustomerFactory(
 	uow uow.UnitOfWork,
 	crypto adapter.Bcrypt,
 	log commons.Logger,
 	customerService service.CustomerService,
-) ICreateCustomerFactory {
+) CreateCustomerFactory {
 	return &createCustomerFactory{uow: uow, crypt: crypto, log: log, customerService: customerService}
 }
 
