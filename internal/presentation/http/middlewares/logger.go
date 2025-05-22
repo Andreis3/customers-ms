@@ -4,11 +4,11 @@ import (
 	"log/slog"
 	"net/http"
 
-	"github.com/andreis3/customers-ms/internal/domain/interfaces"
+	"github.com/andreis3/customers-ms/internal/domain/interfaces/commons"
 	"github.com/andreis3/customers-ms/internal/infra/adapters/observability"
 )
 
-func LoggingMiddleware(logger interfaces.Logger) func(http.Handler) http.Handler {
+func LoggingMiddleware(logger commons.Logger) func(http.Handler) http.Handler {
 	return func(next http.Handler) http.Handler {
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			ctx, span := observability.Tracer.Start(r.Context(), "HTTP "+r.Method+" "+r.URL.Path)

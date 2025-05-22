@@ -5,8 +5,11 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/andreis3/customers-ms/internal/app/commands"
-	"github.com/andreis3/customers-ms/internal/domain/interfaces"
+	"github.com/andreis3/customers-ms/internal/domain/interfaces/adapter"
+	"github.com/andreis3/customers-ms/internal/domain/interfaces/command"
+	"github.com/andreis3/customers-ms/internal/domain/interfaces/commons"
+	"github.com/andreis3/customers-ms/internal/domain/interfaces/repository"
+	"github.com/andreis3/customers-ms/internal/domain/interfaces/service"
 	"github.com/andreis3/customers-ms/internal/infra/adapters/observability"
 	"github.com/andreis3/customers-ms/internal/infra/factories/app"
 	"github.com/andreis3/customers-ms/internal/presentation/dtos/output"
@@ -14,17 +17,17 @@ import (
 )
 
 type GenerateTokenHandler struct {
-	log        interfaces.Logger
-	prometheus interfaces.Prometheus
+	log        commons.Logger
+	prometheus adapter.Prometheus
 	factory    app.IAuthenticateCustomerFactory
 }
 
 func NewGenerateTokenHandler(
-	log interfaces.Logger,
-	prometheus interfaces.Prometheus,
-	customerRepository interfaces.CustomerRepository,
-	authService interfaces.Auth,
-	bcrypt interfaces.Bcrypt,
+	log commons.Logger,
+	prometheus adapter.Prometheus,
+	customerRepository repository.CustomerRepository,
+	authService service.Auth,
+	bcrypt adapter.Bcrypt,
 ) GenerateTokenHandler {
 	return GenerateTokenHandler{
 		log:        log,
@@ -39,7 +42,7 @@ func (h *GenerateTokenHandler) Handle(w http.ResponseWriter, r *http.Request) {
 	traceID := child.SpanContext().TraceID().String()
 	defer child.End()
 
-	data, err := helpers.DecoderBodyRequest[commands.AuthenticateCustomerInput](r)
+	data, err := helpers.DecoderBodyRequest[command.AuthenticateCustomerInput](r)
 	if err != nil {
 		child.RecordError(err)
 		h.log.ErrorJSON("failed decode request body",
@@ -51,7 +54,7 @@ func (h *GenerateTokenHandler) Handle(w http.ResponseWriter, r *http.Request) {
 
 	cmd := h.factory.Build()
 
-	input := commands.AuthenticateCustomerInput{
+	input := command.AuthenticateCustomerInput{
 		Email:    data.Email,
 		Password: data.Password,
 	}

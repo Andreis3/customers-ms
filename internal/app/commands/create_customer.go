@@ -7,22 +7,25 @@ import (
 	"github.com/andreis3/customers-ms/internal/domain/aggregate"
 	apperror "github.com/andreis3/customers-ms/internal/domain/app-error"
 	"github.com/andreis3/customers-ms/internal/domain/entity/customer"
-	"github.com/andreis3/customers-ms/internal/domain/interfaces"
+	"github.com/andreis3/customers-ms/internal/domain/interfaces/adapter"
+	"github.com/andreis3/customers-ms/internal/domain/interfaces/commons"
+	"github.com/andreis3/customers-ms/internal/domain/interfaces/service"
+	"github.com/andreis3/customers-ms/internal/domain/interfaces/uow"
 	"github.com/andreis3/customers-ms/internal/infra/adapters/observability"
 )
 
 type CreateCustomerCommand struct {
-	uow             interfaces.UnitOfWork
-	bcrypt          interfaces.Bcrypt
-	log             interfaces.Logger
-	customerService interfaces.CustomerService
+	uow             uow.UnitOfWork
+	bcrypt          adapter.Bcrypt
+	log             commons.Logger
+	customerService service.CustomerService
 }
 
 func NewCreateCustomer(
-	uow interfaces.UnitOfWork,
-	bcrypt interfaces.Bcrypt,
-	log interfaces.Logger,
-	customerService interfaces.CustomerService,
+	uow uow.UnitOfWork,
+	bcrypt adapter.Bcrypt,
+	log commons.Logger,
+	customerService service.CustomerService,
 ) *CreateCustomerCommand {
 	return &CreateCustomerCommand{
 		uow:             uow,
@@ -36,14 +39,14 @@ func (c *CreateCustomerCommand) Execute(ctx context.Context, input aggregate.Cus
 	ctx, child := observability.Tracer.Start(ctx, "CreatedCustomer.Execute")
 	defer child.End()
 	traceID := child.SpanContext().TraceID().String()
-	c.log.InfoText("Received input to create customer",
+	c.log.InfoText("Received input to create customerResult",
 		slog.String("trace_id", traceID),
 		slog.Any("input", input))
 
 	err := input.Validate()
 	if err != nil {
 		child.RecordError(err)
-		c.log.ErrorJSON("Failed validate input to create customer",
+		c.log.ErrorJSON("Failed validate input to create customerResult",
 			slog.String("trace_id", traceID),
 			slog.Any("error", err.Errors))
 		return nil, err
@@ -58,9 +61,9 @@ func (c *CreateCustomerCommand) Execute(ctx context.Context, input aggregate.Cus
 		return nil, apperror.ErrCustomerAlreadyExists()
 	}
 
-	var customer *customer.Customer
+	var customerResult *customer.Customer
 
-	errUow := c.uow.Do(func(uow interfaces.UnitOfWork) *apperror.Error {
+	errUow := c.uow.Do(ctx, func(uow uow.UnitOfWork) *apperror.Error {
 		hash, err := c.bcrypt.Hash(input.Customer.Password())
 		if err != nil {
 			child.RecordError(err)
@@ -69,14 +72,15 @@ func (c *CreateCustomerCommand) Execute(ctx context.Context, input aggregate.Cus
 				slog.Any("error", err))
 			return err
 		}
+
 		input.Customer.AssignHashedPassword(hash)
 
 		customerRepository := uow.CustomerRepository()
 
-		customer, err = customerRepository.InsertCustomer(ctx, input.Customer)
+		customerResult, err = customerRepository.InsertCustomer(ctx, input.Customer)
 		if err != nil {
 			child.RecordError(err)
-			c.log.ErrorJSON("Failed insert customer",
+			c.log.ErrorJSON("Failed insert customerResult",
 				slog.String("trace_id", traceID),
 				slog.Any("error", err))
 			return err
@@ -84,7 +88,7 @@ func (c *CreateCustomerCommand) Execute(ctx context.Context, input aggregate.Cus
 
 		if len(input.Addresses) > 0 {
 			addressRepository := uow.AddressRepository()
-			_, err = addressRepository.InsertBatchAddress(ctx, customer.ID(), input.Addresses)
+			_, err = addressRepository.InsertBatchAddress(ctx, customerResult.ID(), input.Addresses)
 			if err != nil {
 				child.RecordError(err)
 				c.log.ErrorJSON("Failed insert address",
@@ -98,11 +102,11 @@ func (c *CreateCustomerCommand) Execute(ctx context.Context, input aggregate.Cus
 
 	if errUow != nil {
 		child.RecordError(errUow)
-		c.log.ErrorJSON("Failed insert customer",
+		c.log.ErrorJSON("Failed insert customerResult",
 			slog.String("trace_id", traceID),
 			slog.Any("error", errUow))
 		return nil, errUow
 	}
 
-	return customer, nil
+	return customerResult, nil
 }

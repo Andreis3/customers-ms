@@ -1,4 +1,4 @@
-package interfaces
+package commons
 
 import (
 	"context"

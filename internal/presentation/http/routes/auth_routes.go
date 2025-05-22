@@ -3,19 +3,19 @@ package routes
 import (
 	"net/http"
 
-	"github.com/andreis3/customers-ms/internal/domain/interfaces"
+	"github.com/andreis3/customers-ms/internal/domain/interfaces/commons"
 	"github.com/andreis3/customers-ms/internal/presentation/http/handler/auth"
 	"github.com/andreis3/customers-ms/internal/presentation/http/helpers"
 	"github.com/andreis3/customers-ms/internal/presentation/http/middlewares"
 )
 
 type AuthRoutes struct {
-	log         interfaces.Logger
+	log         commons.Logger
 	authHandler auth.GenerateTokenHandler
 }
 
 func NewAuthRoutes(
-	log interfaces.Logger,
+	log commons.Logger,
 	authHandler auth.GenerateTokenHandler,
 ) *AuthRoutes {
 	return &AuthRoutes{

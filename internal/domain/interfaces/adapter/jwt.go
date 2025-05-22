@@ -1,4 +1,4 @@
-package interfaces
+package adapter
 
 import (
 	apperror "github.com/andreis3/customers-ms/internal/domain/app-error"

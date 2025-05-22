@@ -4,23 +4,24 @@ import (
 	"context"
 	"time"
 
+	"github.com/jackc/pgx/v5"
+
 	apperror "github.com/andreis3/customers-ms/internal/domain/app-error"
 	"github.com/andreis3/customers-ms/internal/domain/entity/address"
-	"github.com/andreis3/customers-ms/internal/domain/interfaces"
+	"github.com/andreis3/customers-ms/internal/domain/interfaces/adapter"
 	"github.com/andreis3/customers-ms/internal/infra/adapters/observability"
 	"github.com/andreis3/customers-ms/internal/infra/repositories/postgres/model"
-	"github.com/jackc/pgx/v5"
 )
 
 type AddressRepository struct {
-	DB      interfaces.InstructionPostgres
-	metrics interfaces.Prometheus
+	DB      adapter.InstructionPostgres
+	metrics adapter.Prometheus
 	model.Address
 }
 
 func NewAddressRepository(
-	db interfaces.InstructionPostgres,
-	metrics interfaces.Prometheus,
+	db adapter.InstructionPostgres,
+	metrics adapter.Prometheus,
 ) *AddressRepository {
 	return &AddressRepository{
 		DB:      db,

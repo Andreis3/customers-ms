@@ -4,9 +4,10 @@ import (
 	"fmt"
 	"net/http"
 
-	"github.com/andreis3/customers-ms/internal/domain/interfaces"
-	"github.com/andreis3/customers-ms/internal/presentation/http/helpers"
 	"github.com/go-chi/chi/v5"
+
+	"github.com/andreis3/customers-ms/internal/domain/interfaces/commons"
+	"github.com/andreis3/customers-ms/internal/presentation/http/helpers"
 )
 
 type ModuleRoutes interface {
@@ -15,13 +16,13 @@ type ModuleRoutes interface {
 
 type RegisterRoutes struct {
 	mux     *chi.Mux
-	log     interfaces.Logger
+	log     commons.Logger
 	modules []ModuleRoutes
 }
 
 func NewRegisterRoutes(
 	mux *chi.Mux,
-	log interfaces.Logger,
+	log commons.Logger,
 	modules ...ModuleRoutes,
 ) *RegisterRoutes {
 	return &RegisterRoutes{

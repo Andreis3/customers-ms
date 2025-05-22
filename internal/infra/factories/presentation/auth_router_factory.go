@@ -1,7 +1,8 @@
 package presentation
 
 import (
-	"github.com/andreis3/customers-ms/internal/domain/interfaces"
+	"github.com/andreis3/customers-ms/internal/domain/interfaces/adapter"
+	"github.com/andreis3/customers-ms/internal/domain/interfaces/commons"
 	"github.com/andreis3/customers-ms/internal/domain/services"
 	"github.com/andreis3/customers-ms/internal/infra/adapters/crypto"
 	"github.com/andreis3/customers-ms/internal/infra/adapters/db/postegres"
@@ -13,7 +14,7 @@ import (
 	"github.com/andreis3/customers-ms/internal/presentation/http/routes"
 )
 
-func MakeAuthRouter(connPostgres *postegres.Postgres, log interfaces.Logger, prometheus interfaces.Prometheus, conf *configs.Configs) *routes.AuthRoutes {
+func MakeAuthRouter(connPostgres *postegres.Postgres, log commons.Logger, prometheus adapter.Prometheus, conf *configs.Configs) *routes.AuthRoutes {
 	pool := connPostgres.Pool
 	customerRepository := repository.NewCustomerRepository(pool, prometheus)
 	tokenService := jwt.NewJWT(conf)

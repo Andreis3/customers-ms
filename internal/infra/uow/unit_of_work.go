@@ -3,11 +3,15 @@ package uow
 import (
 	"context"
 
-	apperror "github.com/andreis3/customers-ms/internal/domain/app-error"
-	"github.com/andreis3/customers-ms/internal/domain/interfaces"
-	"github.com/andreis3/customers-ms/internal/infra/repositories/postgres/repository"
 	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgxpool"
+
+	apperror "github.com/andreis3/customers-ms/internal/domain/app-error"
+	"github.com/andreis3/customers-ms/internal/domain/interfaces/adapter"
+	repository2 "github.com/andreis3/customers-ms/internal/domain/interfaces/repository"
+	"github.com/andreis3/customers-ms/internal/domain/interfaces/uow"
+	"github.com/andreis3/customers-ms/internal/infra/adapters/observability"
+	"github.com/andreis3/customers-ms/internal/infra/repositories/postgres/repository"
 )
 
 const (
@@ -17,10 +21,10 @@ const (
 type UnitOfWork struct {
 	DB         *pgxpool.Pool
 	TX         pgx.Tx
-	prometheus interfaces.Prometheus
+	prometheus adapter.Prometheus
 }
 
-func NewUnitOfWork(db *pgxpool.Pool, prometheus interfaces.Prometheus) *UnitOfWork {
+func NewUnitOfWork(db *pgxpool.Pool, prometheus adapter.Prometheus) *UnitOfWork {
 	return &UnitOfWork{
 		DB:         db,
 		prometheus: prometheus,
@@ -28,9 +32,12 @@ func NewUnitOfWork(db *pgxpool.Pool, prometheus interfaces.Prometheus) *UnitOfWo
 }
 
 // Do handles transaction lifecycle safely.
-func (u *UnitOfWork) Do(fn func(uow interfaces.UnitOfWork) *apperror.Error) *apperror.Error {
-	ctx := context.Background()
+func (u *UnitOfWork) Do(ctx context.Context, fn func(uow uow.UnitOfWork) *apperror.Error) *apperror.Error {
+	ctx, child := observability.Tracer.Start(ctx, "UnitOfWork.Do")
+	defer child.End()
+
 	if u.TX != nil {
+		child.RecordError(apperror.ErrorTransactionAlreadyExists())
 		return apperror.ErrorTransactionAlreadyExists()
 	}
 
@@ -40,6 +47,7 @@ func (u *UnitOfWork) Do(fn func(uow interfaces.UnitOfWork) *apperror.Error) *app
 		AccessMode:  pgx.ReadWrite,
 	})
 	if err != nil {
+		child.RecordError(apperror.ErrorOpeningTransaction(err))
 		return apperror.ErrorOpeningTransaction(err)
 	}
 
@@ -49,12 +57,15 @@ func (u *UnitOfWork) Do(fn func(uow interfaces.UnitOfWork) *apperror.Error) *app
 	if err := fn(u); err != nil {
 		rollbackErr := u.TX.Rollback(ctx)
 		if rollbackErr != nil {
+			child.RecordError(apperror.ErrorExecuteRollback(rollbackErr))
 			return apperror.ErrorExecuteRollback(rollbackErr)
 		}
+		child.RecordError(err)
 		return err
 	}
 
 	if err := u.TX.Commit(ctx); err != nil {
+		child.RecordError(apperror.ErrorCommitOrRollback(err))
 		return apperror.ErrorCommitOrRollback(err)
 	}
 
@@ -62,10 +73,10 @@ func (u *UnitOfWork) Do(fn func(uow interfaces.UnitOfWork) *apperror.Error) *app
 }
 
 // --- Repository Accessors (Always fresh instances tied to current TX) --- //
-func (u *UnitOfWork) CustomerRepository() interfaces.CustomerRepository {
+func (u *UnitOfWork) CustomerRepository() repository2.CustomerRepository {
 	return repository.NewCustomerRepository(u.TX, u.prometheus)
 }
 
-func (u *UnitOfWork) AddressRepository() interfaces.AddressRepository {
+func (u *UnitOfWork) AddressRepository() repository2.AddressRepository {
 	return repository.NewAddressRepository(u.TX, u.prometheus)
 }

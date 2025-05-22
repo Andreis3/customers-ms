@@ -1,15 +1,17 @@
 package routes
 
 import (
-	"github.com/andreis3/customers-ms/internal/domain/interfaces"
+	"github.com/go-chi/chi/v5"
+
+	"github.com/andreis3/customers-ms/internal/domain/interfaces/adapter"
+	"github.com/andreis3/customers-ms/internal/domain/interfaces/commons"
 	"github.com/andreis3/customers-ms/internal/infra/adapters/db/postegres"
 	"github.com/andreis3/customers-ms/internal/infra/configs"
 	"github.com/andreis3/customers-ms/internal/infra/factories/presentation"
 	"github.com/andreis3/customers-ms/internal/presentation/http/routes"
-	"github.com/go-chi/chi/v5"
 )
 
-func SetupRoutes(mux *chi.Mux, connPostgres *postegres.Postgres, log interfaces.Logger, prometheus interfaces.Prometheus, conf *configs.Configs) {
+func SetupRoutes(mux *chi.Mux, connPostgres *postegres.Postgres, log commons.Logger, prometheus adapter.Prometheus, conf *configs.Configs) {
 	healthRoutes := routes.NewHealthCheck()
 	metricsRoutes := routes.NewMetrics()
 	customerRoutes := presentation.MakeCustomerRouter(connPostgres, log, prometheus)

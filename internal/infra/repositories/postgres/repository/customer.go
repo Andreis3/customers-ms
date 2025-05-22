@@ -8,20 +8,20 @@ import (
 
 	apperror "github.com/andreis3/customers-ms/internal/domain/app-error"
 	"github.com/andreis3/customers-ms/internal/domain/entity/customer"
-	"github.com/andreis3/customers-ms/internal/domain/interfaces"
+	"github.com/andreis3/customers-ms/internal/domain/interfaces/adapter"
 	"github.com/andreis3/customers-ms/internal/infra/adapters/observability"
 	"github.com/andreis3/customers-ms/internal/infra/repositories/postgres/model"
 )
 
 type CustomerRepository struct {
-	DB      interfaces.InstructionPostgres
-	metrics interfaces.Prometheus
+	DB      adapter.InstructionPostgres
+	metrics adapter.Prometheus
 	model.Customer
 }
 
 func NewCustomerRepository(
-	db interfaces.InstructionPostgres,
-	metrics interfaces.Prometheus,
+	db adapter.InstructionPostgres,
+	metrics adapter.Prometheus,
 ) *CustomerRepository {
 	return &CustomerRepository{
 		DB:      db,

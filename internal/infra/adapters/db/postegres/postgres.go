@@ -7,15 +7,16 @@ import (
 	"sync"
 	"time"
 
-	dbtracer "github.com/amirsalarsafaei/sqlc-pgx-monitoring/dbtracer"
-	"github.com/andreis3/customers-ms/internal/domain/interfaces"
-	"github.com/andreis3/customers-ms/internal/infra/commons/logger"
-	"github.com/andreis3/customers-ms/internal/infra/configs"
-	"github.com/andreis3/customers-ms/internal/util"
+	"github.com/amirsalarsafaei/sqlc-pgx-monitoring/dbtracer"
 	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgconn"
 	"github.com/jackc/pgx/v5/pgxpool"
 	"go.opentelemetry.io/otel"
+
+	"github.com/andreis3/customers-ms/internal/domain/interfaces/adapter"
+	"github.com/andreis3/customers-ms/internal/infra/commons/logger"
+	"github.com/andreis3/customers-ms/internal/infra/configs"
+	"github.com/andreis3/customers-ms/internal/util"
 )
 
 var (
@@ -27,7 +28,7 @@ type Postgres struct {
 	Pool *pgxpool.Pool
 }
 
-func NewPoolConnections(conf *configs.Configs, metrics interfaces.Prometheus) *Postgres {
+func NewPoolConnections(conf *configs.Configs, metrics adapter.Prometheus) *Postgres {
 	log := logger.NewLogger()
 	singleton.Do(func() {
 		connStr := fmt.Sprintf("host=%s port=%s user=%s password=%s dbname=%s sslmode=disable",
@@ -98,9 +99,9 @@ func (p *Postgres) SendBatch(ctx context.Context, b *pgx.Batch) pgx.BatchResults
 }
 
 type Queries struct {
-	interfaces.InstructionPostgres
+	adapter.InstructionPostgres
 }
 
-func New(db interfaces.InstructionPostgres) *Queries {
+func New(db adapter.InstructionPostgres) *Queries {
 	return &Queries{db}
 }

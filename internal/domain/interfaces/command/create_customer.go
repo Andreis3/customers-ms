@@ -1,4 +1,4 @@
-package commands
+package command
 
 import (
 	"context"
@@ -8,10 +8,6 @@ import (
 	"github.com/andreis3/customers-ms/internal/domain/entity/customer"
 )
 
-type ICreateCustomer interface {
+type CreateCustomer interface {
 	Execute(ctx context.Context, input aggregate.CustomerProfile) (*customer.Customer, *apperror.Error)
-}
-
-type IAuthenticateCustomer interface {
-	Execute(ctx context.Context, input AuthenticateCustomerInput) (*AuthenticateCustomerOutput, *apperror.Error)
 }

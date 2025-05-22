@@ -5,32 +5,26 @@ import (
 	"log/slog"
 
 	apperror "github.com/andreis3/customers-ms/internal/domain/app-error"
-	"github.com/andreis3/customers-ms/internal/domain/interfaces"
+	"github.com/andreis3/customers-ms/internal/domain/interfaces/adapter"
+	"github.com/andreis3/customers-ms/internal/domain/interfaces/command"
+	"github.com/andreis3/customers-ms/internal/domain/interfaces/commons"
+	"github.com/andreis3/customers-ms/internal/domain/interfaces/repository"
+	"github.com/andreis3/customers-ms/internal/domain/interfaces/service"
 	"github.com/andreis3/customers-ms/internal/infra/adapters/observability"
 )
 
 type AuthenticateCustomer struct {
-	log                interfaces.Logger
-	customerRepository interfaces.CustomerRepository
-	authService        interfaces.Auth
-	bcrypt             interfaces.Bcrypt
-}
-
-type AuthenticateCustomerInput struct {
-	Email    string
-	Password string
-}
-
-type AuthenticateCustomerOutput struct {
-	Token     string
-	ExpiresAt int64
+	log                commons.Logger
+	customerRepository repository.CustomerRepository
+	authService        service.Auth
+	bcrypt             adapter.Bcrypt
 }
 
 func NewAuthenticateCustomer(
-	log interfaces.Logger,
-	customerRepository interfaces.CustomerRepository,
-	authService interfaces.Auth,
-	bcrypt interfaces.Bcrypt,
+	log commons.Logger,
+	customerRepository repository.CustomerRepository,
+	authService service.Auth,
+	bcrypt adapter.Bcrypt,
 ) *AuthenticateCustomer {
 	return &AuthenticateCustomer{
 		log:                log,
@@ -40,7 +34,7 @@ func NewAuthenticateCustomer(
 	}
 }
 
-func (a *AuthenticateCustomer) Execute(ctx context.Context, input AuthenticateCustomerInput) (*AuthenticateCustomerOutput, *apperror.Error) {
+func (a *AuthenticateCustomer) Execute(ctx context.Context, input command.AuthenticateCustomerInput) (*command.AuthenticateCustomerOutput, *apperror.Error) {
 	a.log.InfoText("Received input to authenticate customer",
 		slog.String("email", input.Email),
 		slog.String("password", input.Password))
@@ -74,10 +68,10 @@ func (a *AuthenticateCustomer) Execute(ctx context.Context, input AuthenticateCu
 		slog.String("trace_id", traceID),
 		slog.String("token", token.Token))
 
-	output := &AuthenticateCustomerOutput{
+	output := &command.AuthenticateCustomerOutput{
 		Token:     token.Token,
 		ExpiresAt: token.ExpiresAt.Unix(),
 	}
-	
+
 	return output, nil
 }

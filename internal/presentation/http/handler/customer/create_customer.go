@@ -5,7 +5,10 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/andreis3/customers-ms/internal/domain/interfaces"
+	"github.com/andreis3/customers-ms/internal/domain/interfaces/adapter"
+	"github.com/andreis3/customers-ms/internal/domain/interfaces/commons"
+	"github.com/andreis3/customers-ms/internal/domain/interfaces/service"
+	"github.com/andreis3/customers-ms/internal/domain/interfaces/uow"
 	"github.com/andreis3/customers-ms/internal/infra/adapters/observability"
 	"github.com/andreis3/customers-ms/internal/infra/factories/app"
 	"github.com/andreis3/customers-ms/internal/presentation/dtos/input"
@@ -14,17 +17,17 @@ import (
 )
 
 type CreateCustomerHandler struct {
-	log        interfaces.Logger
-	prometheus interfaces.Prometheus
+	log        commons.Logger
+	prometheus adapter.Prometheus
 	factory    app.ICreateCustomerFactory
 }
 
 func NewCreateCustomerHandler(
-	log interfaces.Logger,
-	prometheus interfaces.Prometheus,
-	crypto interfaces.Bcrypt,
-	uow interfaces.UnitOfWork,
-	customerService interfaces.CustomerService,
+	log commons.Logger,
+	prometheus adapter.Prometheus,
+	crypto adapter.Bcrypt,
+	uow uow.UnitOfWork,
+	customerService service.CustomerService,
 ) CreateCustomerHandler {
 	return CreateCustomerHandler{
 		log:        log,

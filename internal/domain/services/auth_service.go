@@ -3,16 +3,16 @@ package services
 import (
 	apperror "github.com/andreis3/customers-ms/internal/domain/app-error"
 	"github.com/andreis3/customers-ms/internal/domain/entity/customer"
-	"github.com/andreis3/customers-ms/internal/domain/interfaces"
+	"github.com/andreis3/customers-ms/internal/domain/interfaces/adapter"
 	valueobject "github.com/andreis3/customers-ms/internal/domain/value-object"
 )
 
 type AuthService struct {
-	tokenService interfaces.TokenService
+	tokenService adapter.TokenService
 }
 
 func NewAuthService(
-	tokenService interfaces.TokenService,
+	tokenService adapter.TokenService,
 ) *AuthService {
 	return &AuthService{
 		tokenService: tokenService,

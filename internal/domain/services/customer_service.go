@@ -3,14 +3,14 @@ package services
 import (
 	"context"
 
-	"github.com/andreis3/customers-ms/internal/domain/interfaces"
+	"github.com/andreis3/customers-ms/internal/domain/interfaces/repository"
 )
 
 type CustomerService struct {
-	customerRepository interfaces.CustomerRepository
+	customerRepository repository.CustomerRepository
 }
 
-func NewCustomerService(customerRepository interfaces.CustomerRepository) *CustomerService {
+func NewCustomerService(customerRepository repository.CustomerRepository) *CustomerService {
 	return &CustomerService{
 		customerRepository: customerRepository,
 	}

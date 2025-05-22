@@ -2,29 +2,33 @@ package app
 
 import (
 	"github.com/andreis3/customers-ms/internal/app/commands"
-	"github.com/andreis3/customers-ms/internal/domain/interfaces"
+	"github.com/andreis3/customers-ms/internal/domain/interfaces/adapter"
+	"github.com/andreis3/customers-ms/internal/domain/interfaces/command"
+	"github.com/andreis3/customers-ms/internal/domain/interfaces/commons"
+	"github.com/andreis3/customers-ms/internal/domain/interfaces/service"
+	"github.com/andreis3/customers-ms/internal/domain/interfaces/uow"
 )
 
 type createCustomerFactory struct {
-	uow             interfaces.UnitOfWork
-	crypt           interfaces.Bcrypt
-	log             interfaces.Logger
-	customerService interfaces.CustomerService
+	uow             uow.UnitOfWork
+	crypt           adapter.Bcrypt
+	log             commons.Logger
+	customerService service.CustomerService
 }
 
 type ICreateCustomerFactory interface {
-	Build() commands.ICreateCustomer
+	Build() command.CreateCustomer
 }
 
 func NewCreateCustomerFactory(
-	uow interfaces.UnitOfWork,
-	crypto interfaces.Bcrypt,
-	log interfaces.Logger,
-	customerService interfaces.CustomerService,
+	uow uow.UnitOfWork,
+	crypto adapter.Bcrypt,
+	log commons.Logger,
+	customerService service.CustomerService,
 ) ICreateCustomerFactory {
 	return &createCustomerFactory{uow: uow, crypt: crypto, log: log, customerService: customerService}
 }
 
-func (f *createCustomerFactory) Build() commands.ICreateCustomer {
+func (f *createCustomerFactory) Build() command.CreateCustomer {
 	return commands.NewCreateCustomer(f.uow, f.crypt, f.log, f.customerService)
 }
