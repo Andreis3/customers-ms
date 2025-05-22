@@ -13,7 +13,7 @@ import (
 	"github.com/andreis3/customers-ms/internal/infra/adapters/observability"
 )
 
-type AuthenticateCustomer struct {
+type Login struct {
 	log                commons.Logger
 	customerRepository postgres.CustomerRepository
 	authService        service.Auth
@@ -25,8 +25,8 @@ func NewAuthenticateCustomer(
 	customerRepository postgres.CustomerRepository,
 	authService service.Auth,
 	bcrypt adapter.Bcrypt,
-) *AuthenticateCustomer {
-	return &AuthenticateCustomer{
+) *Login {
+	return &Login{
 		log:                log,
 		customerRepository: customerRepository,
 		authService:        authService,
@@ -34,12 +34,12 @@ func NewAuthenticateCustomer(
 	}
 }
 
-func (a *AuthenticateCustomer) Execute(ctx context.Context, input command.AuthenticateCustomerInput) (*command.AuthenticateCustomerOutput, *apperror.Error) {
+func (a *Login) Execute(ctx context.Context, input command.LoginInput) (*command.LoginOutput, *apperror.Error) {
 	a.log.InfoText("Received input to authenticate customer",
 		slog.String("email", input.Email),
 		slog.String("password", input.Password))
 
-	ctx, child := observability.Tracer.Start(ctx, "AuthenticateCustomer.Execute")
+	ctx, child := observability.Tracer.Start(ctx, "Login.Execute")
 
 	defer child.End()
 	traceID := child.SpanContext().TraceID().String()
@@ -68,7 +68,7 @@ func (a *AuthenticateCustomer) Execute(ctx context.Context, input command.Authen
 		slog.String("trace_id", traceID),
 		slog.String("token", token.Token))
 
-	output := &command.AuthenticateCustomerOutput{
+	output := &command.LoginOutput{
 		Token:     token.Token,
 		ExpiresAt: token.ExpiresAt.Unix(),
 	}

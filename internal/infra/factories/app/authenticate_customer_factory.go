@@ -10,7 +10,7 @@ import (
 )
 
 type AuthenticateCustomerFactory interface {
-	Build() command.AuthenticateCustomer
+	Build() command.Login
 }
 
 type authenticateCustomerFactory struct {
@@ -34,6 +34,6 @@ func NewAuthenticateCustomerFactory(
 	}
 }
 
-func (f *authenticateCustomerFactory) Build() command.AuthenticateCustomer {
+func (f *authenticateCustomerFactory) Build() command.Login {
 	return commands.NewAuthenticateCustomer(f.log, f.customerRepository, f.authService, f.bcrypt)
 }

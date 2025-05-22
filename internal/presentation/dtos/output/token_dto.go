@@ -9,7 +9,7 @@ type TokenDTO struct {
 	ExpiresAt int64  `json:"expires_at"`
 }
 
-func TokenOutputMapper(token *command.AuthenticateCustomerOutput) TokenDTO {
+func TokenOutputMapper(token *command.LoginOutput) TokenDTO {
 	return TokenDTO{
 		Token:     token.Token,
 		ExpiresAt: token.ExpiresAt,

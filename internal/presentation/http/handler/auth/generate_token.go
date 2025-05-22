@@ -42,7 +42,7 @@ func (h *GenerateTokenHandler) Handle(w http.ResponseWriter, r *http.Request) {
 	traceID := child.SpanContext().TraceID().String()
 	defer child.End()
 
-	data, err := helpers.DecoderBodyRequest[command.AuthenticateCustomerInput](r)
+	data, err := helpers.DecoderBodyRequest[command.LoginInput](r)
 	if err != nil {
 		child.RecordError(err)
 		h.log.ErrorJSON("failed decode request body",
@@ -54,7 +54,7 @@ func (h *GenerateTokenHandler) Handle(w http.ResponseWriter, r *http.Request) {
 
 	cmd := h.factory.Build()
 
-	input := command.AuthenticateCustomerInput{
+	input := command.LoginInput{
 		Email:    data.Email,
 		Password: data.Password,
 	}
