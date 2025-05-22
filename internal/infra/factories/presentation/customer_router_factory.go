@@ -14,11 +14,11 @@ import (
 
 func MakeCustomerRouter(connPostgres *postegres.Postgres, log commons.Logger, prometheus adapter.Prometheus) *routes.CustomerRoutes {
 	pool := connPostgres.Pool
-	crypto := crypto.NewBcrypt()
-	uow := uow.NewUnitOfWork(pool, prometheus)
+	newCrypto := crypto.NewBcrypt()
+	newUow := uow.NewUnitOfWork(pool, prometheus)
 	customerRepository := repository.NewCustomerRepository(pool, prometheus)
 	customerService := services.NewCustomerService(customerRepository)
-	createCustomerHandler := customer.NewCreateCustomerHandler(log, prometheus, crypto, uow, customerService)
+	createCustomerHandler := customer.NewCreateCustomerHandler(log, prometheus, newCrypto, newUow, customerService)
 
 	customerRoutes := routes.NewCustomer(createCustomerHandler, log)
 

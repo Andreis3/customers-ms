@@ -8,14 +8,10 @@ import (
 
 	apperror "github.com/andreis3/customers-ms/internal/domain/app-error"
 	"github.com/andreis3/customers-ms/internal/domain/interfaces/adapter"
-	repository2 "github.com/andreis3/customers-ms/internal/domain/interfaces/repository"
+	irepository "github.com/andreis3/customers-ms/internal/domain/interfaces/repository"
 	"github.com/andreis3/customers-ms/internal/domain/interfaces/uow"
 	"github.com/andreis3/customers-ms/internal/infra/adapters/observability"
 	"github.com/andreis3/customers-ms/internal/infra/repositories/postgres/repository"
-)
-
-const (
-	InternalServerError = "internal server error"
 )
 
 type UnitOfWork struct {
@@ -73,10 +69,10 @@ func (u *UnitOfWork) Do(ctx context.Context, fn func(uow uow.UnitOfWork) *apperr
 }
 
 // --- Repository Accessors (Always fresh instances tied to current TX) --- //
-func (u *UnitOfWork) CustomerRepository() repository2.CustomerRepository {
+func (u *UnitOfWork) CustomerRepository() irepository.CustomerRepository {
 	return repository.NewCustomerRepository(u.TX, u.prometheus)
 }
 
-func (u *UnitOfWork) AddressRepository() repository2.AddressRepository {
+func (u *UnitOfWork) AddressRepository() irepository.AddressRepository {
 	return repository.NewAddressRepository(u.TX, u.prometheus)
 }
