@@ -8,7 +8,7 @@ import (
 
 	apperror "github.com/andreis3/customers-ms/internal/domain/app-error"
 	"github.com/andreis3/customers-ms/internal/domain/interfaces/adapter"
-	irepository "github.com/andreis3/customers-ms/internal/domain/interfaces/repository"
+	"github.com/andreis3/customers-ms/internal/domain/interfaces/postgres"
 	"github.com/andreis3/customers-ms/internal/domain/interfaces/uow"
 	"github.com/andreis3/customers-ms/internal/infra/adapters/observability"
 	"github.com/andreis3/customers-ms/internal/infra/repositories/postgres/repository"
@@ -69,10 +69,10 @@ func (u *UnitOfWork) Do(ctx context.Context, fn func(uow uow.UnitOfWork) *apperr
 }
 
 // --- Repository Accessors (Always fresh instances tied to current TX) --- //
-func (u *UnitOfWork) CustomerRepository() irepository.CustomerRepository {
+func (u *UnitOfWork) CustomerRepository() postgres.CustomerRepository {
 	return repository.NewCustomerRepository(u.TX, u.prometheus)
 }
 
-func (u *UnitOfWork) AddressRepository() irepository.AddressRepository {
+func (u *UnitOfWork) AddressRepository() postgres.AddressRepository {
 	return repository.NewAddressRepository(u.TX, u.prometheus)
 }

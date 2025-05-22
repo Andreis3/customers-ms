@@ -5,7 +5,7 @@ import (
 	"github.com/andreis3/customers-ms/internal/domain/interfaces/adapter"
 	"github.com/andreis3/customers-ms/internal/domain/interfaces/command"
 	"github.com/andreis3/customers-ms/internal/domain/interfaces/commons"
-	"github.com/andreis3/customers-ms/internal/domain/interfaces/repository"
+	"github.com/andreis3/customers-ms/internal/domain/interfaces/postgres"
 	"github.com/andreis3/customers-ms/internal/domain/interfaces/service"
 )
 
@@ -15,14 +15,14 @@ type AuthenticateCustomerFactory interface {
 
 type authenticateCustomerFactory struct {
 	log                commons.Logger
-	customerRepository repository.CustomerRepository
+	customerRepository postgres.CustomerRepository
 	authService        service.Auth
 	bcrypt             adapter.Bcrypt
 }
 
 func NewAuthenticateCustomerFactory(
 	log commons.Logger,
-	customerRepository repository.CustomerRepository,
+	customerRepository postgres.CustomerRepository,
 	authService service.Auth,
 	bcrypt adapter.Bcrypt,
 ) AuthenticateCustomerFactory {

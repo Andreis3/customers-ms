@@ -48,18 +48,18 @@ func (c *AddressRepository) InsertBatchAddress(ctx context.Context, customerID i
 	RETURNING id`
 
 	for _, address := range addresses {
-		model := c.FromModel(address)
+		modelAddress := c.FromModel(address)
 		batch.Queue(query,
 			customerID,
-			model.Street,
-			model.Number,
-			model.Complement,
-			model.City,
-			model.State,
-			model.PostalCode,
-			model.Country,
-			model.CreatedAt,
-			model.UpdatedAt,
+			modelAddress.Street,
+			modelAddress.Number,
+			modelAddress.Complement,
+			modelAddress.City,
+			modelAddress.State,
+			modelAddress.PostalCode,
+			modelAddress.Country,
+			modelAddress.CreatedAt,
+			modelAddress.UpdatedAt,
 		)
 	}
 

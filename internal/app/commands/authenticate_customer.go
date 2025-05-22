@@ -8,21 +8,21 @@ import (
 	"github.com/andreis3/customers-ms/internal/domain/interfaces/adapter"
 	"github.com/andreis3/customers-ms/internal/domain/interfaces/command"
 	"github.com/andreis3/customers-ms/internal/domain/interfaces/commons"
-	"github.com/andreis3/customers-ms/internal/domain/interfaces/repository"
+	"github.com/andreis3/customers-ms/internal/domain/interfaces/postgres"
 	"github.com/andreis3/customers-ms/internal/domain/interfaces/service"
 	"github.com/andreis3/customers-ms/internal/infra/adapters/observability"
 )
 
 type AuthenticateCustomer struct {
 	log                commons.Logger
-	customerRepository repository.CustomerRepository
+	customerRepository postgres.CustomerRepository
 	authService        service.Auth
 	bcrypt             adapter.Bcrypt
 }
 
 func NewAuthenticateCustomer(
 	log commons.Logger,
-	customerRepository repository.CustomerRepository,
+	customerRepository postgres.CustomerRepository,
 	authService service.Auth,
 	bcrypt adapter.Bcrypt,
 ) *AuthenticateCustomer {
