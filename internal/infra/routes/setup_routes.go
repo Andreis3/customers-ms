@@ -17,7 +17,7 @@ func SetupRoutes(mux *chi.Mux, connPostgres *postegres.Postgres, log commons.Log
 	customerRoutes := presentation.MakeCustomerRouter(connPostgres, log, prometheus)
 	authRoutes := presentation.MakeAuthRouter(connPostgres, log, prometheus, conf)
 
-	routes := NewRegisterRoutes(
+	registerRoutes := NewRegisterRoutes(
 		mux,
 		log,
 		healthRoutes,
@@ -25,5 +25,5 @@ func SetupRoutes(mux *chi.Mux, connPostgres *postegres.Postgres, log commons.Log
 		customerRoutes,
 		authRoutes,
 	)
-	routes.Register()
+	registerRoutes.Register()
 }
