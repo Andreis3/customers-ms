@@ -4,28 +4,28 @@ import (
 	"net/http"
 
 	"github.com/andreis3/customers-ms/internal/domain/interfaces/commons"
-	"github.com/andreis3/customers-ms/internal/presentation/http/handler/auth"
+	"github.com/andreis3/customers-ms/internal/presentation/http/handler/login"
 	"github.com/andreis3/customers-ms/internal/presentation/http/helpers"
 	"github.com/andreis3/customers-ms/internal/presentation/http/middlewares"
 )
 
-type AuthRoutes struct {
+type LoginRoutes struct {
 	log         commons.Logger
-	authHandler auth.GenerateTokenHandler
+	authHandler login.GenerateTokenHandler
 }
 
 func NewAuthRoutes(
 	log commons.Logger,
-	authHandler auth.GenerateTokenHandler,
-) *AuthRoutes {
-	return &AuthRoutes{
+	authHandler login.GenerateTokenHandler,
+) *LoginRoutes {
+	return &LoginRoutes{
 		log:         log,
 		authHandler: authHandler,
 	}
 }
 
-func (r *AuthRoutes) Routes() helpers.RouteType {
-	prefix := "/v1/api/auth"
+func (r *LoginRoutes) Routes() helpers.RouteType {
+	prefix := "/v1/api/login"
 	return helpers.WithPrefix(prefix, helpers.RouteType{
 		{
 			Method:      http.MethodPost,
