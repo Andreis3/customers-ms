@@ -1,4 +1,4 @@
-package interfaces
+package adapter
 
 import "go.opentelemetry.io/otel/sdk/metric"
 

@@ -4,36 +4,40 @@ import (
 	"fmt"
 	"net/http"
 
-	"github.com/andreis3/users-ms/internal/domain/interfaces"
-	"github.com/andreis3/users-ms/internal/presentation/http/helpers"
-	"github.com/andreis3/users-ms/internal/presentation/http/routes"
 	"github.com/go-chi/chi/v5"
+
+	"github.com/andreis3/customers-ms/internal/domain/interfaces/commons"
+	"github.com/andreis3/customers-ms/internal/presentation/http/helpers"
 )
 
+type ModuleRoutes interface {
+	Routes() helpers.RouteType
+}
+
 type RegisterRoutes struct {
-	mux            *chi.Mux
-	log            interfaces.Logger
-	customerRoutes routes.CustomerRoutes
+	mux     *chi.Mux
+	log     commons.Logger
+	modules []ModuleRoutes
 }
 
 func NewRegisterRoutes(
 	mux *chi.Mux,
-	log interfaces.Logger,
-	customerRoutes routes.CustomerRoutes,
+	log commons.Logger,
+	modules ...ModuleRoutes,
 ) *RegisterRoutes {
 	return &RegisterRoutes{
-		mux:            mux,
-		log:            log,
-		customerRoutes: customerRoutes,
+		mux:     mux,
+		log:     log,
+		modules: modules,
 	}
 }
 
 func (r *RegisterRoutes) Register() {
 	// Example: here you register the HealthCheck routes;
 	// For other routes, just call them the same way.
-	r.registerRoutes(routes.NewHealthCheck().HealthCheck())
-	r.registerRoutes(routes.NewMetrics().Metrics())
-	r.registerRoutes(r.customerRoutes.CustomerRoutes())
+	for _, module := range r.modules {
+		r.registerRoutes(module.Routes())
+	}
 }
 
 // registerRoutes iterates over the returned routes

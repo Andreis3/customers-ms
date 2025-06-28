@@ -3,24 +3,20 @@ package routes
 import (
 	"net/http"
 
-	"github.com/andreis3/users-ms/internal/domain/interfaces"
-	"github.com/andreis3/users-ms/internal/presentation/http/handler/customer"
-	"github.com/andreis3/users-ms/internal/presentation/http/helpers"
-	"github.com/andreis3/users-ms/internal/presentation/http/middlewares"
-)
-
-const (
-	CustomersPath = "/customers"
+	"github.com/andreis3/customers-ms/internal/domain/interfaces/commons"
+	"github.com/andreis3/customers-ms/internal/presentation/http/handler/customer"
+	"github.com/andreis3/customers-ms/internal/presentation/http/helpers"
+	"github.com/andreis3/customers-ms/internal/presentation/http/middlewares"
 )
 
 type CustomerRoutes struct {
 	createCustomer customer.CreateCustomerHandler
-	log            interfaces.Logger
+	log            commons.Logger
 }
 
-func NewCustomerRoutes(
+func NewCustomer(
 	createCustomer customer.CreateCustomerHandler,
-	log interfaces.Logger,
+	log commons.Logger,
 ) *CustomerRoutes {
 	return &CustomerRoutes{
 		createCustomer: createCustomer,
@@ -28,16 +24,16 @@ func NewCustomerRoutes(
 	}
 }
 
-func (r *CustomerRoutes) CustomerRoutes() helpers.RouteType {
-	return helpers.RouteType{
+func (r *CustomerRoutes) Routes() helpers.RouteType {
+	prefix := "/v1/api/customers"
+	return helpers.WithPrefix(prefix, helpers.RouteType{
 		{
 			Method:      http.MethodPost,
-			Path:        CustomersPath,
-			Handler:     helpers.TraceHandler(CustomersPath, r.createCustomer.Handle),
+			Handler:     helpers.TraceHandler(http.MethodPost, prefix, r.createCustomer.Handle),
 			Description: "Create Customer",
 			Middlewares: []func(http.Handler) http.Handler{
 				middlewares.LoggingMiddleware(r.log),
 			},
 		},
-	}
+	})
 }

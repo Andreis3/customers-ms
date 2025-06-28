@@ -4,23 +4,24 @@ import (
 	"context"
 	"time"
 
-	"github.com/andreis3/users-ms/internal/domain/apperrors"
-	"github.com/andreis3/users-ms/internal/domain/entity/address"
-	"github.com/andreis3/users-ms/internal/domain/interfaces"
-	"github.com/andreis3/users-ms/internal/infra/adapters/observability"
-	"github.com/andreis3/users-ms/internal/infra/repositories/postgres/model"
 	"github.com/jackc/pgx/v5"
+
+	apperror "github.com/andreis3/customers-ms/internal/domain/app-error"
+	"github.com/andreis3/customers-ms/internal/domain/entity/address"
+	"github.com/andreis3/customers-ms/internal/domain/interfaces/adapter"
+	"github.com/andreis3/customers-ms/internal/infra/adapters/observability"
+	"github.com/andreis3/customers-ms/internal/infra/repositories/postgres/model"
 )
 
 type AddressRepository struct {
-	DB      interfaces.InstructionPostgres
-	metrics interfaces.Prometheus
+	DB      adapter.InstructionPostgres
+	metrics adapter.Prometheus
 	model.Address
 }
 
 func NewAddressRepository(
-	db interfaces.InstructionPostgres,
-	metrics interfaces.Prometheus,
+	db adapter.InstructionPostgres,
+	metrics adapter.Prometheus,
 ) *AddressRepository {
 	return &AddressRepository{
 		DB:      db,
@@ -28,9 +29,10 @@ func NewAddressRepository(
 	}
 }
 
-func (c *AddressRepository) InsertBatchAddress(ctx context.Context, customerID int64, addresses []address.Address) (*[]address.Address, *apperrors.AppErrors) {
+func (c *AddressRepository) InsertBatchAddress(ctx context.Context, customerID int64, addresses []address.Address) (*[]address.Address, *apperror.Error) {
 	ctx, span := observability.Tracer.Start(ctx, "AddressRepository.InsertBatchAddress")
 	start := time.Now()
+
 	defer func() {
 		end := time.Since(start)
 		c.metrics.ObserveInstructionDBDuration("postgres", "addresses", "insert", float64(end.Milliseconds()))
@@ -39,25 +41,25 @@ func (c *AddressRepository) InsertBatchAddress(ctx context.Context, customerID i
 
 	batch := &pgx.Batch{}
 
-	query := `-- name: InsertAddress :one
+	query := `
 	INSERT INTO addresses 
 	(customer_id, street, number, complement, city, state, postal_code, country, created_at, updated_at) 
 	VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10) 
 	RETURNING id`
 
 	for _, address := range addresses {
-		model := c.FromModel(address)
+		modelAddress := c.FromModel(address)
 		batch.Queue(query,
 			customerID,
-			model.Street,
-			model.Number,
-			model.Complement,
-			model.City,
-			model.State,
-			model.PostalCode,
-			model.Country,
-			model.CreatedAt,
-			model.UpdatedAt,
+			modelAddress.Street,
+			modelAddress.Number,
+			modelAddress.Complement,
+			modelAddress.City,
+			modelAddress.State,
+			modelAddress.PostalCode,
+			modelAddress.Country,
+			modelAddress.CreatedAt,
+			modelAddress.UpdatedAt,
 		)
 	}
 

@@ -3,8 +3,8 @@ package routes
 import (
 	"net/http"
 
-	"github.com/andreis3/users-ms/internal/presentation/http/handler/health"
-	"github.com/andreis3/users-ms/internal/presentation/http/helpers"
+	"github.com/andreis3/customers-ms/internal/presentation/http/handler/health"
+	"github.com/andreis3/customers-ms/internal/presentation/http/helpers"
 )
 
 type HealthCheck struct{}
@@ -13,7 +13,7 @@ func NewHealthCheck() *HealthCheck {
 	return &HealthCheck{}
 }
 
-func (r *HealthCheck) HealthCheck() helpers.RouteType {
+func (r *HealthCheck) Routes() helpers.RouteType {
 	return helpers.RouteType{
 		{
 			Method:      http.MethodGet,

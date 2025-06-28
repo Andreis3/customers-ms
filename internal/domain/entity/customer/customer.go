@@ -5,9 +5,9 @@ import (
 	"slices"
 	"time"
 
-	"github.com/andreis3/users-ms/internal/domain/entity/address"
-	"github.com/andreis3/users-ms/internal/domain/validator"
-	valueobject "github.com/andreis3/users-ms/internal/domain/value-object"
+	"github.com/andreis3/customers-ms/internal/domain/entity/address"
+	"github.com/andreis3/customers-ms/internal/domain/validator"
+	valueobject "github.com/andreis3/customers-ms/internal/domain/value-object"
 )
 
 type Customer struct {

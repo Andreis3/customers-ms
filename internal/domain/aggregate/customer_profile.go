@@ -3,10 +3,10 @@ package aggregate
 import (
 	"fmt"
 
-	"github.com/andreis3/users-ms/internal/domain/apperrors"
-	"github.com/andreis3/users-ms/internal/domain/entity/address"
-	"github.com/andreis3/users-ms/internal/domain/entity/customer"
-	"github.com/andreis3/users-ms/internal/domain/validator"
+	apperror "github.com/andreis3/customers-ms/internal/domain/app-error"
+	"github.com/andreis3/customers-ms/internal/domain/entity/address"
+	"github.com/andreis3/customers-ms/internal/domain/entity/customer"
+	"github.com/andreis3/customers-ms/internal/domain/validator"
 )
 
 type CustomerProfile struct {
@@ -22,17 +22,17 @@ func NewCustomerProfile(custome customer.Customer, addresses []address.Address) 
 	return userProfile
 }
 
-func (u *CustomerProfile) Validate() *apperrors.AppErrors {
+func (u *CustomerProfile) Validate() *apperror.Error {
 	mainValidator := validator.New()
 
-	validateUser := u.Customer.Validate()
-	mainValidator.Merge(validateUser)
+	validateCustomer := u.Customer.Validate()
+	mainValidator.Merge(validateCustomer)
 
 	for i, address := range u.Addresses {
 		addresValidator := address.Validate()
 
 		for key, messages := range addresValidator.FieldErrors {
-			prefixedKey := fmt.Sprintf("address[%d].%s", i, key)
+			prefixedKey := fmt.Sprintf("addresses[%d].%s", i, key)
 			for _, msg := range messages {
 				mainValidator.AddFieldError(prefixedKey, msg)
 			}
@@ -43,5 +43,5 @@ func (u *CustomerProfile) Validate() *apperrors.AppErrors {
 		return nil
 	}
 
-	return apperrors.InvalidCustomerError(mainValidator)
+	return apperror.InvalidCustomerError(mainValidator)
 }

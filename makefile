@@ -27,6 +27,10 @@ up:
 down:
 	@docker compose -f docker-compose.yml down -v
 
+pgpool-logs:
+	@echo "Running pgpool logs"
+	@docker logs -f pgpool
+
 tag:
 	scripts/bump_version.sh
 

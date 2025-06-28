@@ -1,19 +1,29 @@
 package routes
 
 import (
-	"github.com/andreis3/users-ms/internal/domain/interfaces"
-	"github.com/andreis3/users-ms/internal/infra/uow"
-	"github.com/andreis3/users-ms/internal/presentation/http/handler/customer"
-	"github.com/andreis3/users-ms/internal/presentation/http/routes"
 	"github.com/go-chi/chi/v5"
-	"github.com/jackc/pgx/v5/pgxpool"
+
+	"github.com/andreis3/customers-ms/internal/domain/interfaces/adapter"
+	"github.com/andreis3/customers-ms/internal/domain/interfaces/commons"
+	"github.com/andreis3/customers-ms/internal/infra/adapters/db/postegres"
+	"github.com/andreis3/customers-ms/internal/infra/configs"
+	"github.com/andreis3/customers-ms/internal/infra/factories/presentation"
+	"github.com/andreis3/customers-ms/internal/presentation/http/routes"
 )
 
-func SetupRoutes(mux *chi.Mux, postgres interfaces.DB, log interfaces.Logger, prometheus interfaces.Prometheus) {
-	postgresPool := postgres.Instance().(*pgxpool.Pool)
-	uow := uow.NewUnitOfWork(postgresPool, prometheus)
-	createCustomerHandler := customer.NewCreateCustomerHandler(log, prometheus, uow)
-	customerRoutes := routes.NewCustomerRoutes(createCustomerHandler, log)
-	routes := NewRegisterRoutes(mux, log, *customerRoutes)
-	routes.Register()
+func SetupRoutes(mux *chi.Mux, connPostgres *postegres.Postgres, log commons.Logger, prometheus adapter.Prometheus, conf *configs.Configs) {
+	healthRoutes := routes.NewHealthCheck()
+	metricsRoutes := routes.NewMetrics()
+	customerRoutes := presentation.MakeCustomerRouter(connPostgres, log, prometheus)
+	authRoutes := presentation.MakeAuthRouter(connPostgres, log, prometheus, conf)
+
+	registerRoutes := NewRegisterRoutes(
+		mux,
+		log,
+		healthRoutes,
+		metricsRoutes,
+		customerRoutes,
+		authRoutes,
+	)
+	registerRoutes.Register()
 }

@@ -3,8 +3,8 @@ package model
 import (
 	"time"
 
-	"github.com/andreis3/users-ms/internal/domain/entity/customer"
-	"github.com/andreis3/users-ms/internal/infra/commons/pointers"
+	"github.com/andreis3/customers-ms/internal/domain/entity/customer"
+	"github.com/andreis3/customers-ms/internal/infra/commons/pointers"
 )
 
 type Customer struct {

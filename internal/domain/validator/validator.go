@@ -2,8 +2,10 @@ package validator
 
 import (
 	"fmt"
+	"maps"
 	"slices"
 	"sort"
+	"strconv"
 	"strings"
 	"unicode/utf8"
 )
@@ -79,9 +81,55 @@ func (v *Validator) Errors() []string {
 func (v *Validator) FieldErrorsFlat() map[string]any {
 	flat := make(map[string]any, len(v.FieldErrors))
 	for key, messages := range v.FieldErrors {
-		flat[key] = strings.Join(messages, " \u2022 ")
+		flat[key] = strings.Join(messages, " | ")
 	}
 	return flat
+}
+
+func (v *Validator) FieldErrorsGrouped() map[string]any {
+	addressErrors := make(map[int]map[string]any)
+	otherErrors := make(map[string]any)
+
+	for field, message := range v.FieldErrorsFlat() {
+		if strings.HasPrefix(field, "addresses[") {
+			idxStart := strings.Index(field, "[") + 1
+			idxEnd := strings.Index(field, "]")
+			fieldStart := strings.Index(field, ".") + 1
+
+			indexStr := field[idxStart:idxEnd]
+			fieldName := field[fieldStart:]
+
+			index, err := strconv.Atoi(indexStr)
+			if err != nil {
+				continue
+			}
+
+			if addressErrors[index] == nil {
+				addressErrors[index] = make(map[string]any)
+			}
+			addressErrors[index][fieldName] = message
+		} else {
+			otherErrors[field] = message
+		}
+	}
+
+	addressList := []map[string]any{}
+	for i := range addressErrors {
+		if addrErr, ok := addressErrors[i]; ok {
+			addressList = append(addressList, addrErr)
+		} else {
+			addressList = append(addressList, nil)
+		}
+	}
+
+	result := make(map[string]any)
+	maps.Copy(result, otherErrors)
+
+	if len(addressList) > 0 {
+		result["addresses"] = addressList
+	}
+
+	return result
 }
 
 func (v *Validator) Error() string {

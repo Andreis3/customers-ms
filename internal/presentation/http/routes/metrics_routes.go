@@ -3,7 +3,7 @@ package routes
 import (
 	"net/http"
 
-	"github.com/andreis3/users-ms/internal/presentation/http/helpers"
+	"github.com/andreis3/customers-ms/internal/presentation/http/helpers"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
 )
 
@@ -13,7 +13,7 @@ func NewMetrics() *Metrics {
 	return &Metrics{}
 }
 
-func (m *Metrics) Metrics() helpers.RouteType {
+func (m *Metrics) Routes() helpers.RouteType {
 	return helpers.RouteType{
 		{
 			Method:      http.MethodGet,

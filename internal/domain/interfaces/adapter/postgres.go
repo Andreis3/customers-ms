@@ -1,4 +1,4 @@
-package interfaces
+package adapter
 
 import (
 	"context"

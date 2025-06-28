@@ -5,10 +5,10 @@ import (
 	"errors"
 	"net/http"
 
-	"github.com/andreis3/users-ms/internal/domain/apperrors"
+	apperror "github.com/andreis3/customers-ms/internal/domain/app-error"
 )
 
-func DecoderBodyRequest[T any](req *http.Request) (T, *apperrors.AppErrors) {
+func DecoderBodyRequest[T any](req *http.Request) (T, *apperror.Error) {
 	defer req.Body.Close()
 	var result T
 	var jsonUnmarshalTypeError *json.UnmarshalTypeError
@@ -28,9 +28,9 @@ func DecoderBodyRequest[T any](req *http.Request) (T, *apperrors.AppErrors) {
 	return result, nil
 }
 
-func ErrorJSONSyntaxError(err error) *apperrors.AppErrors {
-	return &apperrors.AppErrors{
-		Code:            apperrors.ErrInvalidBusinessRules,
+func ErrorJSONSyntaxError(err error) *apperror.Error {
+	return &apperror.Error{
+		Code:            apperror.BadRequestCode,
 		Errors:          []string{err.Error()},
 		Cause:           "json syntax error",
 		OriginFunc:      "json.Unmarshal",
@@ -38,9 +38,9 @@ func ErrorJSONSyntaxError(err error) *apperrors.AppErrors {
 	}
 }
 
-func ErrorJSONUnmarshalTypeError(err error) *apperrors.AppErrors {
-	return &apperrors.AppErrors{
-		Code:            apperrors.ErrInvalidBusinessRules,
+func ErrorJSONUnmarshalTypeError(err error) *apperror.Error {
+	return &apperror.Error{
+		Code:            apperror.BadRequestCode,
 		Errors:          []string{err.Error()},
 		Cause:           "json unmarshal type error",
 		OriginFunc:      "json.Unmarshal",
@@ -48,9 +48,9 @@ func ErrorJSONUnmarshalTypeError(err error) *apperrors.AppErrors {
 	}
 }
 
-func ErrorJSON(err error) *apperrors.AppErrors {
-	return &apperrors.AppErrors{
-		Code:            apperrors.ErrInvalidBusinessRules,
+func ErrorJSON(err error) *apperror.Error {
+	return &apperror.Error{
+		Code:            apperror.BadRequestCode,
 		Errors:          []string{err.Error()},
 		Cause:           "json error",
 		OriginFunc:      "json.Unmarshal",

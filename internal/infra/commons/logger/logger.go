@@ -30,6 +30,11 @@ func NewLogger() *Logger {
 			TimeFormat: time.DateTime,
 			NoColor:    false,
 			ReplaceAttr: func(groups []string, a slog.Attr) slog.Attr {
+				if a.Key == "password" {
+					a.Value = slog.StringValue("********")
+					return a
+				}
+
 				if a.Key == slog.LevelKey {
 					switch a.Value.Any().(type) {
 					case slog.Level:
@@ -57,10 +62,12 @@ func NewLogger() *Logger {
 	slog.SetDefault(loggerJSON)
 	slog.SetDefault(loggerText)
 
-	return &Logger{
+	logger := &Logger{
 		loggerJSON: *loggerJSON,
 		loggerText: *loggerText,
 	}
+
+	return logger
 }
 
 func (l *Logger) DebugJSON(msg string, info ...any) {

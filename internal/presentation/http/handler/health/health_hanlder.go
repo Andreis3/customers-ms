@@ -7,7 +7,7 @@ import (
 	"runtime"
 	"time"
 
-	"github.com/andreis3/users-ms/internal/presentation/http/helpers"
+	"github.com/andreis3/customers-ms/internal/presentation/http/helpers"
 )
 
 type HealthCheckResponse struct {

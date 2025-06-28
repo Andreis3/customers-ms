@@ -16,3 +16,11 @@ type RouteFields struct {
 	Description string
 	Middlewares []func(http.Handler) http.Handler
 }
+
+// Helper function to add a prefix to all routes
+func WithPrefix(prefix string, routes RouteType) RouteType {
+	for i := range routes {
+		routes[i].Path = prefix + routes[i].Path
+	}
+	return routes
+}

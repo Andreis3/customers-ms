@@ -10,8 +10,8 @@ import (
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
 
-	"github.com/andreis3/users-ms/internal/domain/entity/customer"
-	"github.com/andreis3/users-ms/internal/domain/validator"
+	"github.com/andreis3/customers-ms/internal/domain/entity/customer"
+	"github.com/andreis3/customers-ms/internal/domain/validator"
 )
 
 var _ = Describe("INTERNAL :: DOMAIN :: ENTITY :: CUSTOMER", func() {

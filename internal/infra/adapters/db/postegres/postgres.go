@@ -7,15 +7,16 @@ import (
 	"sync"
 	"time"
 
-	dbtracer "github.com/amirsalarsafaei/sqlc-pgx-monitoring/dbtracer"
-	"github.com/andreis3/users-ms/internal/domain/interfaces"
-	"github.com/andreis3/users-ms/internal/infra/commons/logger"
-	"github.com/andreis3/users-ms/internal/infra/configs"
-	"github.com/andreis3/users-ms/internal/util"
+	"github.com/amirsalarsafaei/sqlc-pgx-monitoring/dbtracer"
 	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgconn"
 	"github.com/jackc/pgx/v5/pgxpool"
 	"go.opentelemetry.io/otel"
+
+	"github.com/andreis3/customers-ms/internal/domain/interfaces/adapter"
+	"github.com/andreis3/customers-ms/internal/infra/commons/logger"
+	"github.com/andreis3/customers-ms/internal/infra/configs"
+	"github.com/andreis3/customers-ms/internal/util"
 )
 
 var (
@@ -24,10 +25,10 @@ var (
 )
 
 type Postgres struct {
-	pool *pgxpool.Pool
+	Pool *pgxpool.Pool
 }
 
-func NewPoolConnections(conf *configs.Configs, metrics interfaces.Prometheus) *Postgres {
+func NewPoolConnections(conf *configs.Configs, metrics adapter.Prometheus) *Postgres {
 	log := logger.NewLogger()
 	singleton.Do(func() {
 		connStr := fmt.Sprintf("host=%s port=%s user=%s password=%s dbname=%s sslmode=disable",
@@ -56,10 +57,6 @@ func NewPoolConnections(conf *configs.Configs, metrics interfaces.Prometheus) *P
 		}
 
 		connConfig.ConnConfig.Tracer = tracer
-
-		// connConfig.ConnConfig.DefaultQueryExecMode = pgx.QueryExecModeExec
-		// connConfig.ConnConfig.StatementCacheCapacity = 200
-
 		connConfig.MinConns = conf.PostgresMinConnections
 		connConfig.MaxConns = conf.PostgresMaxConnections
 		connConfig.MaxConnIdleTime = conf.PostgresMaxConnLifetime
@@ -74,37 +71,37 @@ func NewPoolConnections(conf *configs.Configs, metrics interfaces.Prometheus) *P
 		}
 	})
 
-	return &Postgres{pool: pool}
+	return &Postgres{Pool: pool}
 }
 
 func (p *Postgres) Instance() any {
-	return p.pool
+	return p.Pool
 }
 
 func (p *Postgres) Close() {
-	p.pool.Close()
+	p.Pool.Close()
 }
 
 func (p *Postgres) Exec(ctx context.Context, sql string, arguments ...any) (commandtag pgconn.CommandTag, err error) {
-	return p.pool.Exec(ctx, sql, arguments...)
+	return p.Pool.Exec(ctx, sql, arguments...)
 }
 
 func (p *Postgres) Query(ctx context.Context, sql string, args ...any) (pgx.Rows, error) {
-	return p.pool.Query(ctx, sql, args...)
+	return p.Pool.Query(ctx, sql, args...)
 }
 
 func (p *Postgres) QueryRow(ctx context.Context, sql string, args ...any) pgx.Row {
-	return p.pool.QueryRow(ctx, sql, args...)
+	return p.Pool.QueryRow(ctx, sql, args...)
 }
 
 func (p *Postgres) SendBatch(ctx context.Context, b *pgx.Batch) pgx.BatchResults {
-	return p.pool.SendBatch(ctx, b)
+	return p.Pool.SendBatch(ctx, b)
 }
 
 type Queries struct {
-	interfaces.InstructionPostgres
+	adapter.InstructionPostgres
 }
 
-func New(db interfaces.InstructionPostgres) *Queries {
+func New(db adapter.InstructionPostgres) *Queries {
 	return &Queries{db}
 }
