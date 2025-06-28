@@ -32,7 +32,7 @@ CREATE OR REPLACE FUNCTION generate_instagram_id(
 )
 RETURNS BIGINT AS $$
 DECLARE
-    our_epoch      BIGINT := 1609459200000;  -- 2021-01-01 00:00:00 UTC
+our_epoch      BIGINT := 1609459200000;  -- 2021-01-01 00:00:00 UTC
     timestamp_ms   BIGINT;
     last_timestamp BIGINT;
     now_ms         BIGINT;
@@ -43,45 +43,45 @@ DECLARE
 BEGIN
     IF shard_id < 0 OR shard_id > 8191 THEN
         RAISE EXCEPTION 'shard_id out of allowed range (0–8191)';
-    END IF;
+END IF;
 
-    SELECT FLOOR(EXTRACT(EPOCH FROM clock_timestamp()) * 1000) INTO timestamp_ms;
-    last_timestamp := timestamp_ms;
+SELECT FLOOR(EXTRACT(EPOCH FROM clock_timestamp()) * 1000) INTO timestamp_ms;
+last_timestamp := timestamp_ms;
 
-    SELECT FLOOR(EXTRACT(EPOCH FROM now()) * 1000) INTO now_ms;
-    IF timestamp_ms > now_ms + 5000 THEN
+SELECT FLOOR(EXTRACT(EPOCH FROM now()) * 1000) INTO now_ms;
+IF timestamp_ms > now_ms + 5000 THEN
         RAISE EXCEPTION 'System clock appears ahead: timestamp_ms=%, now_ms=%', timestamp_ms, now_ms;
-    END IF;
+END IF;
 
     LOOP
-        EXECUTE format('SELECT nextval(%L)', sequence_name) INTO raw_seq;
+EXECUTE format('SELECT nextval(%L)', sequence_name) INTO raw_seq;
         sequence_id := raw_seq % 1024;
 
         IF sequence_id < 1023 THEN
             EXIT;
-        END IF;
+END IF;
 
         PERFORM pg_sleep(0.001);
-        SELECT FLOOR(EXTRACT(EPOCH FROM clock_timestamp()) * 1000) INTO timestamp_ms;
+SELECT FLOOR(EXTRACT(EPOCH FROM clock_timestamp()) * 1000) INTO timestamp_ms;
 
-        IF timestamp_ms > last_timestamp THEN
-              EXECUTE format('SELECT setval(%L, 0, false)', sequence_name);
+IF timestamp_ms > last_timestamp THEN
             last_timestamp := timestamp_ms;
-        END IF;
-    END LOOP;
+END IF;
+END LOOP;
 
     elapsed := timestamp_ms - our_epoch;
     result := (elapsed << 23) | (shard_id << 10) | sequence_id;
-    RETURN result;
+RETURN result;
 END;
 $$ LANGUAGE plpgsql;
+
 
 -- ==============================================================
 -- 4. Tables using their respective sequences in ID
 -- ==============================================================
 
 CREATE TABLE IF NOT EXISTS "customers" (
-  "id" BIGINT PRIMARY KEY DEFAULT generate_instagram_id(1, 'id_sequence_customers'),
+    "id" BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
     "email" VARCHAR(255) DEFAULT NULL,
     "password" VARCHAR(255) DEFAULT NULL,
     "first_name" VARCHAR(255) DEFAULT NULL,
@@ -93,7 +93,7 @@ CREATE TABLE IF NOT EXISTS "customers" (
 );
 
 CREATE TABLE IF NOT EXISTS "addresses" (
-  "id" BIGINT PRIMARY KEY DEFAULT generate_instagram_id(1, 'id_sequence_addresses'),
+    "id" BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
     "customer_id" BIGINT DEFAULT NULL,
     "street" VARCHAR(255) DEFAULT NULL,
     "number" VARCHAR(255) DEFAULT NULL,

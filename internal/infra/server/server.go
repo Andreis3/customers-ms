@@ -10,14 +10,15 @@ import (
 	"syscall"
 	"time"
 
+	"github.com/go-chi/chi/v5"
+	"go.opentelemetry.io/contrib/instrumentation/net/http/otelhttp"
+
 	"github.com/andreis3/customers-ms/internal/infra/adapters/db/postegres"
 	"github.com/andreis3/customers-ms/internal/infra/adapters/observability"
 	"github.com/andreis3/customers-ms/internal/infra/commons/logger"
 	"github.com/andreis3/customers-ms/internal/infra/configs"
 	"github.com/andreis3/customers-ms/internal/infra/routes"
 	"github.com/andreis3/customers-ms/internal/util"
-	"github.com/go-chi/chi/v5"
-	"go.opentelemetry.io/contrib/instrumentation/net/http/otelhttp"
 )
 
 type Server struct {
@@ -27,7 +28,7 @@ type Server struct {
 	Prometheus *observability.Prometheus
 }
 
-func NewServer(conf *configs.Configs, log *logger.Logger) *Server {
+func NewServer(conf *configs.Configs, log logger.Logger) *Server {
 	start := time.Now()
 
 	observability.InitTracer()
@@ -41,7 +42,7 @@ func NewServer(conf *configs.Configs, log *logger.Logger) *Server {
 		return otelhttp.NewHandler(next, "customers-ms")
 	})
 
-	routes.SetupRoutes(mux, pool, log, prometheus, conf)
+	routes.SetupRoutes(mux, pool, &log, prometheus, conf)
 
 	server := &http.Server{
 		Addr:    fmt.Sprintf("0.0.0.0:%s", conf.ServerPort),
@@ -54,7 +55,7 @@ func NewServer(conf *configs.Configs, log *logger.Logger) *Server {
 	return &Server{
 		HTTPServer: server,
 		Postgres:   pool,
-		Log:        *log,
+		Log:        log,
 		Prometheus: prometheus,
 	}
 }

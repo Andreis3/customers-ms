@@ -15,14 +15,14 @@ import (
 )
 
 type CreateCustomerCommand struct {
-	uow             uow.UnitOfWork
+	uow             func(ctx context.Context) uow.UnitOfWork
 	bcrypt          adapter.Bcrypt
 	log             commons.Logger
 	customerService service.CustomerService
 }
 
 func NewCreateCustomer(
-	uow uow.UnitOfWork,
+	uow func(ctx context.Context) uow.UnitOfWork,
 	bcrypt adapter.Bcrypt,
 	log commons.Logger,
 	customerService service.CustomerService,
@@ -39,31 +39,32 @@ func (c *CreateCustomerCommand) Execute(ctx context.Context, input aggregate.Cus
 	ctx, child := observability.Tracer.Start(ctx, "CreatedCustomer.Execute")
 	defer child.End()
 	traceID := child.SpanContext().TraceID().String()
-	c.log.InfoText("Received input to create customerResult",
+	c.log.InfoText("Received input to create CreateCustomer",
 		slog.String("trace_id", traceID),
 		slog.Any("input", input))
 
 	err := input.Validate()
 	if err != nil {
 		child.RecordError(err)
-		c.log.ErrorJSON("Failed validate input to create customerResult",
+		c.log.ErrorJSON("Failed validate input to create CreateCustomer",
 			slog.String("trace_id", traceID),
 			slog.Any("error", err.Errors))
 		return nil, err
 	}
 
-	customerAlreadyExists := c.customerService.ExistCustomerByEmail(ctx, input.Customer.Email())
-	if customerAlreadyExists {
-		child.RecordError(apperror.ErrCustomerAlreadyExists())
-		c.log.ErrorJSON("Customer already exists",
-			slog.String("trace_id", traceID),
-			slog.Any("error", apperror.ErrCustomerAlreadyExists))
-		return nil, apperror.ErrCustomerAlreadyExists()
-	}
+	//customerAlreadyExists := c.customerService.ExistCustomerByEmail(ctx, input.Customer.Email())
+	//if customerAlreadyExists {
+	//	child.RecordError(apperror.ErrCustomerAlreadyExists())
+	//	c.log.ErrorJSON("Customer already exists",
+	//		slog.String("trace_id", traceID),
+	//		slog.Any("error", apperror.ErrCustomerAlreadyExists))
+	//	return nil, apperror.ErrCustomerAlreadyExists()
+	//}
 
 	var customerResult *customer.Customer
+	uowInstance := c.uow(ctx)
 
-	errUow := c.uow.Do(ctx, func(uow uow.UnitOfWork) *apperror.Error {
+	errUow := uowInstance.Do(ctx, func(uow uow.UnitOfWork) *apperror.Error {
 		hash, err := c.bcrypt.Hash(input.Customer.Password())
 		if err != nil {
 			child.RecordError(err)

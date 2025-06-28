@@ -6,33 +6,29 @@ import (
 	"time"
 
 	"github.com/andreis3/customers-ms/internal/domain/interfaces/adapter"
+	"github.com/andreis3/customers-ms/internal/domain/interfaces/command"
 	"github.com/andreis3/customers-ms/internal/domain/interfaces/commons"
-	"github.com/andreis3/customers-ms/internal/domain/interfaces/service"
-	"github.com/andreis3/customers-ms/internal/domain/interfaces/uow"
 	"github.com/andreis3/customers-ms/internal/infra/adapters/observability"
-	"github.com/andreis3/customers-ms/internal/infra/factories/app"
 	"github.com/andreis3/customers-ms/internal/presentation/dtos/input"
 	"github.com/andreis3/customers-ms/internal/presentation/dtos/output"
 	"github.com/andreis3/customers-ms/internal/presentation/http/helpers"
 )
 
 type CreateCustomerHandler struct {
+	command    command.CreateCustomer
 	log        commons.Logger
 	prometheus adapter.Prometheus
-	factory    app.CreateCustomerFactory
 }
 
 func NewCreateCustomerHandler(
-	log commons.Logger,
+	cmd command.CreateCustomer,
 	prometheus adapter.Prometheus,
-	crypto adapter.Bcrypt,
-	uow uow.UnitOfWork,
-	customerService service.CustomerService,
+	log commons.Logger,
 ) CreateCustomerHandler {
 	return CreateCustomerHandler{
+		command:    cmd,
 		log:        log,
 		prometheus: prometheus,
-		factory:    app.NewCreateCustomerFactory(uow, crypto, log, customerService),
 	}
 }
 
@@ -52,8 +48,7 @@ func (h *CreateCustomerHandler) Handle(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	cmd := h.factory.Build()
-	res, err := cmd.Execute(ctx, data.MapperToAggregate())
+	res, err := h.command.Execute(ctx, data.MapperToAggregate())
 	end := time.Since(start)
 	h.log.InfoJSON("end request", slog.String("trace_id", traceID), slog.Float64("duration", float64(end.Milliseconds())))
 	if err != nil {
