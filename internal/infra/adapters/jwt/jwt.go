@@ -3,8 +3,8 @@ package jwt
 import (
 	"time"
 
-	apperror "github.com/andreis3/customers-ms/internal/domain/app-error"
 	"github.com/andreis3/customers-ms/internal/domain/entity/customer"
+	"github.com/andreis3/customers-ms/internal/domain/error"
 	valueobject "github.com/andreis3/customers-ms/internal/domain/value-object"
 	"github.com/andreis3/customers-ms/internal/infra/configs"
 	"github.com/golang-jwt/jwt/v5"
@@ -22,14 +22,14 @@ func NewJWT(conf *configs.Configs) *JWT {
 	}
 }
 
-func (j *JWT) CreateToken(customer customer.Customer) (*valueobject.TokenClaims, *apperror.Error) {
+func (j *JWT) CreateToken(customer customer.Customer) (*valueobject.TokenClaims, *error.Error) {
 	claims := j.createJWTMapClaims(customer)
 
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
 
 	tokenString, err := token.SignedString(j.secret)
 	if err != nil {
-		return nil, apperror.ErrorCreateToken(err)
+		return nil, error.ErrorCreateToken(err)
 	}
 
 	tokenClaims := j.createTokenClaims(customer, tokenString)
@@ -37,7 +37,7 @@ func (j *JWT) CreateToken(customer customer.Customer) (*valueobject.TokenClaims,
 	return &tokenClaims, nil
 }
 
-func (j *JWT) ValidateToken(tokenString string) (*valueobject.TokenClaims, *apperror.Error) {
+func (j *JWT) ValidateToken(tokenString string) (*valueobject.TokenClaims, *error.Error) {
 	tokenClaims, err := j.parseToken(tokenString)
 	if err != nil {
 		return nil, err
@@ -45,7 +45,7 @@ func (j *JWT) ValidateToken(tokenString string) (*valueobject.TokenClaims, *appe
 	return tokenClaims, nil
 }
 
-func (j *JWT) RefreshToken(tokenString string) (*valueobject.TokenClaims, *apperror.Error) {
+func (j *JWT) RefreshToken(tokenString string) (*valueobject.TokenClaims, *error.Error) {
 	tokenClaims, err := j.parseToken(tokenString)
 	if err != nil {
 		return nil, err
@@ -56,7 +56,7 @@ func (j *JWT) RefreshToken(tokenString string) (*valueobject.TokenClaims, *apper
 	newToken, errSig := token.SignedString(j.secret)
 
 	if errSig != nil {
-		return nil, apperror.ErrorRefreshToken(errSig)
+		return nil, error.ErrorRefreshToken(errSig)
 	}
 
 	tokenClaims.Token = newToken
@@ -64,39 +64,39 @@ func (j *JWT) RefreshToken(tokenString string) (*valueobject.TokenClaims, *apper
 	return tokenClaims, nil
 }
 
-func (j *JWT) parseToken(tokenString string) (*valueobject.TokenClaims, *apperror.Error) {
+func (j *JWT) parseToken(tokenString string) (*valueobject.TokenClaims, *error.Error) {
 	token, err := jwt.Parse(tokenString, func(token *jwt.Token) (any, error) {
 		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
-			return nil, apperror.ErrorInvalidTokenAlgorithmError()
+			return nil, error.ErrorInvalidTokenAlgorithmError()
 		}
 		return j.secret, nil
 	})
 	if err != nil {
-		return nil, apperror.ErrorValidateToken(err)
+		return nil, error.ErrorValidateToken(err)
 	}
 
 	claims, ok := token.Claims.(jwt.MapClaims)
 
 	if !ok || !token.Valid {
-		return nil, apperror.ErrorValidateToken(err)
+		return nil, error.ErrorValidateToken(err)
 	}
 
 	// Safe access with checks
 	customerID, ok := claims["customer_id"].(float64)
 	if !ok {
-		return nil, apperror.ErrorValidateTokenMessage("invalid or missing customer_id")
+		return nil, error.ErrorValidateTokenMessage("invalid or missing customer_id")
 	}
 	fullName, ok := claims["full_name"].(string)
 	if !ok {
-		return nil, apperror.ErrorValidateTokenMessage("invalid or missing full_name")
+		return nil, error.ErrorValidateTokenMessage("invalid or missing full_name")
 	}
 	email, ok := claims["email"].(string)
 	if !ok {
-		return nil, apperror.ErrorValidateTokenMessage("invalid or missing email")
+		return nil, error.ErrorValidateTokenMessage("invalid or missing email")
 	}
 	exp, ok := claims["exp"].(float64)
 	if !ok {
-		return nil, apperror.ErrorValidateTokenMessage("invalid or missing exp")
+		return nil, error.ErrorValidateTokenMessage("invalid or missing exp")
 	}
 
 	return &valueobject.TokenClaims{

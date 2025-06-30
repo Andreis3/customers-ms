@@ -5,8 +5,8 @@ import (
 	"log/slog"
 
 	"github.com/andreis3/customers-ms/internal/domain/aggregate"
-	apperror "github.com/andreis3/customers-ms/internal/domain/app-error"
 	"github.com/andreis3/customers-ms/internal/domain/entity/customer"
+	"github.com/andreis3/customers-ms/internal/domain/error"
 	"github.com/andreis3/customers-ms/internal/domain/interfaces/adapter"
 	"github.com/andreis3/customers-ms/internal/domain/interfaces/commons"
 	"github.com/andreis3/customers-ms/internal/domain/interfaces/service"
@@ -35,7 +35,7 @@ func NewCreateCustomer(
 	}
 }
 
-func (c *CreateCustomerCommand) Execute(ctx context.Context, input aggregate.CustomerProfile) (*customer.Customer, *apperror.Error) {
+func (c *CreateCustomerCommand) Execute(ctx context.Context, input aggregate.CustomerProfile) (*customer.Customer, *error.Error) {
 	ctx, child := observability.Tracer.Start(ctx, "CreatedCustomer.Execute")
 	defer child.End()
 	traceID := child.SpanContext().TraceID().String()
@@ -54,17 +54,17 @@ func (c *CreateCustomerCommand) Execute(ctx context.Context, input aggregate.Cus
 
 	//customerAlreadyExists := c.customerService.ExistCustomerByEmail(ctx, input.Customer.Email())
 	//if customerAlreadyExists {
-	//	child.RecordError(apperror.ErrCustomerAlreadyExists())
+	//	child.RecordError(error.ErrCustomerAlreadyExists())
 	//	c.log.ErrorJSON("Customer already exists",
 	//		slog.String("trace_id", traceID),
-	//		slog.Any("error", apperror.ErrCustomerAlreadyExists))
-	//	return nil, apperror.ErrCustomerAlreadyExists()
+	//		slog.Any("error", error.ErrCustomerAlreadyExists))
+	//	return nil, error.ErrCustomerAlreadyExists()
 	//}
 
 	var customerResult *customer.Customer
 	uowInstance := c.uow(ctx)
 
-	errUow := uowInstance.Do(ctx, func(uow uow.UnitOfWork) *apperror.Error {
+	errUow := uowInstance.Do(ctx, func(uow uow.UnitOfWork) *error.Error {
 		hash, err := c.bcrypt.Hash(input.Customer.Password())
 		if err != nil {
 			child.RecordError(err)

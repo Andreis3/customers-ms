@@ -4,7 +4,7 @@ import (
 	"context"
 	"log/slog"
 
-	apperror "github.com/andreis3/customers-ms/internal/domain/app-error"
+	"github.com/andreis3/customers-ms/internal/domain/error"
 	"github.com/andreis3/customers-ms/internal/domain/interfaces/adapter"
 	"github.com/andreis3/customers-ms/internal/domain/interfaces/command"
 	"github.com/andreis3/customers-ms/internal/domain/interfaces/commons"
@@ -34,7 +34,7 @@ func NewAuthenticateCustomer(
 	}
 }
 
-func (a *Login) Execute(ctx context.Context, input command.LoginInput) (*command.LoginOutput, *apperror.Error) {
+func (a *Login) Execute(ctx context.Context, input command.LoginInput) (*command.LoginOutput, *error.Error) {
 	a.log.InfoText("Received input to authenticate customer",
 		slog.String("email", input.Email),
 		slog.String("password", input.Password))
@@ -50,12 +50,12 @@ func (a *Login) Execute(ctx context.Context, input command.LoginInput) (*command
 	}
 
 	if customer == nil {
-		return nil, apperror.ErrorInvalidCredentials()
+		return nil, error.ErrorInvalidCredentials()
 	}
 
 	isValid := a.bcrypt.CompareHash(input.Password, customer.Password())
 	if !isValid {
-		return nil, apperror.ErrorInvalidCredentials()
+		return nil, error.ErrorInvalidCredentials()
 	}
 
 	token, err := a.authService.GenerateToken(*customer)
