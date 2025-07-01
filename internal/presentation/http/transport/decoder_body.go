@@ -20,7 +20,7 @@ func DecoderBodyRequest[T any](req *http.Request) (T, *errors.Error) {
 	case errors.As(err, &jsonUnmarshalTypeError):
 		return result, errors.ErrorJSONUnmarshalTypeError(jsonUnmarshalTypeError)
 
-	default:
+	case err != nil:
 		return result, errors.ErrorJSON(err)
 	}
 

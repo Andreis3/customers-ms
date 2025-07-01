@@ -11,27 +11,29 @@ import (
 	"github.com/andreis3/customers-ms/internal/presentation/http/routes"
 )
 
-type SetupRoutesInput struct {
-	Mux          *chi.Mux
-	ConnPostgres *postegres.Postgres
-	Log          commons.Logger
-	Prometheus   adapter.Prometheus
-	Conf         *configs.Configs
+type RegisterRoutesDeps struct {
+	Mux        *chi.Mux
+	PostgresDB *postegres.Postgres
+	Log        commons.Logger
+	Prometheus adapter.Prometheus
+	Conf       *configs.Configs
 }
 
-func SetupRoutes(input *SetupRoutesInput) {
-	healthRoutes := routes.NewHealthCheck()
-	metricsRoutes := routes.NewMetrics()
-	customerRoutes := presentation.MakeCustomerRouter(input.ConnPostgres, input.Log, input.Prometheus)
-	authRoutes := presentation.MakeAuthRouter(input.ConnPostgres, input.Log, input.Prometheus, input.Conf)
-
+func Setup(deps *RegisterRoutesDeps) {
 	registerRoutes := NewRegisterRoutes(
-		input.Mux,
-		input.Log,
-		healthRoutes,
-		metricsRoutes,
-		customerRoutes,
-		authRoutes,
+		deps.Mux,
+		deps.Log,
+		BuildRoutes(deps)...,
 	)
+
 	registerRoutes.Register()
+}
+
+func BuildRoutes(deps *RegisterRoutesDeps) []ModuleRoutes {
+	return []ModuleRoutes{
+		routes.NewHealthCheck(),
+		routes.NewMetrics(),
+		presentation.MakeCustomerRouter(deps.PostgresDB, deps.Log, deps.Prometheus),
+		presentation.MakeAuthRouter(deps.PostgresDB, deps.Log, deps.Prometheus, deps.Conf),
+	}
 }
