@@ -1,11 +1,11 @@
-package errors
+package dictionary
 
 import (
 	"net/http"
 
 	"google.golang.org/grpc/codes"
 
-	"github.com/andreis3/customers-ms/internal/domain/error"
+	"github.com/andreis3/customers-ms/internal/domain/errors"
 )
 
 type ProtocolError struct {
@@ -13,32 +13,32 @@ type ProtocolError struct {
 	GRPCCode   codes.Code
 }
 
-var ErrorDictionary = map[error.Code]ProtocolError{
-	error.BadRequestCode: {
+var ErrorDictionary = map[errors.Code]ProtocolError{
+	errors.BadRequestCode: {
 		HTTPStatus: http.StatusBadRequest,
 		GRPCCode:   codes.InvalidArgument,
 	},
-	error.NotFoundCode: {
+	errors.NotFoundCode: {
 		HTTPStatus: http.StatusNotFound,
 		GRPCCode:   codes.NotFound,
 	},
-	error.InternalServerErrorCode: {
+	errors.InternalServerErrorCode: {
 		HTTPStatus: http.StatusInternalServerError,
 		GRPCCode:   codes.Internal,
 	},
-	error.UnauthorizedCode: {
+	errors.UnauthorizedCode: {
 		HTTPStatus: http.StatusUnauthorized,
 		GRPCCode:   codes.Unauthenticated,
 	},
-	error.ForbiddenCode: {
+	errors.ForbiddenCode: {
 		HTTPStatus: http.StatusForbidden,
 		GRPCCode:   codes.PermissionDenied,
 	},
-	error.ConflictCode: {
+	errors.ConflictCode: {
 		HTTPStatus: http.StatusConflict,
 		GRPCCode:   codes.AlreadyExists,
 	},
-	error.UnprocessableEntityCode: {
+	errors.UnprocessableEntityCode: {
 		HTTPStatus: http.StatusUnprocessableEntity,
 		GRPCCode:   codes.InvalidArgument,
 	},

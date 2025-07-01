@@ -4,8 +4,8 @@ import (
 	"encoding/json"
 	"net/http"
 
-	"github.com/andreis3/customers-ms/internal/domain/error"
-	"github.com/andreis3/customers-ms/internal/presentation/errors"
+	"github.com/andreis3/customers-ms/internal/domain/errors"
+	"github.com/andreis3/customers-ms/internal/presentation/dictionary"
 )
 
 const (
@@ -32,8 +32,8 @@ func ResponseSuccess[T any](write http.ResponseWriter, status int, data T) {
 	_ = json.NewEncoder(write).Encode(result)
 }
 
-func ResponseError[T any](write http.ResponseWriter, err *error.Error) {
-	status := errors.ErrorDictionary[err.Code].HTTPStatus
+func ResponseError[T any](write http.ResponseWriter, err *errors.Error) {
+	status := dictionary.ErrorDictionary[err.Code].HTTPStatus
 	write.Header().Set(ContentType, ApplicationJSON)
 	write.WriteHeader(status)
 

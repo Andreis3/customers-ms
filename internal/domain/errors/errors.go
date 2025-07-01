@@ -1,4 +1,4 @@
-package error
+package errors
 
 import (
 	"errors"
@@ -45,8 +45,17 @@ func (e *Error) Unwrap() error {
 	return nil
 }
 
+func As(err error, target any) bool {
+	return errors.As(err, target)
+}
+
+func Is(err, target error) bool {
+	return errors.Is(err, target)
+}
+
 func (e *Error) Is(target error) bool {
-	t, ok := target.(*Error)
+	var t *Error
+	ok := errors.As(target, &t)
 	if !ok {
 		return false
 	}

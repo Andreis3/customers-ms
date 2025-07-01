@@ -6,7 +6,7 @@ import (
 
 	"github.com/andreis3/customers-ms/internal/domain/aggregate"
 	"github.com/andreis3/customers-ms/internal/domain/entity/customer"
-	"github.com/andreis3/customers-ms/internal/domain/error"
+	"github.com/andreis3/customers-ms/internal/domain/errors"
 	"github.com/andreis3/customers-ms/internal/domain/interfaces/adapter"
 	"github.com/andreis3/customers-ms/internal/domain/interfaces/commons"
 	"github.com/andreis3/customers-ms/internal/domain/interfaces/service"
@@ -35,7 +35,7 @@ func NewCreateCustomer(
 	}
 }
 
-func (c *CreateCustomerCommand) Execute(ctx context.Context, input aggregate.CustomerProfile) (*customer.Customer, *error.Error) {
+func (c *CreateCustomerCommand) Execute(ctx context.Context, input aggregate.CustomerProfile) (*customer.Customer, *errors.Error) {
 	ctx, child := observability.Tracer.Start(ctx, "CreatedCustomer.Execute")
 	defer child.End()
 	traceID := child.SpanContext().TraceID().String()
@@ -64,7 +64,7 @@ func (c *CreateCustomerCommand) Execute(ctx context.Context, input aggregate.Cus
 	var customerResult *customer.Customer
 	uowInstance := c.uow(ctx)
 
-	errUow := uowInstance.Do(ctx, func(uow uow.UnitOfWork) *error.Error {
+	errUow := uowInstance.Do(ctx, func(uow uow.UnitOfWork) *errors.Error {
 		hash, err := c.bcrypt.Hash(input.Customer.Password())
 		if err != nil {
 			child.RecordError(err)

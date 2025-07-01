@@ -2,7 +2,7 @@ package services
 
 import (
 	"github.com/andreis3/customers-ms/internal/domain/entity/customer"
-	"github.com/andreis3/customers-ms/internal/domain/error"
+	"github.com/andreis3/customers-ms/internal/domain/errors"
 	"github.com/andreis3/customers-ms/internal/domain/interfaces/adapter"
 	valueobject "github.com/andreis3/customers-ms/internal/domain/value-object"
 )
@@ -19,14 +19,14 @@ func NewAuthService(
 	}
 }
 
-func (a *AuthService) GenerateToken(customer customer.Customer) (*valueobject.TokenClaims, *error.Error) {
+func (a *AuthService) GenerateToken(customer customer.Customer) (*valueobject.TokenClaims, *errors.Error) {
 	return a.tokenService.CreateToken(customer)
 }
 
-func (a *AuthService) ValidateToken(tokenString string) (*valueobject.TokenClaims, *error.Error) {
+func (a *AuthService) ValidateToken(tokenString string) (*valueobject.TokenClaims, *errors.Error) {
 	return a.tokenService.ValidateToken(tokenString)
 }
 
-func (a *AuthService) RefreshToken(tokenString string) (*valueobject.TokenClaims, *error.Error) {
+func (a *AuthService) RefreshToken(tokenString string) (*valueobject.TokenClaims, *errors.Error) {
 	return a.tokenService.RefreshToken(tokenString)
 }

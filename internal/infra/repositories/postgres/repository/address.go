@@ -7,7 +7,7 @@ import (
 	"github.com/jackc/pgx/v5"
 
 	"github.com/andreis3/customers-ms/internal/domain/entity/address"
-	"github.com/andreis3/customers-ms/internal/domain/error"
+	"github.com/andreis3/customers-ms/internal/domain/errors"
 	"github.com/andreis3/customers-ms/internal/domain/interfaces/adapter"
 	"github.com/andreis3/customers-ms/internal/infra/adapters/observability"
 	"github.com/andreis3/customers-ms/internal/infra/repositories/postgres/model"
@@ -29,7 +29,7 @@ func NewAddressRepository(
 	}
 }
 
-func (c *AddressRepository) InsertBatchAddress(ctx context.Context, customerID int64, addresses []address.Address) (*[]address.Address, *error.Error) {
+func (c *AddressRepository) InsertBatchAddress(ctx context.Context, customerID int64, addresses []address.Address) (*[]address.Address, *errors.Error) {
 	ctx, span := observability.Tracer.Start(ctx, "AddressRepository.InsertBatchAddress")
 	start := time.Now()
 

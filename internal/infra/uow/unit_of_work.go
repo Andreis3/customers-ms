@@ -6,7 +6,7 @@ import (
 	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgxpool"
 
-	"github.com/andreis3/customers-ms/internal/domain/error"
+	"github.com/andreis3/customers-ms/internal/domain/errors"
 	"github.com/andreis3/customers-ms/internal/domain/interfaces/adapter"
 	"github.com/andreis3/customers-ms/internal/domain/interfaces/postgres"
 	"github.com/andreis3/customers-ms/internal/domain/interfaces/uow"
@@ -28,13 +28,13 @@ func NewUnitOfWork(db *pgxpool.Pool, prometheus adapter.Prometheus) *UnitOfWork 
 }
 
 // Do handles transaction lifecycle safely.
-func (u *UnitOfWork) Do(ctx context.Context, fn func(uow uow.UnitOfWork) *error.Error) *error.Error {
+func (u *UnitOfWork) Do(ctx context.Context, fn func(uow uow.UnitOfWork) *errors.Error) *errors.Error {
 	ctx, child := observability.Tracer.Start(ctx, "UnitOfWork.Do")
 	defer child.End()
 
 	if u.TX != nil {
-		child.RecordError(error.ErrorTransactionAlreadyExists())
-		return error.ErrorTransactionAlreadyExists()
+		child.RecordError(errors.ErrorTransactionAlreadyExists())
+		return errors.ErrorTransactionAlreadyExists()
 	}
 
 	tx, err := u.DB.BeginTx(ctx, pgx.TxOptions{
@@ -43,8 +43,8 @@ func (u *UnitOfWork) Do(ctx context.Context, fn func(uow uow.UnitOfWork) *error.
 		AccessMode:  pgx.ReadWrite,
 	})
 	if err != nil {
-		child.RecordError(error.ErrorOpeningTransaction(err))
-		return error.ErrorOpeningTransaction(err)
+		child.RecordError(errors.ErrorOpeningTransaction(err))
+		return errors.ErrorOpeningTransaction(err)
 	}
 
 	u.TX = tx
@@ -53,16 +53,16 @@ func (u *UnitOfWork) Do(ctx context.Context, fn func(uow uow.UnitOfWork) *error.
 	if err := fn(u); err != nil {
 		rollbackErr := u.TX.Rollback(ctx)
 		if rollbackErr != nil {
-			child.RecordError(error.ErrorExecuteRollback(rollbackErr))
-			return error.ErrorExecuteRollback(rollbackErr)
+			child.RecordError(errors.ErrorExecuteRollback(rollbackErr))
+			return errors.ErrorExecuteRollback(rollbackErr)
 		}
 		child.RecordError(err)
 		return err
 	}
 
 	if err := u.TX.Commit(ctx); err != nil {
-		child.RecordError(error.ErrorCommitOrRollback(err))
-		return error.ErrorCommitOrRollback(err)
+		child.RecordError(errors.ErrorCommitOrRollback(err))
+		return errors.ErrorCommitOrRollback(err)
 	}
 
 	return nil

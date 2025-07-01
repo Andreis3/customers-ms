@@ -5,7 +5,7 @@ import (
 
 	"github.com/andreis3/customers-ms/internal/domain/entity/address"
 	"github.com/andreis3/customers-ms/internal/domain/entity/customer"
-	"github.com/andreis3/customers-ms/internal/domain/error"
+	"github.com/andreis3/customers-ms/internal/domain/errors"
 	"github.com/andreis3/customers-ms/internal/domain/validator"
 )
 
@@ -22,7 +22,7 @@ func NewCustomerProfile(custome customer.Customer, addresses []address.Address) 
 	return userProfile
 }
 
-func (u *CustomerProfile) Validate() *error.Error {
+func (u *CustomerProfile) Validate() *errors.Error {
 	mainValidator := validator.New()
 
 	validateCustomer := u.Customer.Validate()
@@ -43,5 +43,5 @@ func (u *CustomerProfile) Validate() *error.Error {
 		return nil
 	}
 
-	return error.InvalidCustomerError(mainValidator)
+	return errors.InvalidCustomerError(mainValidator)
 }

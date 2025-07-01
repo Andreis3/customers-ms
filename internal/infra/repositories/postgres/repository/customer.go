@@ -7,7 +7,7 @@ import (
 	"go.opentelemetry.io/otel/attribute"
 
 	"github.com/andreis3/customers-ms/internal/domain/entity/customer"
-	"github.com/andreis3/customers-ms/internal/domain/error"
+	"github.com/andreis3/customers-ms/internal/domain/errors"
 	"github.com/andreis3/customers-ms/internal/domain/interfaces/adapter"
 	"github.com/andreis3/customers-ms/internal/infra/adapters/observability"
 	"github.com/andreis3/customers-ms/internal/infra/repositories/postgres/model"
@@ -29,7 +29,7 @@ func NewCustomerRepository(
 	}
 }
 
-func (c *CustomerRepository) InsertCustomer(ctx context.Context, data customer.Customer) (*customer.Customer, *error.Error) {
+func (c *CustomerRepository) InsertCustomer(ctx context.Context, data customer.Customer) (*customer.Customer, *errors.Error) {
 	ctx, span := observability.Tracer.Start(ctx, "CustomerRepository.InsertCustomer")
 	start := time.Now()
 	defer func() {
@@ -56,7 +56,7 @@ func (c *CustomerRepository) InsertCustomer(ctx context.Context, data customer.C
 		modelCustomer.CreatedAT,
 		modelCustomer.UpdatedAT).Scan(&id)
 	if err != nil {
-		return nil, error.ErrorSaveCustomer(err)
+		return nil, errors.ErrorSaveCustomer(err)
 	}
 
 	modelCustomer.ID = &id
@@ -69,7 +69,7 @@ func (c *CustomerRepository) InsertCustomer(ctx context.Context, data customer.C
 	return &result, nil
 }
 
-func (c *CustomerRepository) FindCustomerByEmail(ctx context.Context, email string) (*customer.Customer, *error.Error) {
+func (c *CustomerRepository) FindCustomerByEmail(ctx context.Context, email string) (*customer.Customer, *errors.Error) {
 	ctx, span := observability.Tracer.Start(ctx, "CustomerRepository.FindCustomerByEmail")
 	start := time.Now()
 
@@ -88,7 +88,7 @@ func (c *CustomerRepository) FindCustomerByEmail(ctx context.Context, email stri
 
 	rows, err := c.DB.Query(ctx, query, email)
 	if err != nil {
-		return nil, error.ErrorFindCustomerByEmail(err)
+		return nil, errors.ErrorFindCustomerByEmail(err)
 	}
 	defer rows.Close()
 
@@ -107,7 +107,7 @@ func (c *CustomerRepository) FindCustomerByEmail(ctx context.Context, email stri
 		&modelCustomer.UpdatedAT,
 	)
 	if err != nil {
-		return nil, error.ErrorFindCustomerByEmail(err)
+		return nil, errors.ErrorFindCustomerByEmail(err)
 	}
 
 	result := modelCustomer.ToEntity()
