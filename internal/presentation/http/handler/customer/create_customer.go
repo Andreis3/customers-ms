@@ -11,7 +11,7 @@ import (
 	"github.com/andreis3/customers-ms/internal/infra/adapters/observability"
 	"github.com/andreis3/customers-ms/internal/presentation/dtos/input"
 	"github.com/andreis3/customers-ms/internal/presentation/dtos/output"
-	"github.com/andreis3/customers-ms/internal/presentation/http/helpers"
+	"github.com/andreis3/customers-ms/internal/presentation/http/transport"
 )
 
 type CreateCustomerHandler struct {
@@ -38,13 +38,13 @@ func (h *CreateCustomerHandler) Handle(w http.ResponseWriter, r *http.Request) {
 	traceID := child.SpanContext().TraceID().String()
 	defer child.End()
 
-	data, err := helpers.DecoderBodyRequest[input.CreatedCustomerDTO](r)
+	data, err := transport.DecoderBodyRequest[input.CreatedCustomerDTO](r)
 	if err != nil {
 		child.RecordError(err)
 		h.log.ErrorJSON("failed decode request body",
 			slog.String("trace_id", traceID),
 			slog.Any("error", err))
-		helpers.ResponseError[any](w, err)
+		transport.ResponseError[any](w, err)
 		return
 	}
 
@@ -56,10 +56,10 @@ func (h *CreateCustomerHandler) Handle(w http.ResponseWriter, r *http.Request) {
 		h.log.ErrorJSON("failed execute create customer command",
 			slog.String("trace_id", traceID),
 			slog.Any("error", err))
-		helpers.ResponseError[any](w, err)
+		transport.ResponseError[any](w, err)
 		return
 	}
 
 	h.prometheus.ObserveRequestDuration("/customers", "http", http.StatusCreated, float64(end.Milliseconds()))
-	helpers.ResponseSuccess(w, http.StatusCreated, output.CustomerOutputMapper(*res))
+	transport.ResponseSuccess(w, http.StatusCreated, output.CustomerOutputMapper(*res))
 }

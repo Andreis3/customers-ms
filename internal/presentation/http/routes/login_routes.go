@@ -5,8 +5,8 @@ import (
 
 	"github.com/andreis3/customers-ms/internal/domain/interfaces/commons"
 	"github.com/andreis3/customers-ms/internal/presentation/http/handler/login"
-	"github.com/andreis3/customers-ms/internal/presentation/http/helpers"
 	"github.com/andreis3/customers-ms/internal/presentation/http/middlewares"
+	"github.com/andreis3/customers-ms/internal/presentation/http/transport"
 )
 
 type LoginRoutes struct {
@@ -24,12 +24,12 @@ func NewLoginRoutes(
 	}
 }
 
-func (r *LoginRoutes) Routes() helpers.RouteType {
+func (r *LoginRoutes) Routes() transport.RouteType {
 	prefix := "/v1/api/login"
-	return helpers.WithPrefix(prefix, helpers.RouteType{
+	return transport.WithPrefix(prefix, transport.RouteType{
 		{
 			Method:      http.MethodPost,
-			Handler:     helpers.TraceHandler(http.MethodPost, prefix, r.authHandler.Handle),
+			Handler:     transport.TraceHandler(http.MethodPost, prefix, r.authHandler.Handle),
 			Description: "Generate Token",
 			Middlewares: []func(http.Handler) http.Handler{
 				middlewares.LoggingMiddleware(r.log),
