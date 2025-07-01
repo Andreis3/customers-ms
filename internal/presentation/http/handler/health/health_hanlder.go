@@ -7,7 +7,7 @@ import (
 	"runtime"
 	"time"
 
-	"github.com/andreis3/customers-ms/internal/presentation/http/helpers"
+	"github.com/andreis3/customers-ms/internal/presentation/http/transport"
 )
 
 type HealthCheckResponse struct {
@@ -45,7 +45,7 @@ func HealthCheck() http.Handler {
 			fmt.Fprintf(w, "Failed to serialize JSON response")
 			return
 		}
-		w.Header().Set(helpers.ContentType, helpers.ApplicationJSON)
+		w.Header().Set(transport.ContentType, transport.ApplicationJSON)
 		w.WriteHeader(http.StatusOK)
 		_, _ = w.Write(jsonResponse)
 	})
