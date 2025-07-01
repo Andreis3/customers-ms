@@ -3,7 +3,7 @@ package command
 import (
 	"context"
 
-	apperror "github.com/andreis3/customers-ms/internal/domain/app-error"
+	"github.com/andreis3/customers-ms/internal/domain/errors"
 )
 
 type LoginInput struct {
@@ -17,5 +17,5 @@ type LoginOutput struct {
 }
 
 type Login interface {
-	Execute(ctx context.Context, input LoginInput) (*LoginOutput, *apperror.Error)
+	Execute(ctx context.Context, input LoginInput) (*LoginOutput, *errors.Error)
 }

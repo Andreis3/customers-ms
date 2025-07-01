@@ -2,13 +2,12 @@ package helpers
 
 import (
 	"encoding/json"
-	"errors"
 	"net/http"
 
-	apperror "github.com/andreis3/customers-ms/internal/domain/app-error"
+	"github.com/andreis3/customers-ms/internal/domain/errors"
 )
 
-func DecoderBodyRequest[T any](req *http.Request) (T, *apperror.Error) {
+func DecoderBodyRequest[T any](req *http.Request) (T, *errors.Error) {
 	defer req.Body.Close()
 	var result T
 	var jsonUnmarshalTypeError *json.UnmarshalTypeError
@@ -28,9 +27,9 @@ func DecoderBodyRequest[T any](req *http.Request) (T, *apperror.Error) {
 	return result, nil
 }
 
-func ErrorJSONSyntaxError(err error) *apperror.Error {
-	return &apperror.Error{
-		Code:            apperror.BadRequestCode,
+func ErrorJSONSyntaxError(err error) *errors.Error {
+	return &errors.Error{
+		Code:            errors.BadRequestCode,
 		Errors:          []string{err.Error()},
 		Cause:           "json syntax error",
 		OriginFunc:      "json.Unmarshal",
@@ -38,9 +37,9 @@ func ErrorJSONSyntaxError(err error) *apperror.Error {
 	}
 }
 
-func ErrorJSONUnmarshalTypeError(err error) *apperror.Error {
-	return &apperror.Error{
-		Code:            apperror.BadRequestCode,
+func ErrorJSONUnmarshalTypeError(err error) *errors.Error {
+	return &errors.Error{
+		Code:            errors.BadRequestCode,
 		Errors:          []string{err.Error()},
 		Cause:           "json unmarshal type error",
 		OriginFunc:      "json.Unmarshal",
@@ -48,9 +47,9 @@ func ErrorJSONUnmarshalTypeError(err error) *apperror.Error {
 	}
 }
 
-func ErrorJSON(err error) *apperror.Error {
-	return &apperror.Error{
-		Code:            apperror.BadRequestCode,
+func ErrorJSON(err error) *errors.Error {
+	return &errors.Error{
+		Code:            errors.BadRequestCode,
 		Errors:          []string{err.Error()},
 		Cause:           "json error",
 		OriginFunc:      "json.Unmarshal",

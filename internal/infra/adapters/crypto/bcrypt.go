@@ -3,7 +3,7 @@ package crypto
 import (
 	"golang.org/x/crypto/bcrypt"
 
-	apperror "github.com/andreis3/customers-ms/internal/domain/app-error"
+	"github.com/andreis3/customers-ms/internal/domain/errors"
 )
 
 type Bcrypt struct{}
@@ -12,10 +12,10 @@ func NewBcrypt() *Bcrypt {
 	return &Bcrypt{}
 }
 
-func (b *Bcrypt) Hash(data string) (string, *apperror.Error) {
+func (b *Bcrypt) Hash(data string) (string, *errors.Error) {
 	bytes, err := bcrypt.GenerateFromPassword([]byte(data), 5)
 	if err != nil {
-		return "", apperror.ErrorHashPassword(err)
+		return "", errors.ErrorHashPassword(err)
 	}
 	return string(bytes), nil
 }
