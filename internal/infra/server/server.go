@@ -42,15 +42,15 @@ func NewServer(conf *configs.Configs, log logger.Logger) *Server {
 		return otelhttp.NewHandler(next, "customers-ms")
 	})
 
-	setupRoutesInput := routes.SetupRoutesInput{
-		Mux:          mux,
-		ConnPostgres: pool,
-		Log:          &log,
-		Prometheus:   prometheus,
-		Conf:         conf,
+	setupRoutesInput := routes.RegisterRoutesDeps{
+		Mux:        mux,
+		PostgresDB: pool,
+		Log:        &log,
+		Prometheus: prometheus,
+		Conf:       conf,
 	}
 
-	routes.SetupRoutes(&setupRoutesInput)
+	routes.Setup(&setupRoutesInput)
 
 	server := &http.Server{
 		Addr:    fmt.Sprintf("0.0.0.0:%s", conf.ServerPort),
