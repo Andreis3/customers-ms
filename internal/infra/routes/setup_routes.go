@@ -23,7 +23,7 @@ func Setup(deps *RegisterRoutesDeps) {
 	registerRoutes := NewRegisterRoutes(
 		deps.Mux,
 		deps.Log,
-		BuildRoutes(deps)...,
+		BuildRoutes(deps),
 	)
 
 	registerRoutes.Register()

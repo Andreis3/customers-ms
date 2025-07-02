@@ -23,7 +23,7 @@ type RegisterRoutes struct {
 func NewRegisterRoutes(
 	mux *chi.Mux,
 	log commons.Logger,
-	modules ...ModuleRoutes,
+	modules []ModuleRoutes,
 ) *RegisterRoutes {
 	return &RegisterRoutes{
 		mux:     mux,

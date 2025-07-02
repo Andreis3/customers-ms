@@ -9,6 +9,7 @@ import (
 	"github.com/andreis3/customers-ms/internal/domain/entity/address"
 	"github.com/andreis3/customers-ms/internal/domain/errors"
 	"github.com/andreis3/customers-ms/internal/domain/interfaces/adapter"
+	"github.com/andreis3/customers-ms/internal/infra/adapters/db/postegres"
 	"github.com/andreis3/customers-ms/internal/infra/adapters/observability"
 	"github.com/andreis3/customers-ms/internal/infra/repositories/postgres/model"
 )
@@ -63,7 +64,9 @@ func (c *AddressRepository) InsertBatchAddress(ctx context.Context, customerID i
 		)
 	}
 
-	br := c.DB.SendBatch(ctx, batch)
+	db := c.resolveDB(ctx)
+
+	br := db.SendBatch(ctx, batch)
 	defer br.Close()
 
 	addressesResult := make([]address.Address, 0, len(addresses))
@@ -81,4 +84,11 @@ func (c *AddressRepository) InsertBatchAddress(ctx context.Context, customerID i
 	}
 
 	return &addressesResult, nil
+}
+
+func (c *AddressRepository) resolveDB(ctx context.Context) adapter.InstructionPostgres {
+	if tx, ok := postegres.TxFromContext(ctx); ok {
+		return tx
+	}
+	return c.DB
 }

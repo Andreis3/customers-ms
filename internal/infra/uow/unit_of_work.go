@@ -8,10 +8,8 @@ import (
 
 	"github.com/andreis3/customers-ms/internal/domain/errors"
 	"github.com/andreis3/customers-ms/internal/domain/interfaces/adapter"
-	"github.com/andreis3/customers-ms/internal/domain/interfaces/postgres"
-	"github.com/andreis3/customers-ms/internal/domain/interfaces/uow"
+	"github.com/andreis3/customers-ms/internal/infra/adapters/db/postegres"
 	"github.com/andreis3/customers-ms/internal/infra/adapters/observability"
-	"github.com/andreis3/customers-ms/internal/infra/repositories/postgres/repository"
 )
 
 type UnitOfWork struct {
@@ -28,7 +26,7 @@ func NewUnitOfWork(db *pgxpool.Pool, prometheus adapter.Prometheus) *UnitOfWork 
 }
 
 // Do handles transaction lifecycle safely.
-func (u *UnitOfWork) Do(ctx context.Context, fn func(uow uow.UnitOfWork) *errors.Error) *errors.Error {
+func (u *UnitOfWork) Do(ctx context.Context, fn func(ctx context.Context) *errors.Error) *errors.Error {
 	ctx, child := observability.Tracer.Start(ctx, "UnitOfWork.Do")
 	defer child.End()
 
@@ -47,10 +45,11 @@ func (u *UnitOfWork) Do(ctx context.Context, fn func(uow uow.UnitOfWork) *errors
 		return errors.ErrorOpeningTransaction(err)
 	}
 
-	u.TX = tx
 	defer func() { u.TX = nil }()
+	u.TX = tx
+	ctxTx := postegres.WithTx(ctx, tx)
 
-	if err := fn(u); err != nil {
+	if err := fn(ctxTx); err != nil {
 		rollbackErr := u.TX.Rollback(ctx)
 		if rollbackErr != nil {
 			child.RecordError(errors.ErrorExecuteRollback(rollbackErr))
@@ -66,13 +65,4 @@ func (u *UnitOfWork) Do(ctx context.Context, fn func(uow uow.UnitOfWork) *errors
 	}
 
 	return nil
-}
-
-// --- Repository Accessors (Always fresh instances tied to current TX) --- //
-func (u *UnitOfWork) CustomerRepository() postgres.CustomerRepository {
-	return repository.NewCustomerRepository(u.TX, u.prometheus)
-}
-
-func (u *UnitOfWork) AddressRepository() postgres.AddressRepository {
-	return repository.NewAddressRepository(u.TX, u.prometheus)
 }
