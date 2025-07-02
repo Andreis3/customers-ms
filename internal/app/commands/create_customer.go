@@ -9,16 +9,19 @@ import (
 	"github.com/andreis3/customers-ms/internal/domain/errors"
 	"github.com/andreis3/customers-ms/internal/domain/interfaces/adapter"
 	"github.com/andreis3/customers-ms/internal/domain/interfaces/commons"
+	"github.com/andreis3/customers-ms/internal/domain/interfaces/postgres"
 	"github.com/andreis3/customers-ms/internal/domain/interfaces/service"
 	"github.com/andreis3/customers-ms/internal/domain/interfaces/uow"
 	"github.com/andreis3/customers-ms/internal/infra/adapters/observability"
 )
 
 type CreateCustomerCommand struct {
-	uow             func(ctx context.Context) uow.UnitOfWork
-	bcrypt          adapter.Bcrypt
-	log             commons.Logger
-	customerService service.CustomerService
+	uow                func(ctx context.Context) uow.UnitOfWork
+	bcrypt             adapter.Bcrypt
+	log                commons.Logger
+	customerRepository postgres.CustomerRepository
+	addressRepository  postgres.AddressRepository
+	customerService    service.CustomerService
 }
 
 func NewCreateCustomer(
@@ -26,12 +29,16 @@ func NewCreateCustomer(
 	bcrypt adapter.Bcrypt,
 	log commons.Logger,
 	customerService service.CustomerService,
+	customerRepository postgres.CustomerRepository,
+	addressRepository postgres.AddressRepository,
 ) *CreateCustomerCommand {
 	return &CreateCustomerCommand{
-		uow:             uow,
-		bcrypt:          bcrypt,
-		log:             log,
-		customerService: customerService,
+		uow:                uow,
+		bcrypt:             bcrypt,
+		log:                log,
+		customerService:    customerService,
+		customerRepository: customerRepository,
+		addressRepository:  addressRepository,
 	}
 }
 
@@ -64,7 +71,7 @@ func (c *CreateCustomerCommand) Execute(ctx context.Context, input aggregate.Cus
 	var customerResult *customer.Customer
 	uowInstance := c.uow(ctx)
 
-	errUow := uowInstance.Do(ctx, func(uow uow.UnitOfWork) *errors.Error {
+	errUow := uowInstance.Do(ctx, func(ctxUow context.Context) *errors.Error {
 		hash, err := c.bcrypt.Hash(input.Customer.Password())
 		if err != nil {
 			child.RecordError(err)
@@ -76,9 +83,7 @@ func (c *CreateCustomerCommand) Execute(ctx context.Context, input aggregate.Cus
 
 		input.Customer.AssignHashedPassword(hash)
 
-		customerRepository := uow.CustomerRepository()
-
-		customerResult, err = customerRepository.InsertCustomer(ctx, input.Customer)
+		customerResult, err = c.customerRepository.InsertCustomer(ctxUow, input.Customer)
 		if err != nil {
 			child.RecordError(err)
 			c.log.ErrorJSON("Failed insert customerResult",
@@ -88,8 +93,7 @@ func (c *CreateCustomerCommand) Execute(ctx context.Context, input aggregate.Cus
 		}
 
 		if len(input.Addresses) > 0 {
-			addressRepository := uow.AddressRepository()
-			_, err = addressRepository.InsertBatchAddress(ctx, customerResult.ID(), input.Addresses)
+			_, err = c.addressRepository.InsertBatchAddress(ctxUow, customerResult.ID(), input.Addresses)
 			if err != nil {
 				child.RecordError(err)
 				c.log.ErrorJSON("Failed insert address",

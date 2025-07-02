@@ -9,6 +9,7 @@ import (
 	"github.com/andreis3/customers-ms/internal/domain/entity/customer"
 	"github.com/andreis3/customers-ms/internal/domain/errors"
 	"github.com/andreis3/customers-ms/internal/domain/interfaces/adapter"
+	"github.com/andreis3/customers-ms/internal/infra/adapters/db/postegres"
 	"github.com/andreis3/customers-ms/internal/infra/adapters/observability"
 	"github.com/andreis3/customers-ms/internal/infra/repositories/postgres/model"
 )
@@ -46,7 +47,9 @@ func (c *CustomerRepository) InsertCustomer(ctx context.Context, data customer.C
 
 	var id int64
 
-	err := c.DB.QueryRow(ctx, query,
+	db := c.resolveDB(ctx)
+
+	err := db.QueryRow(ctx, query,
 		modelCustomer.Email,
 		modelCustomer.Password,
 		modelCustomer.FirstName,
@@ -85,8 +88,9 @@ func (c *CustomerRepository) FindCustomerByEmail(ctx context.Context, email stri
 	WHERE email = $1`
 
 	var modelCustomer model.Customer
+	db := c.resolveDB(ctx)
 
-	rows, err := c.DB.Query(ctx, query, email)
+	rows, err := db.Query(ctx, query, email)
 	if err != nil {
 		return nil, errors.ErrorFindCustomerByEmail(err)
 	}
@@ -117,4 +121,11 @@ func (c *CustomerRepository) FindCustomerByEmail(ctx context.Context, email stri
 	)
 
 	return &result, nil
+}
+
+func (c *CustomerRepository) resolveDB(ctx context.Context) adapter.InstructionPostgres {
+	if tx, ok := postegres.TxFromContext(ctx); ok {
+		return tx
+	}
+	return c.DB
 }

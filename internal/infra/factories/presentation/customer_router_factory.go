@@ -18,8 +18,9 @@ func MakeCustomerRouter(connPostgres *postegres.Postgres, log commons.Logger, pr
 	uowFactory := app.NewUnitOfWorkFactory(pool, prometheus)
 
 	customerRepository := repository.NewCustomerRepository(pool, prometheus)
+	addressRepository := repository.NewAddressRepository(pool, prometheus)
 	customerService := services.NewCustomerService(customerRepository)
-	command := app.NewCreateCustomerFactory(uowFactory, newCrypto, log, customerService)
+	command := app.NewCreateCustomerFactory(uowFactory, newCrypto, log, customerService, customerRepository, addressRepository)
 	createCustomerHandler := customer.NewCreateCustomerHandler(command, prometheus, log)
 
 	customerRoutes := routes.NewCustomer(createCustomerHandler, log)
