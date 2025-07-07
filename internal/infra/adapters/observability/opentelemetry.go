@@ -1,3 +1,4 @@
+// internal/infra/adapters/observability/otel_tracer.go
 package observability
 
 import (
@@ -10,13 +11,45 @@ import (
 	sdktrace "go.opentelemetry.io/otel/sdk/trace"
 	semconv "go.opentelemetry.io/otel/semconv/v1.17.0"
 	"go.opentelemetry.io/otel/trace"
+
+	"github.com/andreis3/customers-ms/internal/domain/interfaces/adapter"
 )
 
-var Tracer trace.Tracer
+type otelTracer struct {
+	tracer trace.Tracer
+}
 
-func InitTracer() func(context context.Context) error {
-	ctx := context.Background()
+func (o *otelTracer) Start(ctx context.Context, spanName string) (context.Context, adapter.Span) {
+	ctx, s := o.tracer.Start(ctx, spanName)
+	return ctx, &otelSpan{s}
+}
 
+type otelSpan struct {
+	trace.Span
+}
+
+func (s *otelSpan) End() {
+	s.Span.End()
+}
+
+func (s *otelSpan) RecordError(err error) {
+	s.Span.RecordError(err)
+}
+
+func (s *otelSpan) SpanContext() adapter.SpanContext {
+	return &otelSpanContext{s.Span.SpanContext()} // ✅ chama o SpanContext do campo do OTEL
+}
+
+type otelSpanContext struct {
+	trace.SpanContext
+}
+
+func (sc *otelSpanContext) TraceID() string {
+	return sc.SpanContext.TraceID().String()
+}
+
+// ✅ Esta função inicializa o OpenTelemetry por completo e retorna o adapter.Tracer
+func InitOtelTracer(ctx context.Context, serviceName string) (adapter.Tracer, func(context.Context) error) {
 	exporter, err := otlptracehttp.New(
 		ctx,
 		otlptracehttp.WithEndpoint("localhost:4318"),
@@ -24,23 +57,28 @@ func InitTracer() func(context context.Context) error {
 		otlptracehttp.WithCompression(otlptracehttp.GzipCompression),
 	)
 	if err != nil {
-		log.Fatalf("failed to create the exporter: %v", err)
+		log.Fatalf("failed to create OTLP exporter: %v", err)
 	}
 
-	res, _ := sdkresource.Merge(
+	resource, err := sdkresource.Merge(
 		sdkresource.Default(),
 		sdkresource.NewWithAttributes(
-			semconv.SchemaURL,
-			semconv.ServiceNameKey.String("customers-ms"),
+			"", //semconv.SchemaURL,
+			semconv.ServiceNameKey.String(serviceName),
 		),
 	)
+	if err != nil {
+		log.Fatalf("failed to create resource: %v", err)
+	}
 
 	provider := sdktrace.NewTracerProvider(
 		sdktrace.WithBatcher(exporter),
-		sdktrace.WithResource(res),
+		sdktrace.WithResource(resource),
 		sdktrace.WithSampler(sdktrace.TraceIDRatioBased(0.1)),
 	)
+
 	otel.SetTracerProvider(provider)
-	Tracer = provider.Tracer("customers-ms")
-	return provider.Shutdown
+
+	// Retorna o adapter.Tracer e a função de shutdown
+	return &otelTracer{tracer: provider.Tracer(serviceName)}, provider.Shutdown
 }

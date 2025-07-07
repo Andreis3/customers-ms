@@ -17,6 +17,7 @@ type RegisterRoutesDeps struct {
 	Log        commons.Logger
 	Prometheus adapter.Prometheus
 	Conf       *configs.Configs
+	Tracer     adapter.Tracer
 }
 
 func Setup(deps *RegisterRoutesDeps) {
@@ -33,7 +34,7 @@ func BuildRoutes(deps *RegisterRoutesDeps) []ModuleRoutes {
 	return []ModuleRoutes{
 		routes.NewHealthCheck(),
 		routes.NewMetrics(),
-		presentation.MakeCustomerRouter(deps.PostgresDB, deps.Log, deps.Prometheus),
-		presentation.MakeAuthRouter(deps.PostgresDB, deps.Log, deps.Prometheus, deps.Conf),
+		presentation.MakeCustomerRouter(deps.PostgresDB, deps.Log, deps.Prometheus, deps.Tracer),
+		presentation.MakeAuthRouter(deps.PostgresDB, deps.Log, deps.Prometheus, deps.Conf, deps.Tracer),
 	}
 }

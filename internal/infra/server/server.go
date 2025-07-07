@@ -13,6 +13,7 @@ import (
 	"github.com/go-chi/chi/v5"
 	"go.opentelemetry.io/contrib/instrumentation/net/http/otelhttp"
 
+	"github.com/andreis3/customers-ms/internal/domain/interfaces/adapter"
 	"github.com/andreis3/customers-ms/internal/infra/adapters/db/postegres"
 	"github.com/andreis3/customers-ms/internal/infra/adapters/observability"
 	"github.com/andreis3/customers-ms/internal/infra/commons/logger"
@@ -26,14 +27,16 @@ type Server struct {
 	Postgres   *postegres.Postgres
 	Log        logger.Logger
 	Prometheus *observability.Prometheus
+	Tracer     adapter.Tracer
 }
 
 func NewServer(conf *configs.Configs, log logger.Logger) *Server {
 	start := time.Now()
 
-	observability.InitTracer()
 	prometheus := observability.NewPrometheus()
 	pool := postegres.NewPoolConnections(conf, prometheus)
+
+	tracer, _ := observability.InitOtelTracer(context.Background(), "customers-ms")
 
 	mux := chi.NewRouter()
 
@@ -48,6 +51,7 @@ func NewServer(conf *configs.Configs, log logger.Logger) *Server {
 		Log:        &log,
 		Prometheus: prometheus,
 		Conf:       conf,
+		Tracer:     tracer,
 	}
 
 	routes.Setup(&setupRoutesInput)

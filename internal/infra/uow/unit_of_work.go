@@ -9,29 +9,30 @@ import (
 	"github.com/andreis3/customers-ms/internal/domain/errors"
 	"github.com/andreis3/customers-ms/internal/domain/interfaces/adapter"
 	"github.com/andreis3/customers-ms/internal/infra/adapters/db/postegres"
-	"github.com/andreis3/customers-ms/internal/infra/adapters/observability"
 )
 
 type UnitOfWork struct {
 	DB         *pgxpool.Pool
 	TX         pgx.Tx
 	prometheus adapter.Prometheus
+	tracer     adapter.Tracer
 }
 
-func NewUnitOfWork(db *pgxpool.Pool, prometheus adapter.Prometheus) *UnitOfWork {
+func NewUnitOfWork(db *pgxpool.Pool, prometheus adapter.Prometheus, tracer adapter.Tracer) *UnitOfWork {
 	return &UnitOfWork{
 		DB:         db,
 		prometheus: prometheus,
+		tracer:     tracer,
 	}
 }
 
 // Do handles transaction lifecycle safely.
 func (u *UnitOfWork) Do(ctx context.Context, fn func(ctx context.Context) *errors.Error) *errors.Error {
-	ctx, child := observability.Tracer.Start(ctx, "UnitOfWork.Do")
-	defer child.End()
+	ctx, span := u.tracer.Start(ctx, "UnitOfWork.Do")
+	defer span.End()
 
 	if u.TX != nil {
-		child.RecordError(errors.ErrorTransactionAlreadyExists())
+		span.RecordError(errors.ErrorTransactionAlreadyExists())
 		return errors.ErrorTransactionAlreadyExists()
 	}
 
@@ -41,7 +42,7 @@ func (u *UnitOfWork) Do(ctx context.Context, fn func(ctx context.Context) *error
 		AccessMode:  pgx.ReadWrite,
 	})
 	if err != nil {
-		child.RecordError(errors.ErrorOpeningTransaction(err))
+		span.RecordError(errors.ErrorOpeningTransaction(err))
 		return errors.ErrorOpeningTransaction(err)
 	}
 
@@ -52,15 +53,15 @@ func (u *UnitOfWork) Do(ctx context.Context, fn func(ctx context.Context) *error
 	if err := fn(ctxTx); err != nil {
 		rollbackErr := u.TX.Rollback(ctx)
 		if rollbackErr != nil {
-			child.RecordError(errors.ErrorExecuteRollback(rollbackErr))
+			span.RecordError(errors.ErrorExecuteRollback(rollbackErr))
 			return errors.ErrorExecuteRollback(rollbackErr)
 		}
-		child.RecordError(err)
+		span.RecordError(err)
 		return err
 	}
 
 	if err := u.TX.Commit(ctx); err != nil {
-		child.RecordError(errors.ErrorCommitOrRollback(err))
+		span.RecordError(errors.ErrorCommitOrRollback(err))
 		return errors.ErrorCommitOrRollback(err)
 	}
 

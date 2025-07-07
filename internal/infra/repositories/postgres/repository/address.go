@@ -10,7 +10,6 @@ import (
 	"github.com/andreis3/customers-ms/internal/domain/errors"
 	"github.com/andreis3/customers-ms/internal/domain/interfaces/adapter"
 	"github.com/andreis3/customers-ms/internal/infra/adapters/db/postegres"
-	"github.com/andreis3/customers-ms/internal/infra/adapters/observability"
 	"github.com/andreis3/customers-ms/internal/infra/repositories/postgres/model"
 )
 
@@ -18,20 +17,23 @@ type AddressRepository struct {
 	DB      adapter.InstructionPostgres
 	metrics adapter.Prometheus
 	model.Address
+	tracer adapter.Tracer
 }
 
 func NewAddressRepository(
 	db adapter.InstructionPostgres,
 	metrics adapter.Prometheus,
+	tracer adapter.Tracer,
 ) *AddressRepository {
 	return &AddressRepository{
 		DB:      db,
 		metrics: metrics,
+		tracer:  tracer,
 	}
 }
 
 func (c *AddressRepository) InsertBatchAddress(ctx context.Context, customerID int64, addresses []address.Address) (*[]address.Address, *errors.Error) {
-	ctx, span := observability.Tracer.Start(ctx, "AddressRepository.InsertBatchAddress")
+	ctx, span := c.tracer.Start(ctx, "AddressRepository.InsertBatchAddress")
 	start := time.Now()
 
 	defer func() {

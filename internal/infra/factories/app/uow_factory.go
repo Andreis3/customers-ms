@@ -10,8 +10,8 @@ import (
 	"github.com/andreis3/customers-ms/internal/infra/uow"
 )
 
-func NewUnitOfWorkFactory(pool *pgxpool.Pool, prometheus adapter.Prometheus) func(ctx context.Context) iuow.UnitOfWork {
+func NewUnitOfWorkFactory(pool *pgxpool.Pool, prometheus adapter.Prometheus, tracer adapter.Tracer) func(ctx context.Context) iuow.UnitOfWork {
 	return func(ctx context.Context) iuow.UnitOfWork {
-		return uow.NewUnitOfWork(pool, prometheus)
+		return uow.NewUnitOfWork(pool, prometheus, tracer)
 	}
 }

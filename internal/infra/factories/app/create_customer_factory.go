@@ -19,6 +19,7 @@ type createCustomerFactory struct {
 	customerService    service.CustomerService
 	customerRepository postgres.CustomerRepository
 	addressRepository  postgres.AddressRepository
+	tracer             adapter.Tracer
 }
 
 func NewCreateCustomerFactory(
@@ -28,6 +29,7 @@ func NewCreateCustomerFactory(
 	customerService service.CustomerService,
 	customerRepository postgres.CustomerRepository,
 	addressRepository postgres.AddressRepository,
+	tracer adapter.Tracer,
 ) command.CreateCustomer {
-	return commands.NewCreateCustomer(uowFactory, crypto, log, customerService, customerRepository, addressRepository)
+	return commands.NewCreateCustomer(uowFactory, crypto, log, customerService, customerRepository, addressRepository, tracer)
 }

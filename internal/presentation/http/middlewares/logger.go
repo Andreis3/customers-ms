@@ -4,14 +4,14 @@ import (
 	"log/slog"
 	"net/http"
 
+	"github.com/andreis3/customers-ms/internal/domain/interfaces/adapter"
 	"github.com/andreis3/customers-ms/internal/domain/interfaces/commons"
-	"github.com/andreis3/customers-ms/internal/infra/adapters/observability"
 )
 
-func LoggingMiddleware(logger commons.Logger) func(http.Handler) http.Handler {
+func LoggingMiddleware(logger commons.Logger, tracer adapter.Tracer) func(http.Handler) http.Handler {
 	return func(next http.Handler) http.Handler {
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-			ctx, span := observability.Tracer.Start(r.Context(), "HTTP "+r.Method+" "+r.URL.Path)
+			ctx, span := tracer.Start(r.Context(), "HTTP "+r.Method+" "+r.URL.Path)
 			defer span.End()
 			log := logger.WithTrace(ctx)
 

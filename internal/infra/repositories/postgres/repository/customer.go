@@ -4,13 +4,10 @@ import (
 	"context"
 	"time"
 
-	"go.opentelemetry.io/otel/attribute"
-
 	"github.com/andreis3/customers-ms/internal/domain/entity/customer"
 	"github.com/andreis3/customers-ms/internal/domain/errors"
 	"github.com/andreis3/customers-ms/internal/domain/interfaces/adapter"
 	"github.com/andreis3/customers-ms/internal/infra/adapters/db/postegres"
-	"github.com/andreis3/customers-ms/internal/infra/adapters/observability"
 	"github.com/andreis3/customers-ms/internal/infra/repositories/postgres/model"
 )
 
@@ -18,20 +15,23 @@ type CustomerRepository struct {
 	DB      adapter.InstructionPostgres
 	metrics adapter.Prometheus
 	model.Customer
+	tracer adapter.Tracer
 }
 
 func NewCustomerRepository(
 	db adapter.InstructionPostgres,
 	metrics adapter.Prometheus,
+	tracer adapter.Tracer,
 ) *CustomerRepository {
 	return &CustomerRepository{
 		DB:      db,
 		metrics: metrics,
+		tracer:  tracer,
 	}
 }
 
 func (c *CustomerRepository) InsertCustomer(ctx context.Context, data customer.Customer) (*customer.Customer, *errors.Error) {
-	ctx, span := observability.Tracer.Start(ctx, "CustomerRepository.InsertCustomer")
+	ctx, span := c.tracer.Start(ctx, "CustomerRepository.InsertCustomer")
 	start := time.Now()
 	defer func() {
 		end := time.Since(start)
@@ -65,15 +65,16 @@ func (c *CustomerRepository) InsertCustomer(ctx context.Context, data customer.C
 	modelCustomer.ID = &id
 	result := modelCustomer.ToEntity()
 
-	span.SetAttributes(
-		attribute.Int64("customer_id", id),
-	)
+	// TODO: create SetAttributes in interface otel
+	//span.SetAttributes(
+	//	attribute.Int64("customer_id", id),
+	//)
 
 	return &result, nil
 }
 
 func (c *CustomerRepository) FindCustomerByEmail(ctx context.Context, email string) (*customer.Customer, *errors.Error) {
-	ctx, span := observability.Tracer.Start(ctx, "CustomerRepository.FindCustomerByEmail")
+	ctx, span := c.tracer.Start(ctx, "CustomerRepository.FindCustomerByEmail")
 	start := time.Now()
 
 	defer func() {
@@ -116,9 +117,10 @@ func (c *CustomerRepository) FindCustomerByEmail(ctx context.Context, email stri
 
 	result := modelCustomer.ToEntity()
 
-	span.SetAttributes(
-		attribute.Int64("customer_id", *modelCustomer.ID),
-	)
+	// TODO: create SetAttributes in interface otel
+	//span.SetAttributes(
+	//	attribute.Int64("customer_id", *modelCustomer.ID),
+	//)
 
 	return &result, nil
 }

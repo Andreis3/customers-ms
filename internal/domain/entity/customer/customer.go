@@ -12,9 +12,9 @@ import (
 
 type Customer struct {
 	id          int64
-	email       valueobject.Email
+	email       valueobject.Email `json:"email"`
 	password    valueobject.Password
-	firstName   string
+	firstName   string `json:"first_name"`
 	lastName    string
 	cpf         valueobject.CPF
 	dateOfBirth time.Time

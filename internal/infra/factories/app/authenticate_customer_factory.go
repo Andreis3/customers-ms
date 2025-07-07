@@ -9,15 +9,12 @@ import (
 	"github.com/andreis3/customers-ms/internal/domain/interfaces/service"
 )
 
-type AuthenticateCustomerFactory interface {
-	Build() command.Login
-}
-
 type authenticateCustomerFactory struct {
 	log                commons.Logger
 	customerRepository postgres.CustomerRepository
 	authService        service.Auth
 	bcrypt             adapter.Bcrypt
+	tracer             adapter.Tracer
 }
 
 func NewAuthenticateCustomerFactory(
@@ -25,15 +22,7 @@ func NewAuthenticateCustomerFactory(
 	customerRepository postgres.CustomerRepository,
 	authService service.Auth,
 	bcrypt adapter.Bcrypt,
-) AuthenticateCustomerFactory {
-	return &authenticateCustomerFactory{
-		log:                log,
-		customerRepository: customerRepository,
-		authService:        authService,
-		bcrypt:             bcrypt,
-	}
-}
-
-func (f *authenticateCustomerFactory) Build() command.Login {
-	return commands.NewAuthenticateCustomer(f.log, f.customerRepository, f.authService, f.bcrypt)
+	tracer adapter.Tracer,
+) command.Login {
+	return commands.NewAuthenticateCustomer(log, customerRepository, authService, bcrypt, tracer)
 }
