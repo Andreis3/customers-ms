@@ -3,6 +3,7 @@ package routes
 import (
 	"net/http"
 
+	"github.com/andreis3/customers-ms/internal/domain/interfaces/adapter"
 	"github.com/andreis3/customers-ms/internal/domain/interfaces/commons"
 	"github.com/andreis3/customers-ms/internal/presentation/http/handler/customer"
 	"github.com/andreis3/customers-ms/internal/presentation/http/middlewares"
@@ -12,15 +13,18 @@ import (
 type CustomerRoutes struct {
 	createCustomer customer.CreateCustomerHandler
 	log            commons.Logger
+	tracer         adapter.Tracer
 }
 
 func NewCustomer(
 	createCustomer customer.CreateCustomerHandler,
 	log commons.Logger,
+	tracer adapter.Tracer,
 ) *CustomerRoutes {
 	return &CustomerRoutes{
 		createCustomer: createCustomer,
 		log:            log,
+		tracer:         tracer,
 	}
 }
 
@@ -32,7 +36,7 @@ func (r *CustomerRoutes) Routes() transport.RouteType {
 			Handler:     transport.TraceHandler(http.MethodPost, prefix, r.createCustomer.Handle),
 			Description: "Create Customer",
 			Middlewares: []func(http.Handler) http.Handler{
-				middlewares.LoggingMiddleware(r.log),
+				middlewares.LoggingMiddleware(r.log, r.tracer),
 			},
 		},
 	})

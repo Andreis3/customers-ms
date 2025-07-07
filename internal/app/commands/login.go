@@ -10,7 +10,6 @@ import (
 	"github.com/andreis3/customers-ms/internal/domain/interfaces/commons"
 	"github.com/andreis3/customers-ms/internal/domain/interfaces/postgres"
 	"github.com/andreis3/customers-ms/internal/domain/interfaces/service"
-	"github.com/andreis3/customers-ms/internal/infra/adapters/observability"
 )
 
 type Login struct {
@@ -18,6 +17,7 @@ type Login struct {
 	customerRepository postgres.CustomerRepository
 	authService        service.Auth
 	bcrypt             adapter.Bcrypt
+	tracer             adapter.Tracer
 }
 
 func NewAuthenticateCustomer(
@@ -25,24 +25,25 @@ func NewAuthenticateCustomer(
 	customerRepository postgres.CustomerRepository,
 	authService service.Auth,
 	bcrypt adapter.Bcrypt,
+	tracer adapter.Tracer,
 ) *Login {
 	return &Login{
 		log:                log,
 		customerRepository: customerRepository,
 		authService:        authService,
 		bcrypt:             bcrypt,
+		tracer:             tracer,
 	}
 }
 
 func (a *Login) Execute(ctx context.Context, input command.LoginInput) (*command.LoginOutput, *errors.Error) {
-	a.log.InfoText("Received input to authenticate customer",
+	ctx, span := a.tracer.Start(ctx, "Login.Execute")
+	a.log.InfoJSON("Received input to authenticate customer",
 		slog.String("email", input.Email),
-		slog.String("password", input.Password))
+		slog.String("password", "**************"))
 
-	ctx, child := observability.Tracer.Start(ctx, "Login.Execute")
-
-	defer child.End()
-	traceID := child.SpanContext().TraceID().String()
+	defer span.End()
+	traceID := span.SpanContext().TraceID()
 
 	customer, err := a.customerRepository.FindCustomerByEmail(ctx, input.Email)
 	if err != nil {

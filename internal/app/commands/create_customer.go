@@ -12,7 +12,6 @@ import (
 	"github.com/andreis3/customers-ms/internal/domain/interfaces/postgres"
 	"github.com/andreis3/customers-ms/internal/domain/interfaces/service"
 	"github.com/andreis3/customers-ms/internal/domain/interfaces/uow"
-	"github.com/andreis3/customers-ms/internal/infra/adapters/observability"
 )
 
 type CreateCustomerCommand struct {
@@ -22,6 +21,7 @@ type CreateCustomerCommand struct {
 	customerRepository postgres.CustomerRepository
 	addressRepository  postgres.AddressRepository
 	customerService    service.CustomerService
+	tracer             adapter.Tracer
 }
 
 func NewCreateCustomer(
@@ -31,6 +31,7 @@ func NewCreateCustomer(
 	customerService service.CustomerService,
 	customerRepository postgres.CustomerRepository,
 	addressRepository postgres.AddressRepository,
+	tracer adapter.Tracer,
 ) *CreateCustomerCommand {
 	return &CreateCustomerCommand{
 		uow:                uow,
@@ -39,34 +40,35 @@ func NewCreateCustomer(
 		customerService:    customerService,
 		customerRepository: customerRepository,
 		addressRepository:  addressRepository,
+		tracer:             tracer,
 	}
 }
 
 func (c *CreateCustomerCommand) Execute(ctx context.Context, input aggregate.CustomerProfile) (*customer.Customer, *errors.Error) {
-	ctx, child := observability.Tracer.Start(ctx, "CreatedCustomer.Execute")
-	defer child.End()
-	traceID := child.SpanContext().TraceID().String()
-	c.log.InfoText("Received input to create CreateCustomer",
+	ctx, span := c.tracer.Start(ctx, "CreatedCustomer.Execute")
+	defer span.End()
+	traceID := span.SpanContext().TraceID()
+	c.log.InfoJSON("Received input to create CreateCustomer",
 		slog.String("trace_id", traceID),
 		slog.Any("input", input))
 
 	err := input.Validate()
 	if err != nil {
-		child.RecordError(err)
+		span.RecordError(err)
 		c.log.ErrorJSON("Failed validate input to create CreateCustomer",
 			slog.String("trace_id", traceID),
 			slog.Any("error", err.Errors))
 		return nil, err
 	}
 
-	//customerAlreadyExists := c.customerService.ExistCustomerByEmail(ctx, input.Customer.Email())
-	//if customerAlreadyExists {
-	//	child.RecordError(error.ErrCustomerAlreadyExists())
-	//	c.log.ErrorJSON("Customer already exists",
-	//		slog.String("trace_id", traceID),
-	//		slog.Any("error", error.ErrCustomerAlreadyExists))
-	//	return nil, error.ErrCustomerAlreadyExists()
-	//}
+	customerAlreadyExists := c.customerService.ExistCustomerByEmail(ctx, input.Customer.Email())
+	if customerAlreadyExists {
+		span.RecordError(errors.ErrCustomerAlreadyExists())
+		c.log.ErrorJSON("Customer already exists",
+			slog.String("trace_id", traceID),
+			slog.Any("error", errors.ErrCustomerAlreadyExists))
+		return nil, errors.ErrCustomerAlreadyExists()
+	}
 
 	var customerResult *customer.Customer
 	uowInstance := c.uow(ctx)
@@ -74,7 +76,7 @@ func (c *CreateCustomerCommand) Execute(ctx context.Context, input aggregate.Cus
 	errUow := uowInstance.Do(ctx, func(ctxUow context.Context) *errors.Error {
 		hash, err := c.bcrypt.Hash(input.Customer.Password())
 		if err != nil {
-			child.RecordError(err)
+			span.RecordError(err)
 			c.log.ErrorJSON("Failed hash password",
 				slog.String("trace_id", traceID),
 				slog.Any("error", err))
@@ -85,7 +87,7 @@ func (c *CreateCustomerCommand) Execute(ctx context.Context, input aggregate.Cus
 
 		customerResult, err = c.customerRepository.InsertCustomer(ctxUow, input.Customer)
 		if err != nil {
-			child.RecordError(err)
+			span.RecordError(err)
 			c.log.ErrorJSON("Failed insert customerResult",
 				slog.String("trace_id", traceID),
 				slog.Any("error", err))
@@ -95,7 +97,7 @@ func (c *CreateCustomerCommand) Execute(ctx context.Context, input aggregate.Cus
 		if len(input.Addresses) > 0 {
 			_, err = c.addressRepository.InsertBatchAddress(ctxUow, customerResult.ID(), input.Addresses)
 			if err != nil {
-				child.RecordError(err)
+				span.RecordError(err)
 				c.log.ErrorJSON("Failed insert address",
 					slog.String("trace_id", traceID),
 					slog.Any("error", err))
@@ -106,7 +108,7 @@ func (c *CreateCustomerCommand) Execute(ctx context.Context, input aggregate.Cus
 	})
 
 	if errUow != nil {
-		child.RecordError(errUow)
+		span.RecordError(errUow)
 		c.log.ErrorJSON("Failed insert customerResult",
 			slog.String("trace_id", traceID),
 			slog.Any("error", errUow))

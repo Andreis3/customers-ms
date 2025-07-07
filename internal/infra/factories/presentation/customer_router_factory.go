@@ -12,18 +12,18 @@ import (
 	"github.com/andreis3/customers-ms/internal/presentation/http/routes"
 )
 
-func MakeCustomerRouter(connPostgres *postegres.Postgres, log commons.Logger, prometheus adapter.Prometheus) *routes.CustomerRoutes {
+func MakeCustomerRouter(connPostgres *postegres.Postgres, log commons.Logger, prometheus adapter.Prometheus, tracer adapter.Tracer) *routes.CustomerRoutes {
 	pool := connPostgres.Pool
 	newCrypto := crypto.NewBcrypt()
-	uowFactory := app.NewUnitOfWorkFactory(pool, prometheus)
+	uowFactory := app.NewUnitOfWorkFactory(pool, prometheus, tracer)
 
-	customerRepository := repository.NewCustomerRepository(pool, prometheus)
-	addressRepository := repository.NewAddressRepository(pool, prometheus)
+	customerRepository := repository.NewCustomerRepository(pool, prometheus, tracer)
+	addressRepository := repository.NewAddressRepository(pool, prometheus, tracer)
 	customerService := services.NewCustomerService(customerRepository)
-	command := app.NewCreateCustomerFactory(uowFactory, newCrypto, log, customerService, customerRepository, addressRepository)
-	createCustomerHandler := customer.NewCreateCustomerHandler(command, prometheus, log)
+	command := app.NewCreateCustomerFactory(uowFactory, newCrypto, log, customerService, customerRepository, addressRepository, tracer)
+	createCustomerHandler := customer.NewCreateCustomerHandler(command, prometheus, log, tracer)
 
-	customerRoutes := routes.NewCustomer(createCustomerHandler, log)
+	customerRoutes := routes.NewCustomer(createCustomerHandler, log, tracer)
 
 	return customerRoutes
 }
