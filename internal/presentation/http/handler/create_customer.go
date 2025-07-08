@@ -1,4 +1,4 @@
-package login
+package handler
 
 import (
 	"log/slog"
@@ -8,38 +8,44 @@ import (
 	"github.com/andreis3/customers-ms/internal/domain/interfaces/adapter"
 	"github.com/andreis3/customers-ms/internal/domain/interfaces/command"
 	"github.com/andreis3/customers-ms/internal/domain/interfaces/commons"
+	"github.com/andreis3/customers-ms/internal/presentation/dtos/input"
 	"github.com/andreis3/customers-ms/internal/presentation/dtos/output"
 	"github.com/andreis3/customers-ms/internal/presentation/http/transport"
 )
 
-type GenerateTokenHandler struct {
+type CreateCustomerHandler struct {
+	command    command.CreateCustomer
 	log        commons.Logger
 	prometheus adapter.Prometheus
-	cmd        command.Login
 	tracer     adapter.Tracer
 }
 
-func NewGenerateTokenHandler(
-	log commons.Logger,
+func NewCreateCustomerHandler(
+	cmd command.CreateCustomer,
 	prometheus adapter.Prometheus,
+	log commons.Logger,
 	tracer adapter.Tracer,
-	cmd command.Login,
-) GenerateTokenHandler {
-	return GenerateTokenHandler{
+) CreateCustomerHandler {
+	return CreateCustomerHandler{
+		command:    cmd,
 		log:        log,
 		prometheus: prometheus,
-		cmd:        cmd,
 		tracer:     tracer,
 	}
 }
 
-func (h *GenerateTokenHandler) Handle(w http.ResponseWriter, r *http.Request) {
-	ctx, span := h.tracer.Start(r.Context(), "GenerateTokenHandler.Handle")
+func (h *CreateCustomerHandler) Handle(w http.ResponseWriter, r *http.Request) {
 	start := time.Now()
+	var end time.Duration
+	ctx, span := h.tracer.Start(r.Context(), "CreateCustomerHandler.Handle")
 	traceID := span.SpanContext().TraceID()
-	defer span.End()
+	defer func() {
+		end = time.Since(start)
+		h.log.InfoJSON("end request", slog.String("trace_id", traceID), slog.Float64("duration", float64(end.Milliseconds())))
+		span.End()
+	}()
 
-	data, err := transport.DecoderBodyRequest[command.LoginInput](r)
+	data, err := transport.DecoderBodyRequest[input.CreatedCustomerDTO](r)
 	if err != nil {
 		span.RecordError(err)
 		h.log.ErrorJSON("failed decode request body",
@@ -49,24 +55,17 @@ func (h *GenerateTokenHandler) Handle(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	input := command.LoginInput{
-		Email:    data.Email,
-		Password: data.Password,
-	}
+	res, err := h.command.Execute(ctx, data.MapperToAggregate())
 
-	res, err := h.cmd.Execute(ctx, input)
-	end := time.Since(start)
 	if err != nil {
 		span.RecordError(err)
 		h.log.ErrorJSON("failed execute create customer command",
 			slog.String("trace_id", traceID),
 			slog.Any("error", err))
-		h.log.InfoJSON("end request", slog.String("trace_id", traceID), slog.Float64("duration", float64(end.Milliseconds())))
 		transport.ResponseError[any](w, err)
 		return
 	}
 
-	h.prometheus.ObserveRequestDuration("/token", "http", http.StatusCreated, float64(end.Milliseconds()))
-	h.log.InfoJSON("end request", slog.String("trace_id", traceID), slog.Float64("duration", float64(end.Milliseconds())))
-	transport.ResponseSuccess(w, http.StatusCreated, output.TokenOutputMapper(res))
+	h.prometheus.ObserveRequestDuration("/customers", "http", http.StatusCreated, float64(end.Milliseconds()))
+	transport.ResponseSuccess(w, http.StatusCreated, output.CustomerOutputMapper(*res))
 }

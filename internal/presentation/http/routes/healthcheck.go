@@ -3,7 +3,7 @@ package routes
 import (
 	"net/http"
 
-	"github.com/andreis3/customers-ms/internal/presentation/http/handler/health"
+	"github.com/andreis3/customers-ms/internal/presentation/http/handler"
 	"github.com/andreis3/customers-ms/internal/presentation/http/transport"
 )
 
@@ -18,7 +18,7 @@ func (r *HealthCheck) Routes() transport.RouteType {
 		{
 			Method:      http.MethodGet,
 			Path:        "/health",
-			Handler:     health.HealthCheck(),
+			Handler:     handler.HealthCheck(),
 			Description: "Health Check",
 			Middlewares: []func(http.Handler) http.Handler{},
 		},

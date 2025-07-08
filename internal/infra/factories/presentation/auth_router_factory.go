@@ -9,9 +9,9 @@ import (
 	"github.com/andreis3/customers-ms/internal/infra/adapters/jwt"
 	"github.com/andreis3/customers-ms/internal/infra/configs"
 	"github.com/andreis3/customers-ms/internal/infra/factories/app"
+	"github.com/andreis3/customers-ms/internal/presentation/http/handler"
 
 	"github.com/andreis3/customers-ms/internal/infra/repositories/postgres/repository"
-	"github.com/andreis3/customers-ms/internal/presentation/http/handler/login"
 	"github.com/andreis3/customers-ms/internal/presentation/http/routes"
 )
 
@@ -22,6 +22,6 @@ func MakeAuthRouter(connPostgres *postegres.Postgres, log commons.Logger, promet
 	authService := services.NewAuthService(tokenService)
 	bcrypt := crypto.NewBcrypt()
 	commands := app.NewAuthenticateCustomerFactory(log, customerRepository, authService, bcrypt, tracer)
-	authHandler := login.NewGenerateTokenHandler(log, prometheus, tracer, commands)
+	authHandler := handler.NewGenerateTokenHandler(log, prometheus, tracer, commands)
 	return routes.NewLoginRoutes(log, authHandler, tracer)
 }

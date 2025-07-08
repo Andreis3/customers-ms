@@ -5,20 +5,20 @@ import (
 
 	"github.com/andreis3/customers-ms/internal/domain/interfaces/adapter"
 	"github.com/andreis3/customers-ms/internal/domain/interfaces/commons"
-	"github.com/andreis3/customers-ms/internal/presentation/http/handler/login"
+	"github.com/andreis3/customers-ms/internal/presentation/http/handler"
 	"github.com/andreis3/customers-ms/internal/presentation/http/middlewares"
 	"github.com/andreis3/customers-ms/internal/presentation/http/transport"
 )
 
 type LoginRoutes struct {
 	log         commons.Logger
-	authHandler login.GenerateTokenHandler
+	authHandler handler.GenerateTokenHandler
 	tracer      adapter.Tracer
 }
 
 func NewLoginRoutes(
 	log commons.Logger,
-	authHandler login.GenerateTokenHandler,
+	authHandler handler.GenerateTokenHandler,
 	tracer adapter.Tracer,
 ) *LoginRoutes {
 	return &LoginRoutes{
