@@ -2,8 +2,7 @@ package input
 
 import (
 	"github.com/andreis3/customers-ms/internal/domain/aggregate"
-	"github.com/andreis3/customers-ms/internal/domain/entity/address"
-	"github.com/andreis3/customers-ms/internal/domain/entity/customer"
+	"github.com/andreis3/customers-ms/internal/domain/entity"
 	"github.com/andreis3/customers-ms/internal/util"
 )
 
@@ -18,7 +17,7 @@ type CreatedCustomerDTO struct {
 }
 
 func (c *CreatedCustomerDTO) MapperToAggregate() aggregate.CustomerProfile {
-	customer := customer.NewBuilder().
+	customer := entity.BuilderCustomer().
 		WithEmail(c.Email).
 		WithPassword(c.Password).
 		WithFirstName(c.FirstName).
@@ -27,7 +26,7 @@ func (c *CreatedCustomerDTO) MapperToAggregate() aggregate.CustomerProfile {
 		WithDateOfBirth(c.DateOfBirth.Time).
 		Build()
 
-	var addresses []address.Address
+	var addresses []entity.Address
 
 	if len(c.Addresses) > 0 {
 		for _, a := range c.Addresses {

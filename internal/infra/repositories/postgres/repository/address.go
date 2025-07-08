@@ -6,7 +6,7 @@ import (
 
 	"github.com/jackc/pgx/v5"
 
-	"github.com/andreis3/customers-ms/internal/domain/entity/address"
+	"github.com/andreis3/customers-ms/internal/domain/entity"
 	"github.com/andreis3/customers-ms/internal/domain/errors"
 	"github.com/andreis3/customers-ms/internal/domain/interfaces/adapter"
 	"github.com/andreis3/customers-ms/internal/infra/adapters/db/postegres"
@@ -32,7 +32,7 @@ func NewAddressRepository(
 	}
 }
 
-func (c *AddressRepository) InsertBatchAddress(ctx context.Context, customerID int64, addresses []address.Address) (*[]address.Address, *errors.Error) {
+func (c *AddressRepository) InsertBatchAddress(ctx context.Context, customerID int64, addresses []entity.Address) (*[]entity.Address, *errors.Error) {
 	ctx, span := c.tracer.Start(ctx, "AddressRepository.InsertBatchAddress")
 	start := time.Now()
 
@@ -71,7 +71,7 @@ func (c *AddressRepository) InsertBatchAddress(ctx context.Context, customerID i
 	br := db.SendBatch(ctx, batch)
 	defer br.Close()
 
-	addressesResult := make([]address.Address, 0, len(addresses))
+	addressesResult := make([]entity.Address, 0, len(addresses))
 
 	for _, address := range addresses {
 

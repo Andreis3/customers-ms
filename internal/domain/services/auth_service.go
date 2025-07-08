@@ -1,7 +1,7 @@
 package services
 
 import (
-	"github.com/andreis3/customers-ms/internal/domain/entity/customer"
+	"github.com/andreis3/customers-ms/internal/domain/entity"
 	"github.com/andreis3/customers-ms/internal/domain/errors"
 	"github.com/andreis3/customers-ms/internal/domain/interfaces/adapter"
 	valueobject "github.com/andreis3/customers-ms/internal/domain/value-object"
@@ -19,7 +19,7 @@ func NewAuthService(
 	}
 }
 
-func (a *AuthService) GenerateToken(customer customer.Customer) (*valueobject.TokenClaims, *errors.Error) {
+func (a *AuthService) GenerateToken(customer entity.Customer) (*valueobject.TokenClaims, *errors.Error) {
 	return a.tokenService.CreateToken(customer)
 }
 

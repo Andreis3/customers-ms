@@ -4,7 +4,7 @@ import (
 	"context"
 	"time"
 
-	"github.com/andreis3/customers-ms/internal/domain/entity/customer"
+	"github.com/andreis3/customers-ms/internal/domain/entity"
 	"github.com/andreis3/customers-ms/internal/domain/errors"
 	"github.com/andreis3/customers-ms/internal/domain/interfaces/adapter"
 	"github.com/andreis3/customers-ms/internal/infra/adapters/db/postegres"
@@ -30,7 +30,7 @@ func NewCustomerRepository(
 	}
 }
 
-func (c *CustomerRepository) InsertCustomer(ctx context.Context, data customer.Customer) (*customer.Customer, *errors.Error) {
+func (c *CustomerRepository) InsertCustomer(ctx context.Context, data entity.Customer) (*entity.Customer, *errors.Error) {
 	ctx, span := c.tracer.Start(ctx, "CustomerRepository.InsertCustomer")
 	start := time.Now()
 	defer func() {
@@ -73,7 +73,7 @@ func (c *CustomerRepository) InsertCustomer(ctx context.Context, data customer.C
 	return &result, nil
 }
 
-func (c *CustomerRepository) FindCustomerByEmail(ctx context.Context, email string) (*customer.Customer, *errors.Error) {
+func (c *CustomerRepository) FindCustomerByEmail(ctx context.Context, email string) (*entity.Customer, *errors.Error) {
 	ctx, span := c.tracer.Start(ctx, "CustomerRepository.FindCustomerByEmail")
 	start := time.Now()
 

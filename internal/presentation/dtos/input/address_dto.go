@@ -1,6 +1,8 @@
 package input
 
-import "github.com/andreis3/customers-ms/internal/domain/entity/address"
+import (
+	"github.com/andreis3/customers-ms/internal/domain/entity"
+)
 
 type AddressDTO struct {
 	Street     string `json:"street"`
@@ -12,8 +14,8 @@ type AddressDTO struct {
 	Country    string `json:"country"`
 }
 
-func (a *AddressDTO) MapperToAggregate() address.Address {
-	return address.NewBuilder().
+func (a *AddressDTO) MapperToAggregate() entity.Address {
+	return entity.BuilderAddress().
 		WithStreet(a.Street).
 		WithNumber(a.Number).
 		WithComplement(a.Complement).

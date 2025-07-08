@@ -10,7 +10,7 @@ import (
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
 
-	"github.com/andreis3/customers-ms/internal/domain/entity/customer"
+	"github.com/andreis3/customers-ms/internal/domain/entity"
 	"github.com/andreis3/customers-ms/internal/domain/validator"
 )
 
@@ -18,7 +18,7 @@ var _ = Describe("INTERNAL :: DOMAIN :: ENTITY :: CUSTOMER", func() {
 	Describe("#Validate", func() {
 		Context("success cases", func() {
 			It("should not return an error when build new customer", func() {
-				entity := customer.NewBuilder().
+				entity := entity.BuilderCustomer().
 					WithID(123).
 					WithEmail("any_email").
 					WithPassword("any_password").
@@ -38,7 +38,7 @@ var _ = Describe("INTERNAL :: DOMAIN :: ENTITY :: CUSTOMER", func() {
 
 		Context("error cases", func() {
 			It("should return an error when customer is empty", func() {
-				entity := customer.NewBuilder().Build()
+				entity := entity.BuilderCustomer().Build()
 
 				validate := entity.Validate()
 

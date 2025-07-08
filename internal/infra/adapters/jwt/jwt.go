@@ -5,7 +5,7 @@ import (
 
 	"github.com/golang-jwt/jwt/v5"
 
-	"github.com/andreis3/customers-ms/internal/domain/entity/customer"
+	"github.com/andreis3/customers-ms/internal/domain/entity"
 	"github.com/andreis3/customers-ms/internal/domain/errors"
 	valueobject "github.com/andreis3/customers-ms/internal/domain/value-object"
 	"github.com/andreis3/customers-ms/internal/infra/configs"
@@ -23,7 +23,7 @@ func NewJWT(conf *configs.Configs) *JWT {
 	}
 }
 
-func (j *JWT) CreateToken(customer customer.Customer) (*valueobject.TokenClaims, *errors.Error) {
+func (j *JWT) CreateToken(customer entity.Customer) (*valueobject.TokenClaims, *errors.Error) {
 	claims := j.createJWTMapClaims(customer)
 
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
@@ -108,7 +108,7 @@ func (j *JWT) parseToken(tokenString string) (*valueobject.TokenClaims, *errors.
 	}, nil
 }
 
-func (j *JWT) createTokenClaims(customer customer.Customer, tokenString string) valueobject.TokenClaims {
+func (j *JWT) createTokenClaims(customer entity.Customer, tokenString string) valueobject.TokenClaims {
 	return valueobject.TokenClaims{
 		CustomerID: customer.ID(),
 		FullName:   customer.FullName(),
@@ -118,7 +118,7 @@ func (j *JWT) createTokenClaims(customer customer.Customer, tokenString string) 
 	}
 }
 
-func (j *JWT) createJWTMapClaims(customer customer.Customer) jwt.MapClaims {
+func (j *JWT) createJWTMapClaims(customer entity.Customer) jwt.MapClaims {
 	now := time.Now()
 	return jwt.MapClaims{
 		"customer_id": customer.ID(),

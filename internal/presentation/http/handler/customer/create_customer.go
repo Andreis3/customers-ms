@@ -35,10 +35,15 @@ func NewCreateCustomerHandler(
 }
 
 func (h *CreateCustomerHandler) Handle(w http.ResponseWriter, r *http.Request) {
-	ctx, span := h.tracer.Start(r.Context(), "CreateCustomerHandler.Handle")
-	defer span.End()
 	start := time.Now()
+	var end time.Duration
+	ctx, span := h.tracer.Start(r.Context(), "CreateCustomerHandler.Handle")
 	traceID := span.SpanContext().TraceID()
+	defer func() {
+		end = time.Since(start)
+		h.log.InfoJSON("end request", slog.String("trace_id", traceID), slog.Float64("duration", float64(end.Milliseconds())))
+		span.End()
+	}()
 
 	data, err := transport.DecoderBodyRequest[input.CreatedCustomerDTO](r)
 	if err != nil {
@@ -51,8 +56,7 @@ func (h *CreateCustomerHandler) Handle(w http.ResponseWriter, r *http.Request) {
 	}
 
 	res, err := h.command.Execute(ctx, data.MapperToAggregate())
-	end := time.Since(start)
-	h.log.InfoJSON("end request", slog.String("trace_id", traceID), slog.Float64("duration", float64(end.Milliseconds())))
+
 	if err != nil {
 		span.RecordError(err)
 		h.log.ErrorJSON("failed execute create customer command",

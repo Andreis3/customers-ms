@@ -3,7 +3,7 @@ package model
 import (
 	"time"
 
-	"github.com/andreis3/customers-ms/internal/domain/entity/customer"
+	"github.com/andreis3/customers-ms/internal/domain/entity"
 	"github.com/andreis3/customers-ms/internal/infra/commons/pointers"
 )
 
@@ -19,8 +19,8 @@ type Customer struct {
 	UpdatedAT   *time.Time
 }
 
-func (c Customer) ToEntity() customer.Customer {
-	return customer.NewBuilder().
+func (c Customer) ToEntity() entity.Customer {
+	return entity.BuilderCustomer().
 		WithID(pointers.ToInt64(c.ID)).
 		WithEmail(pointers.ToString(c.Email)).
 		WithPassword(pointers.ToString(c.Password)).
@@ -33,7 +33,7 @@ func (c Customer) ToEntity() customer.Customer {
 		Build()
 }
 
-func (c Customer) FromModel(customer customer.Customer) *Customer {
+func (c Customer) FromModel(customer entity.Customer) *Customer {
 	dateNow := time.Now()
 	return &Customer{
 		Email:       pointers.ToStringPointer(customer.Email()),

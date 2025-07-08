@@ -21,13 +21,41 @@ func NewLogger() *Logger {
 	o := os.Stdout
 	loggerJSON := slog.New(slog.NewJSONHandler(o, &slog.HandlerOptions{
 		Level: slog.LevelDebug,
+		ReplaceAttr: func(groups []string, a slog.Attr) slog.Attr {
+			if a.Key == slog.LevelKey {
+				switch a.Value.Any().(type) {
+				case slog.Level:
+					level := a.Value.Any().(slog.Level)
+					switch level {
+					case LevelCritical:
+						a.Value = slog.StringValue("CRITICAL")
+					case slog.LevelDebug:
+						a.Value = slog.StringValue("DEBUG")
+					case slog.LevelInfo:
+						a.Value = slog.StringValue("INFO")
+					case slog.LevelWarn:
+						a.Value = slog.StringValue("WARN")
+					case slog.LevelError:
+						a.Value = slog.StringValue("ERROR")
+					default:
+						a.Value = slog.StringValue(level.String())
+					}
+				}
+			}
+
+			if a.Key == slog.TimeKey {
+				format := "01-02-2006 15:04:05.000"
+				a.Value = slog.StringValue(time.Now().Format(format))
+			}
+			return a
+		},
 	}))
 
 	e := os.Stderr
 	loggerText := slog.New(
 		tint.NewHandler(e, &tint.Options{
 			Level:      slog.LevelDebug,
-			TimeFormat: time.DateTime,
+			TimeFormat: "01-02-2006 15:04:05.000",
 			NoColor:    false,
 			ReplaceAttr: func(groups []string, a slog.Attr) slog.Attr {
 				if a.Key == "password" {

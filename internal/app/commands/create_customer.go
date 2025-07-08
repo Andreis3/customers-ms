@@ -5,7 +5,7 @@ import (
 	"log/slog"
 
 	"github.com/andreis3/customers-ms/internal/domain/aggregate"
-	"github.com/andreis3/customers-ms/internal/domain/entity/customer"
+	"github.com/andreis3/customers-ms/internal/domain/entity"
 	"github.com/andreis3/customers-ms/internal/domain/errors"
 	"github.com/andreis3/customers-ms/internal/domain/interfaces/adapter"
 	"github.com/andreis3/customers-ms/internal/domain/interfaces/commons"
@@ -44,7 +44,7 @@ func NewCreateCustomer(
 	}
 }
 
-func (c *CreateCustomerCommand) Execute(ctx context.Context, input aggregate.CustomerProfile) (*customer.Customer, *errors.Error) {
+func (c *CreateCustomerCommand) Execute(ctx context.Context, input aggregate.CustomerProfile) (*entity.Customer, *errors.Error) {
 	ctx, span := c.tracer.Start(ctx, "CreatedCustomer.Execute")
 	defer span.End()
 	traceID := span.SpanContext().TraceID()
@@ -70,7 +70,7 @@ func (c *CreateCustomerCommand) Execute(ctx context.Context, input aggregate.Cus
 		return nil, errors.ErrCustomerAlreadyExists()
 	}
 
-	var customerResult *customer.Customer
+	var customerResult *entity.Customer
 	uowInstance := c.uow(ctx)
 
 	errUow := uowInstance.Do(ctx, func(ctxUow context.Context) *errors.Error {

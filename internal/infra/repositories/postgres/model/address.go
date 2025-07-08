@@ -3,7 +3,7 @@ package model
 import (
 	"time"
 
-	"github.com/andreis3/customers-ms/internal/domain/entity/address"
+	"github.com/andreis3/customers-ms/internal/domain/entity"
 	"github.com/andreis3/customers-ms/internal/infra/commons/pointers"
 )
 
@@ -21,8 +21,8 @@ type Address struct {
 	UpdatedAt  *time.Time
 }
 
-func (a Address) ToEntity() address.Address {
-	return address.NewBuilder().
+func (a Address) ToEntity() entity.Address {
+	return entity.BuilderAddress().
 		WithID(pointers.ToInt64(a.ID)).
 		WithCustomerID(pointers.ToInt64(a.CustomerID)).
 		WithStreet(pointers.ToString(a.Street)).
@@ -37,7 +37,7 @@ func (a Address) ToEntity() address.Address {
 		Build()
 }
 
-func (a Address) FromModel(entity address.Address) *Address {
+func (a Address) FromModel(entity entity.Address) *Address {
 	dateNow := time.Now()
 	return &Address{
 		CustomerID: pointers.ToInt64Pointer(entity.CustomerID()),
