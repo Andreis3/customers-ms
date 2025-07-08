@@ -3,9 +3,9 @@ package main
 import (
 	"os"
 
-	"github.com/andreis3/customers-ms/internal/di"
 	"github.com/andreis3/customers-ms/internal/infra/commons/logger"
 	"github.com/andreis3/customers-ms/internal/infra/configs"
+	"github.com/andreis3/customers-ms/internal/infra/server"
 )
 
 func main() {
@@ -17,9 +17,9 @@ func main() {
 		os.Exit(1)
 	}
 
-	srv := di.InitializeServer(conf, *log)
+	server := server.NewServer(conf, *log)
 
-	go srv.Start()
+	go server.Start()
 
-	srv.GracefulShutdown()
+	server.GracefulShutdown()
 }
