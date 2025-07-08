@@ -5,7 +5,7 @@ import (
 
 	"github.com/andreis3/customers-ms/internal/infra/commons/logger"
 	"github.com/andreis3/customers-ms/internal/infra/configs"
-	"github.com/andreis3/customers-ms/internal/infra/server"
+	"github.com/andreis3/customers-ms/internal/infra/server/web"
 )
 
 func main() {
@@ -17,9 +17,9 @@ func main() {
 		os.Exit(1)
 	}
 
-	server := server.NewServer(conf, *log)
+	serverWeb := web.NewServer(conf, *log)
 
-	go server.Start()
+	go serverWeb.Start()
 
-	server.GracefulShutdown()
+	serverWeb.GracefulShutdown()
 }
