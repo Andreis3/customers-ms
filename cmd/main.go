@@ -3,7 +3,7 @@ package main
 import (
 	"os"
 
-	"github.com/andreis3/customers-ms/internal/infra/commons/logger"
+	"github.com/andreis3/customers-ms/internal/infra/adapters/logger"
 	"github.com/andreis3/customers-ms/internal/infra/configs"
 	"github.com/andreis3/customers-ms/internal/infra/server/web"
 )

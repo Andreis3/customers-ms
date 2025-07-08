@@ -15,8 +15,8 @@ import (
 
 	"github.com/andreis3/customers-ms/internal/domain/interfaces/adapter"
 	"github.com/andreis3/customers-ms/internal/infra/adapters/db/postegres"
+	"github.com/andreis3/customers-ms/internal/infra/adapters/logger"
 	"github.com/andreis3/customers-ms/internal/infra/adapters/observability"
-	"github.com/andreis3/customers-ms/internal/infra/commons/logger"
 	"github.com/andreis3/customers-ms/internal/infra/configs"
 	"github.com/andreis3/customers-ms/internal/infra/server/web/routes"
 	"github.com/andreis3/customers-ms/internal/util"
