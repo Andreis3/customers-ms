@@ -5,7 +5,7 @@ import (
 	"net/http"
 
 	"github.com/andreis3/customers-ms/internal/domain/errors"
-	"github.com/andreis3/customers-ms/internal/presentation/dictionary"
+	"github.com/andreis3/customers-ms/internal/presentation/translator"
 )
 
 const (
@@ -26,14 +26,12 @@ type TypeResponseSuccess struct {
 func ResponseSuccess[T any](write http.ResponseWriter, status int, data T) {
 	write.Header().Set(ContentType, ApplicationJSON)
 	write.WriteHeader(status)
-	result := TypeResponseSuccess{
-		Data: data,
-	}
+	result := data
 	_ = json.NewEncoder(write).Encode(result)
 }
 
-func ResponseError[T any](write http.ResponseWriter, err *errors.Error) {
-	status := dictionary.ErrorDictionary[err.Code].HTTPStatus
+func ResponseError(write http.ResponseWriter, err *errors.Error) {
+	status := translator.ErrorTranslator[err.Code].HTTPStatus
 	write.Header().Set(ContentType, ApplicationJSON)
 	write.WriteHeader(status)
 

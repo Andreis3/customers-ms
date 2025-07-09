@@ -3,18 +3,17 @@ package aggregate
 import (
 	"fmt"
 
-	"github.com/andreis3/customers-ms/internal/domain/entity/address"
-	"github.com/andreis3/customers-ms/internal/domain/entity/customer"
+	"github.com/andreis3/customers-ms/internal/domain/entity"
 	"github.com/andreis3/customers-ms/internal/domain/errors"
 	"github.com/andreis3/customers-ms/internal/domain/validator"
 )
 
 type CustomerProfile struct {
-	Customer  customer.Customer
-	Addresses []address.Address
+	Customer  entity.Customer
+	Addresses []entity.Address
 }
 
-func NewCustomerProfile(custome customer.Customer, addresses []address.Address) *CustomerProfile {
+func NewCustomerProfile(custome entity.Customer, addresses []entity.Address) *CustomerProfile {
 	userProfile := &CustomerProfile{
 		Customer:  custome,
 		Addresses: addresses,

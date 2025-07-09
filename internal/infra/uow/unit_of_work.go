@@ -8,7 +8,7 @@ import (
 
 	"github.com/andreis3/customers-ms/internal/domain/errors"
 	"github.com/andreis3/customers-ms/internal/domain/interfaces/adapter"
-	"github.com/andreis3/customers-ms/internal/infra/adapters/db/postegres"
+	"github.com/andreis3/customers-ms/internal/infra/adapters/db"
 )
 
 type UnitOfWork struct {
@@ -48,7 +48,7 @@ func (u *UnitOfWork) Do(ctx context.Context, fn func(ctx context.Context) *error
 
 	defer func() { u.TX = nil }()
 	u.TX = tx
-	ctxTx := postegres.WithTx(ctx, tx)
+	ctxTx := db.WithTx(ctx, tx)
 
 	if err := fn(ctxTx); err != nil {
 		rollbackErr := u.TX.Rollback(ctx)
