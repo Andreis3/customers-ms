@@ -4,7 +4,8 @@ import (
 	"context"
 	"log/slog"
 
-	"github.com/andreis3/customers-ms/internal/domain/aggregate"
+	"github.com/andreis3/customers-ms/internal/app/dto"
+	"github.com/andreis3/customers-ms/internal/app/mapper"
 	"github.com/andreis3/customers-ms/internal/domain/entity"
 	"github.com/andreis3/customers-ms/internal/domain/errors"
 	"github.com/andreis3/customers-ms/internal/domain/interfaces/adapter"
@@ -43,15 +44,16 @@ func NewCreateCustomer(
 	}
 }
 
-func (c *CreateCustomerCommand) Execute(ctx context.Context, input aggregate.CustomerProfile) (*entity.Customer, *errors.Error) {
+func (c *CreateCustomerCommand) Execute(ctx context.Context, input dto.CreateCustomerInput) (*entity.Customer, *errors.Error) {
 	ctx, span := c.tracer.Start(ctx, "CreatedCustomer.Execute")
+	customerProfile := mapper.ToCustomerProfile(input)
 	defer span.End()
 	traceID := span.SpanContext().TraceID()
 	c.log.InfoJSON("Received input to create CreateCustomer",
 		slog.String("trace_id", traceID),
 		slog.Any("input", input))
 
-	err := input.Validate()
+	err := customerProfile.Validate()
 	if err != nil {
 		span.RecordError(err)
 		c.log.ErrorJSON("Failed validate input to create CreateCustomer",
@@ -60,20 +62,20 @@ func (c *CreateCustomerCommand) Execute(ctx context.Context, input aggregate.Cus
 		return nil, err
 	}
 
-	customerAlreadyExists := c.customerService.ExistCustomerByEmail(ctx, input.Customer.Email())
-	if customerAlreadyExists {
-		span.RecordError(errors.ErrCustomerAlreadyExists())
-		c.log.ErrorJSON("Customer already exists",
-			slog.String("trace_id", traceID),
-			slog.Any("error", errors.ErrCustomerAlreadyExists))
-		return nil, errors.ErrCustomerAlreadyExists()
-	}
+	//customerAlreadyExists := c.customerService.ExistCustomerByEmail(ctx, customerProfile.Customer.Email())
+	//if customerAlreadyExists {
+	//	span.RecordError(errors.ErrCustomerAlreadyExists())
+	//	c.log.ErrorJSON("Customer already exists",
+	//		slog.String("trace_id", traceID),
+	//		slog.Any("error", errors.ErrCustomerAlreadyExists))
+	//	return nil, errors.ErrCustomerAlreadyExists()
+	//}
 
 	var customerResult *entity.Customer
 	uowInstance := c.uow(ctx)
 
 	errUow := uowInstance.Do(ctx, func(ctxUow context.Context) *errors.Error {
-		hash, err := c.bcrypt.Hash(input.Customer.Password())
+		hash, err := c.bcrypt.Hash(customerProfile.Customer.Password())
 		if err != nil {
 			span.RecordError(err)
 			c.log.ErrorJSON("Failed hash password",
@@ -82,9 +84,9 @@ func (c *CreateCustomerCommand) Execute(ctx context.Context, input aggregate.Cus
 			return err
 		}
 
-		input.Customer.AssignHashedPassword(hash)
+		customerProfile.Customer.AssignHashedPassword(hash)
 
-		customerResult, err = c.customerRepository.InsertCustomer(ctxUow, input.Customer)
+		customerResult, err = c.customerRepository.InsertCustomer(ctxUow, customerProfile.Customer)
 		if err != nil {
 			span.RecordError(err)
 			c.log.ErrorJSON("Failed insert customerResult",
@@ -93,8 +95,8 @@ func (c *CreateCustomerCommand) Execute(ctx context.Context, input aggregate.Cus
 			return err
 		}
 
-		if len(input.Addresses) > 0 {
-			_, err = c.addressRepository.InsertBatchAddress(ctxUow, customerResult.ID(), input.Addresses)
+		if len(customerProfile.Addresses) > 0 {
+			_, err = c.addressRepository.InsertBatchAddress(ctxUow, customerResult.ID(), customerProfile.Addresses)
 			if err != nil {
 				span.RecordError(err)
 				c.log.ErrorJSON("Failed insert address",

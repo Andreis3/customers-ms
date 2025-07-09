@@ -4,9 +4,9 @@ import (
 	"context"
 	"log/slog"
 
+	"github.com/andreis3/customers-ms/internal/app/dto"
 	"github.com/andreis3/customers-ms/internal/domain/errors"
 	"github.com/andreis3/customers-ms/internal/domain/interfaces/adapter"
-	"github.com/andreis3/customers-ms/internal/domain/interfaces/command"
 	"github.com/andreis3/customers-ms/internal/domain/interfaces/postgres"
 	"github.com/andreis3/customers-ms/internal/domain/interfaces/service"
 )
@@ -35,7 +35,7 @@ func NewAuthenticateCustomer(
 	}
 }
 
-func (a *Login) Execute(ctx context.Context, input command.LoginInput) (*command.LoginOutput, *errors.Error) {
+func (a *Login) Execute(ctx context.Context, input dto.LoginInput) (*dto.LoginOutput, *errors.Error) {
 	ctx, span := a.tracer.Start(ctx, "Login.Execute")
 	a.log.InfoJSON("Received input to authenticate customer",
 		slog.String("email", input.Email),
@@ -68,7 +68,7 @@ func (a *Login) Execute(ctx context.Context, input command.LoginInput) (*command
 		slog.String("trace_id", traceID),
 		slog.String("token", token.Token))
 
-	output := &command.LoginOutput{
+	output := &dto.LoginOutput{
 		Token:     token.Token,
 		ExpiresAt: token.ExpiresAt.Unix(),
 	}

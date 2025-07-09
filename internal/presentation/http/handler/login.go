@@ -5,9 +5,9 @@ import (
 	"net/http"
 	"time"
 
+	"github.com/andreis3/customers-ms/internal/app/dto"
 	"github.com/andreis3/customers-ms/internal/domain/interfaces/adapter"
 	"github.com/andreis3/customers-ms/internal/domain/interfaces/command"
-	"github.com/andreis3/customers-ms/internal/presentation/dtos/output"
 	"github.com/andreis3/customers-ms/internal/presentation/http/transport"
 )
 
@@ -38,19 +38,14 @@ func (h *GenerateTokenHandler) Handle(w http.ResponseWriter, r *http.Request) {
 	traceID := span.SpanContext().TraceID()
 	defer span.End()
 
-	data, err := transport.DecoderBodyRequest[command.LoginInput](r)
+	input, err := transport.DecoderBodyRequest[dto.LoginInput](r)
 	if err != nil {
 		span.RecordError(err)
 		h.log.ErrorJSON("failed decode request body",
 			slog.String("trace_id", traceID),
 			slog.Any("error", err))
-		transport.ResponseError[any](w, err)
+		transport.ResponseError(w, err)
 		return
-	}
-
-	input := command.LoginInput{
-		Email:    data.Email,
-		Password: data.Password,
 	}
 
 	res, err := h.cmd.Execute(ctx, input)
@@ -61,11 +56,11 @@ func (h *GenerateTokenHandler) Handle(w http.ResponseWriter, r *http.Request) {
 			slog.String("trace_id", traceID),
 			slog.Any("error", err))
 		h.log.InfoJSON("end request", slog.String("trace_id", traceID), slog.Float64("duration", float64(end.Milliseconds())))
-		transport.ResponseError[any](w, err)
+		transport.ResponseError(w, err)
 		return
 	}
 
 	h.prometheus.ObserveRequestDuration("/token", "http", http.StatusCreated, float64(end.Milliseconds()))
 	h.log.InfoJSON("end request", slog.String("trace_id", traceID), slog.Float64("duration", float64(end.Milliseconds())))
-	transport.ResponseSuccess(w, http.StatusCreated, output.TokenOutputMapper(res))
+	transport.ResponseSuccess(w, http.StatusCreated, res)
 }

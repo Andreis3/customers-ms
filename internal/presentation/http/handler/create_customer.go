@@ -5,10 +5,10 @@ import (
 	"net/http"
 	"time"
 
+	"github.com/andreis3/customers-ms/internal/app/dto"
+	"github.com/andreis3/customers-ms/internal/app/mapper"
 	"github.com/andreis3/customers-ms/internal/domain/interfaces/adapter"
 	"github.com/andreis3/customers-ms/internal/domain/interfaces/command"
-	"github.com/andreis3/customers-ms/internal/presentation/dtos/input"
-	"github.com/andreis3/customers-ms/internal/presentation/dtos/output"
 	"github.com/andreis3/customers-ms/internal/presentation/http/transport"
 )
 
@@ -40,31 +40,34 @@ func (h *CreateCustomerHandler) Handle(w http.ResponseWriter, r *http.Request) {
 	traceID := span.SpanContext().TraceID()
 	defer func() {
 		end = time.Since(start)
-		h.log.InfoJSON("end request", slog.String("trace_id", traceID), slog.Float64("duration", float64(end.Milliseconds())))
+		h.log.InfoJSON(
+			"end request",
+			slog.String("trace_id", traceID),
+			slog.Float64("duration", float64(end.Milliseconds())))
 		span.End()
 	}()
 
-	data, err := transport.DecoderBodyRequest[input.CreatedCustomerDTO](r)
+	input, err := transport.DecoderBodyRequest[dto.CreateCustomerInput](r)
 	if err != nil {
 		span.RecordError(err)
 		h.log.ErrorJSON("failed decode request body",
 			slog.String("trace_id", traceID),
 			slog.Any("error", err))
-		transport.ResponseError[any](w, err)
+		transport.ResponseError(w, err)
 		return
 	}
 
-	res, err := h.command.Execute(ctx, data.MapperToAggregate())
+	res, err := h.command.Execute(ctx, input)
 
 	if err != nil {
 		span.RecordError(err)
 		h.log.ErrorJSON("failed execute create customer command",
 			slog.String("trace_id", traceID),
 			slog.Any("error", err))
-		transport.ResponseError[any](w, err)
+		transport.ResponseError(w, err)
 		return
 	}
 
 	h.prometheus.ObserveRequestDuration("/customers", "http", http.StatusCreated, float64(end.Milliseconds()))
-	transport.ResponseSuccess(w, http.StatusCreated, output.CustomerOutputMapper(*res))
+	transport.ResponseSuccess(w, http.StatusCreated, mapper.CustomerOutput(*res))
 }

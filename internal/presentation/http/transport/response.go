@@ -26,13 +26,11 @@ type TypeResponseSuccess struct {
 func ResponseSuccess[T any](write http.ResponseWriter, status int, data T) {
 	write.Header().Set(ContentType, ApplicationJSON)
 	write.WriteHeader(status)
-	result := TypeResponseSuccess{
-		Data: data,
-	}
+	result := data
 	_ = json.NewEncoder(write).Encode(result)
 }
 
-func ResponseError[T any](write http.ResponseWriter, err *errors.Error) {
+func ResponseError(write http.ResponseWriter, err *errors.Error) {
 	status := dictionary.ErrorDictionary[err.Code].HTTPStatus
 	write.Header().Set(ContentType, ApplicationJSON)
 	write.WriteHeader(status)
