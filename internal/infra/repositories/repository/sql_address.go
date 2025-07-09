@@ -10,7 +10,7 @@ import (
 	"github.com/andreis3/customers-ms/internal/domain/errors"
 	"github.com/andreis3/customers-ms/internal/domain/interfaces/adapter"
 	"github.com/andreis3/customers-ms/internal/infra/adapters/db"
-	"github.com/andreis3/customers-ms/internal/infra/repositories/postgres/model"
+	"github.com/andreis3/customers-ms/internal/infra/repositories/model"
 )
 
 type AddressRepository struct {

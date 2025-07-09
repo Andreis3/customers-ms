@@ -6,7 +6,7 @@ import (
 	"github.com/andreis3/customers-ms/internal/infra/adapters/crypto"
 	"github.com/andreis3/customers-ms/internal/infra/adapters/db"
 	"github.com/andreis3/customers-ms/internal/infra/factories/app"
-	"github.com/andreis3/customers-ms/internal/infra/repositories/postgres/repository"
+	"github.com/andreis3/customers-ms/internal/infra/repositories/repository"
 	"github.com/andreis3/customers-ms/internal/presentation/http/handler"
 	"github.com/andreis3/customers-ms/internal/presentation/http/routes"
 )
