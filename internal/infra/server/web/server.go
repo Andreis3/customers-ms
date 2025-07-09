@@ -14,7 +14,7 @@ import (
 	"go.opentelemetry.io/contrib/instrumentation/net/http/otelhttp"
 
 	"github.com/andreis3/customers-ms/internal/domain/interfaces/adapter"
-	"github.com/andreis3/customers-ms/internal/infra/adapters/db/postegres"
+	"github.com/andreis3/customers-ms/internal/infra/adapters/db"
 	"github.com/andreis3/customers-ms/internal/infra/adapters/logger"
 	"github.com/andreis3/customers-ms/internal/infra/adapters/observability"
 	"github.com/andreis3/customers-ms/internal/infra/configs"
@@ -24,7 +24,7 @@ import (
 
 type Server struct {
 	HTTPServer *http.Server
-	Postgres   *postegres.Postgres
+	Postgres   *db.Postgres
 	Log        logger.Logger
 	Prometheus *observability.Prometheus
 	Tracer     adapter.Tracer
@@ -34,7 +34,7 @@ func NewServer(conf *configs.Configs, log logger.Logger) *Server {
 	start := time.Now()
 
 	prometheus := observability.NewPrometheus()
-	pool := postegres.NewPoolConnections(conf, prometheus)
+	pool := db.NewPoolConnections(conf, prometheus)
 
 	tracer, _ := observability.InitOtelTracer(context.Background(), "customers-ms")
 

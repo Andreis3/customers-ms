@@ -5,10 +5,9 @@ import (
 	"net/http"
 
 	"github.com/andreis3/customers-ms/internal/domain/interfaces/adapter"
-	"github.com/andreis3/customers-ms/internal/domain/interfaces/commons"
 )
 
-func LoggingMiddleware(logger commons.Logger, tracer adapter.Tracer) func(http.Handler) http.Handler {
+func LoggingMiddleware(logger adapter.Logger, tracer adapter.Tracer) func(http.Handler) http.Handler {
 	return func(next http.Handler) http.Handler {
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			ctx, span := tracer.Start(r.Context(), "HTTP "+r.Method+" "+r.URL.Path)

@@ -9,19 +9,19 @@ import (
 	"github.com/andreis3/customers-ms/internal/domain/entity"
 	"github.com/andreis3/customers-ms/internal/domain/errors"
 	"github.com/andreis3/customers-ms/internal/domain/interfaces/adapter"
-	"github.com/andreis3/customers-ms/internal/infra/adapters/db/postegres"
+	"github.com/andreis3/customers-ms/internal/infra/adapters/db"
 	"github.com/andreis3/customers-ms/internal/infra/repositories/postgres/model"
 )
 
 type AddressRepository struct {
-	DB      adapter.InstructionPostgres
+	DB      adapter.Postgres
 	metrics adapter.Prometheus
 	model.Address
 	tracer adapter.Tracer
 }
 
 func NewAddressRepository(
-	db adapter.InstructionPostgres,
+	db adapter.Postgres,
 	metrics adapter.Prometheus,
 	tracer adapter.Tracer,
 ) *AddressRepository {
@@ -88,8 +88,8 @@ func (c *AddressRepository) InsertBatchAddress(ctx context.Context, customerID i
 	return &addressesResult, nil
 }
 
-func (c *AddressRepository) resolveDB(ctx context.Context) adapter.InstructionPostgres {
-	if tx, ok := postegres.TxFromContext(ctx); ok {
+func (c *AddressRepository) resolveDB(ctx context.Context) adapter.Postgres {
+	if tx, ok := db.TxFromContext(ctx); ok {
 		return tx
 	}
 	return c.DB

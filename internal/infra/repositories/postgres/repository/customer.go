@@ -7,19 +7,19 @@ import (
 	"github.com/andreis3/customers-ms/internal/domain/entity"
 	"github.com/andreis3/customers-ms/internal/domain/errors"
 	"github.com/andreis3/customers-ms/internal/domain/interfaces/adapter"
-	"github.com/andreis3/customers-ms/internal/infra/adapters/db/postegres"
+	"github.com/andreis3/customers-ms/internal/infra/adapters/db"
 	"github.com/andreis3/customers-ms/internal/infra/repositories/postgres/model"
 )
 
 type CustomerRepository struct {
-	DB      adapter.InstructionPostgres
+	DB      adapter.Postgres
 	metrics adapter.Prometheus
 	model.Customer
 	tracer adapter.Tracer
 }
 
 func NewCustomerRepository(
-	db adapter.InstructionPostgres,
+	db adapter.Postgres,
 	metrics adapter.Prometheus,
 	tracer adapter.Tracer,
 ) *CustomerRepository {
@@ -125,8 +125,8 @@ func (c *CustomerRepository) FindCustomerByEmail(ctx context.Context, email stri
 	return &result, nil
 }
 
-func (c *CustomerRepository) resolveDB(ctx context.Context) adapter.InstructionPostgres {
-	if tx, ok := postegres.TxFromContext(ctx); ok {
+func (c *CustomerRepository) resolveDB(ctx context.Context) adapter.Postgres {
+	if tx, ok := db.TxFromContext(ctx); ok {
 		return tx
 	}
 	return c.DB

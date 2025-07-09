@@ -7,20 +7,19 @@ import (
 
 	"github.com/andreis3/customers-ms/internal/domain/interfaces/adapter"
 	"github.com/andreis3/customers-ms/internal/domain/interfaces/command"
-	"github.com/andreis3/customers-ms/internal/domain/interfaces/commons"
 	"github.com/andreis3/customers-ms/internal/presentation/dtos/output"
 	"github.com/andreis3/customers-ms/internal/presentation/http/transport"
 )
 
 type GenerateTokenHandler struct {
-	log        commons.Logger
+	log        adapter.Logger
 	prometheus adapter.Prometheus
 	cmd        command.Login
 	tracer     adapter.Tracer
 }
 
 func NewGenerateTokenHandler(
-	log commons.Logger,
+	log adapter.Logger,
 	prometheus adapter.Prometheus,
 	tracer adapter.Tracer,
 	cmd command.Login,

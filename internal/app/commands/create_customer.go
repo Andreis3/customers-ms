@@ -8,7 +8,6 @@ import (
 	"github.com/andreis3/customers-ms/internal/domain/entity"
 	"github.com/andreis3/customers-ms/internal/domain/errors"
 	"github.com/andreis3/customers-ms/internal/domain/interfaces/adapter"
-	"github.com/andreis3/customers-ms/internal/domain/interfaces/commons"
 	"github.com/andreis3/customers-ms/internal/domain/interfaces/postgres"
 	"github.com/andreis3/customers-ms/internal/domain/interfaces/service"
 	"github.com/andreis3/customers-ms/internal/domain/interfaces/uow"
@@ -17,7 +16,7 @@ import (
 type CreateCustomerCommand struct {
 	uow                func(ctx context.Context) uow.UnitOfWork
 	bcrypt             adapter.Bcrypt
-	log                commons.Logger
+	log                adapter.Logger
 	customerRepository postgres.CustomerRepository
 	addressRepository  postgres.AddressRepository
 	customerService    service.CustomerService
@@ -27,7 +26,7 @@ type CreateCustomerCommand struct {
 func NewCreateCustomer(
 	uow func(ctx context.Context) uow.UnitOfWork,
 	bcrypt adapter.Bcrypt,
-	log commons.Logger,
+	log adapter.Logger,
 	customerService service.CustomerService,
 	customerRepository postgres.CustomerRepository,
 	addressRepository postgres.AddressRepository,

@@ -4,20 +4,19 @@ import (
 	"net/http"
 
 	"github.com/andreis3/customers-ms/internal/domain/interfaces/adapter"
-	"github.com/andreis3/customers-ms/internal/domain/interfaces/commons"
 	"github.com/andreis3/customers-ms/internal/presentation/http/handler"
 	"github.com/andreis3/customers-ms/internal/presentation/http/middlewares"
 	"github.com/andreis3/customers-ms/internal/presentation/http/transport"
 )
 
 type LoginRoutes struct {
-	log         commons.Logger
+	log         adapter.Logger
 	authHandler handler.GenerateTokenHandler
 	tracer      adapter.Tracer
 }
 
 func NewLoginRoutes(
-	log commons.Logger,
+	log adapter.Logger,
 	authHandler handler.GenerateTokenHandler,
 	tracer adapter.Tracer,
 ) *LoginRoutes {

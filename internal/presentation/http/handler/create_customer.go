@@ -7,7 +7,6 @@ import (
 
 	"github.com/andreis3/customers-ms/internal/domain/interfaces/adapter"
 	"github.com/andreis3/customers-ms/internal/domain/interfaces/command"
-	"github.com/andreis3/customers-ms/internal/domain/interfaces/commons"
 	"github.com/andreis3/customers-ms/internal/presentation/dtos/input"
 	"github.com/andreis3/customers-ms/internal/presentation/dtos/output"
 	"github.com/andreis3/customers-ms/internal/presentation/http/transport"
@@ -15,7 +14,7 @@ import (
 
 type CreateCustomerHandler struct {
 	command    command.CreateCustomer
-	log        commons.Logger
+	log        adapter.Logger
 	prometheus adapter.Prometheus
 	tracer     adapter.Tracer
 }
@@ -23,7 +22,7 @@ type CreateCustomerHandler struct {
 func NewCreateCustomerHandler(
 	cmd command.CreateCustomer,
 	prometheus adapter.Prometheus,
-	log commons.Logger,
+	log adapter.Logger,
 	tracer adapter.Tracer,
 ) CreateCustomerHandler {
 	return CreateCustomerHandler{

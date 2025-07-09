@@ -1,4 +1,4 @@
-package pointers
+package util
 
 import "time"
 

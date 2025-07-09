@@ -4,7 +4,7 @@ import (
 	"time"
 
 	"github.com/andreis3/customers-ms/internal/domain/entity"
-	"github.com/andreis3/customers-ms/internal/infra/commons/pointers"
+	"github.com/andreis3/customers-ms/internal/util"
 )
 
 type Customer struct {
@@ -21,28 +21,28 @@ type Customer struct {
 
 func (c Customer) ToEntity() entity.Customer {
 	return entity.BuilderCustomer().
-		WithID(pointers.ToInt64(c.ID)).
-		WithEmail(pointers.ToString(c.Email)).
-		WithPassword(pointers.ToString(c.Password)).
-		WithFirstName(pointers.ToString(c.FirstName)).
-		WithLastName(pointers.ToString(c.LastName)).
-		WithCPF(pointers.ToString(c.CPF)).
-		WithDateOfBirth(pointers.ToTime(c.DateOfBirth)).
-		WithCreatedAt(pointers.ToTime(c.CreatedAT)).
-		WithUpdatedAt(pointers.ToTime(c.UpdatedAT)).
+		WithID(util.ToInt64(c.ID)).
+		WithEmail(util.ToString(c.Email)).
+		WithPassword(util.ToString(c.Password)).
+		WithFirstName(util.ToString(c.FirstName)).
+		WithLastName(util.ToString(c.LastName)).
+		WithCPF(util.ToString(c.CPF)).
+		WithDateOfBirth(util.ToTime(c.DateOfBirth)).
+		WithCreatedAt(util.ToTime(c.CreatedAT)).
+		WithUpdatedAt(util.ToTime(c.UpdatedAT)).
 		Build()
 }
 
 func (c Customer) FromModel(customer entity.Customer) *Customer {
 	dateNow := time.Now()
 	return &Customer{
-		Email:       pointers.ToStringPointer(customer.Email()),
-		Password:    pointers.ToStringPointer(customer.Password()),
-		FirstName:   pointers.ToStringPointer(customer.FirstName()),
-		LastName:    pointers.ToStringPointer(customer.LastName()),
-		CPF:         pointers.ToStringPointer(customer.CPF()),
-		DateOfBirth: pointers.ToTimePointer(customer.DateOfBirth()),
-		CreatedAT:   pointers.ToTimePointer(dateNow),
-		UpdatedAT:   pointers.ToTimePointer(dateNow),
+		Email:       util.ToStringPointer(customer.Email()),
+		Password:    util.ToStringPointer(customer.Password()),
+		FirstName:   util.ToStringPointer(customer.FirstName()),
+		LastName:    util.ToStringPointer(customer.LastName()),
+		CPF:         util.ToStringPointer(customer.CPF()),
+		DateOfBirth: util.ToTimePointer(customer.DateOfBirth()),
+		CreatedAT:   util.ToTimePointer(dateNow),
+		UpdatedAT:   util.ToTimePointer(dateNow),
 	}
 }

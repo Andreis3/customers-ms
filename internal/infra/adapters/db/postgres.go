@@ -1,4 +1,4 @@
-package postegres
+package db
 
 import (
 	"context"
@@ -96,12 +96,4 @@ func (p *Postgres) QueryRow(ctx context.Context, sql string, args ...any) pgx.Ro
 
 func (p *Postgres) SendBatch(ctx context.Context, b *pgx.Batch) pgx.BatchResults {
 	return p.Pool.SendBatch(ctx, b)
-}
-
-type Queries struct {
-	adapter.InstructionPostgres
-}
-
-func New(db adapter.InstructionPostgres) *Queries {
-	return &Queries{db}
 }

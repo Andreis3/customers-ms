@@ -4,7 +4,6 @@ import (
 	"net/http"
 
 	"github.com/andreis3/customers-ms/internal/domain/interfaces/adapter"
-	"github.com/andreis3/customers-ms/internal/domain/interfaces/commons"
 	"github.com/andreis3/customers-ms/internal/presentation/http/handler"
 	"github.com/andreis3/customers-ms/internal/presentation/http/middlewares"
 	"github.com/andreis3/customers-ms/internal/presentation/http/transport"
@@ -12,13 +11,13 @@ import (
 
 type CustomerRoutes struct {
 	createCustomer handler.CreateCustomerHandler
-	log            commons.Logger
+	log            adapter.Logger
 	tracer         adapter.Tracer
 }
 
 func NewCustomer(
 	createCustomer handler.CreateCustomerHandler,
-	log commons.Logger,
+	log adapter.Logger,
 	tracer adapter.Tracer,
 ) *CustomerRoutes {
 	return &CustomerRoutes{
