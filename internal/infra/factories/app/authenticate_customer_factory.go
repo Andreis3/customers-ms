@@ -23,5 +23,5 @@ func NewAuthenticateCustomerFactory(
 	bcrypt adapter.Bcrypt,
 	tracer adapter.Tracer,
 ) command.Login {
-	return commands.NewAuthenticateCustomer(log, customerRepository, authService, bcrypt, tracer)
+	return commands.NewLoginCustomer(log, customerRepository, authService, bcrypt, tracer)
 }

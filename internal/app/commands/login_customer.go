@@ -19,7 +19,7 @@ type Login struct {
 	tracer             adapter.Tracer
 }
 
-func NewAuthenticateCustomer(
+func NewLoginCustomer(
 	log adapter.Logger,
 	customerRepository postgres.CustomerRepository,
 	authService service.Auth,

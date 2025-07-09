@@ -5,7 +5,7 @@ import (
 	"net/http"
 
 	"github.com/andreis3/customers-ms/internal/domain/errors"
-	"github.com/andreis3/customers-ms/internal/presentation/dictionary"
+	"github.com/andreis3/customers-ms/internal/presentation/translator"
 )
 
 const (
@@ -31,7 +31,7 @@ func ResponseSuccess[T any](write http.ResponseWriter, status int, data T) {
 }
 
 func ResponseError(write http.ResponseWriter, err *errors.Error) {
-	status := dictionary.ErrorDictionary[err.Code].HTTPStatus
+	status := translator.ErrorTranslator[err.Code].HTTPStatus
 	write.Header().Set(ContentType, ApplicationJSON)
 	write.WriteHeader(status)
 

@@ -11,20 +11,20 @@ import (
 	"github.com/andreis3/customers-ms/internal/presentation/http/transport"
 )
 
-type GenerateTokenHandler struct {
+type LoginCustomer struct {
 	log        adapter.Logger
 	prometheus adapter.Prometheus
 	cmd        command.Login
 	tracer     adapter.Tracer
 }
 
-func NewGenerateTokenHandler(
+func NewLoginCustomer(
 	log adapter.Logger,
 	prometheus adapter.Prometheus,
 	tracer adapter.Tracer,
 	cmd command.Login,
-) GenerateTokenHandler {
-	return GenerateTokenHandler{
+) LoginCustomer {
+	return LoginCustomer{
 		log:        log,
 		prometheus: prometheus,
 		cmd:        cmd,
@@ -32,8 +32,8 @@ func NewGenerateTokenHandler(
 	}
 }
 
-func (h *GenerateTokenHandler) Handle(w http.ResponseWriter, r *http.Request) {
-	ctx, span := h.tracer.Start(r.Context(), "GenerateTokenHandler.Handle")
+func (h *LoginCustomer) Handle(w http.ResponseWriter, r *http.Request) {
+	ctx, span := h.tracer.Start(r.Context(), "LoginCustomer.Handle")
 	start := time.Now()
 	traceID := span.SpanContext().TraceID()
 	defer span.End()

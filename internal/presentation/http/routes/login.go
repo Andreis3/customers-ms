@@ -11,13 +11,13 @@ import (
 
 type LoginRoutes struct {
 	log         adapter.Logger
-	authHandler handler.GenerateTokenHandler
+	authHandler handler.LoginCustomer
 	tracer      adapter.Tracer
 }
 
 func NewLoginRoutes(
 	log adapter.Logger,
-	authHandler handler.GenerateTokenHandler,
+	authHandler handler.LoginCustomer,
 	tracer adapter.Tracer,
 ) *LoginRoutes {
 	return &LoginRoutes{

@@ -1,8 +1,8 @@
 package presentation
 
 import (
+	"github.com/andreis3/customers-ms/internal/app/services"
 	"github.com/andreis3/customers-ms/internal/domain/interfaces/adapter"
-	"github.com/andreis3/customers-ms/internal/domain/services"
 	"github.com/andreis3/customers-ms/internal/infra/adapters/crypto"
 	"github.com/andreis3/customers-ms/internal/infra/adapters/db"
 	"github.com/andreis3/customers-ms/internal/infra/factories/app"

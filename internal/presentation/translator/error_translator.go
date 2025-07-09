@@ -1,4 +1,4 @@
-package dictionary
+package translator
 
 import (
 	"net/http"
@@ -13,7 +13,7 @@ type ProtocolError struct {
 	GRPCCode   codes.Code
 }
 
-var ErrorDictionary = map[errors.Code]ProtocolError{
+var ErrorTranslator = map[errors.Code]ProtocolError{
 	errors.BadRequestCode: {
 		HTTPStatus: http.StatusBadRequest,
 		GRPCCode:   codes.InvalidArgument,

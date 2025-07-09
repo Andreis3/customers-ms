@@ -1,8 +1,8 @@
 package presentation
 
 import (
+	"github.com/andreis3/customers-ms/internal/app/services"
 	"github.com/andreis3/customers-ms/internal/domain/interfaces/adapter"
-	"github.com/andreis3/customers-ms/internal/domain/services"
 	"github.com/andreis3/customers-ms/internal/infra/adapters/crypto"
 	"github.com/andreis3/customers-ms/internal/infra/adapters/jwt"
 	"github.com/andreis3/customers-ms/internal/infra/configs"
@@ -18,6 +18,6 @@ func MakeAuthRouter(postgres adapter.Postgres, log adapter.Logger, prometheus ad
 	authService := services.NewAuthService(tokenService)
 	bcrypt := crypto.NewBcrypt()
 	commands := app.NewAuthenticateCustomerFactory(log, customerRepository, authService, bcrypt, tracer)
-	authHandler := handler.NewGenerateTokenHandler(log, prometheus, tracer, commands)
+	authHandler := handler.NewLoginCustomer(log, prometheus, tracer, commands)
 	return routes.NewLoginRoutes(log, authHandler, tracer)
 }
