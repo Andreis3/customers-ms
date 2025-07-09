@@ -6,7 +6,7 @@ import (
 	"time"
 
 	"github.com/andreis3/customers-ms/internal/domain/validator"
-	valueobject "github.com/andreis3/customers-ms/internal/domain/value-object"
+	"github.com/andreis3/customers-ms/internal/domain/valueobject"
 )
 
 type Customer struct {

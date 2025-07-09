@@ -4,7 +4,7 @@ import (
 	"github.com/andreis3/customers-ms/internal/domain/entity"
 	"github.com/andreis3/customers-ms/internal/domain/errors"
 	"github.com/andreis3/customers-ms/internal/domain/interfaces/adapter"
-	valueobject "github.com/andreis3/customers-ms/internal/domain/value-object"
+	"github.com/andreis3/customers-ms/internal/domain/valueobject"
 )
 
 type AuthService struct {

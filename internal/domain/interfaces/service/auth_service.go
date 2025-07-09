@@ -3,7 +3,7 @@ package service
 import (
 	"github.com/andreis3/customers-ms/internal/domain/entity"
 	"github.com/andreis3/customers-ms/internal/domain/errors"
-	valueobject "github.com/andreis3/customers-ms/internal/domain/value-object"
+	"github.com/andreis3/customers-ms/internal/domain/valueobject"
 )
 
 type Auth interface {
