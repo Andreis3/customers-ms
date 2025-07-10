@@ -5,6 +5,7 @@ import (
 	"log/slog"
 
 	"github.com/andreis3/customers-ms/internal/app/dto"
+	"github.com/andreis3/customers-ms/internal/app/mapper"
 	"github.com/andreis3/customers-ms/internal/domain/errors"
 	"github.com/andreis3/customers-ms/internal/domain/interfaces/adapter"
 	"github.com/andreis3/customers-ms/internal/domain/interfaces/postgres"
@@ -68,10 +69,5 @@ func (a *Login) Execute(ctx context.Context, input dto.LoginInput) (*dto.LoginOu
 		slog.String("trace_id", traceID),
 		slog.String("token", token.Token))
 
-	output := &dto.LoginOutput{
-		Token:     token.Token,
-		ExpiresAt: token.ExpiresAt.Unix(),
-	}
-
-	return output, nil
+	return mapper.TokenOutput(token.Token, token.ExpiresAt.Unix()), nil
 }
