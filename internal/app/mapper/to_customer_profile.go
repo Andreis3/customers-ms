@@ -37,10 +37,7 @@ func ToCustomerProfile(input dto.CreateCustomerInput) aggregate.CustomerProfile 
 			Build())
 	}
 
-	return aggregate.CustomerProfile{
-		Customer:  customer,
-		Addresses: addresses,
-	}
+	return *aggregate.NewCustomerProfile(customer, addresses)
 }
 
 func CustomerOutput(customer entity.Customer) dto.CreatedCustomerOutput {

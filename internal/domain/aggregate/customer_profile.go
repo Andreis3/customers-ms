@@ -13,9 +13,9 @@ type CustomerProfile struct {
 	Addresses []entity.Address
 }
 
-func NewCustomerProfile(custome entity.Customer, addresses []entity.Address) *CustomerProfile {
+func NewCustomerProfile(customer entity.Customer, addresses []entity.Address) *CustomerProfile {
 	userProfile := &CustomerProfile{
-		Customer:  custome,
+		Customer:  customer,
 		Addresses: addresses,
 	}
 	return userProfile
