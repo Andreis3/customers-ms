@@ -15,7 +15,7 @@ import (
 )
 
 type CreateCustomerCommand struct {
-	uow                func(ctx context.Context) uow.UnitOfWork
+	uow                uow.UnitOfWorkFactory
 	bcrypt             adapter.Bcrypt
 	log                adapter.Logger
 	customerRepository postgres.CustomerRepository
@@ -25,7 +25,7 @@ type CreateCustomerCommand struct {
 }
 
 func NewCreateCustomer(
-	uow func(ctx context.Context) uow.UnitOfWork,
+	uow uow.UnitOfWorkFactory,
 	bcrypt adapter.Bcrypt,
 	log adapter.Logger,
 	customerService service.CustomerService,
@@ -62,19 +62,20 @@ func (c *CreateCustomerCommand) Execute(ctx context.Context, input dto.CreateCus
 		return nil, err
 	}
 
-	//customerAlreadyExists := c.customerService.ExistCustomerByEmail(ctx, customerProfile.Customer.Email())
-	//if customerAlreadyExists {
-	//	span.RecordError(errors.ErrCustomerAlreadyExists())
-	//	c.log.ErrorJSON("Customer already exists",
-	//		slog.String("trace_id", traceID),
-	//		slog.Any("error", errors.ErrCustomerAlreadyExists))
-	//	return nil, errors.ErrCustomerAlreadyExists()
-	//}
+	customerAlreadyExists := c.customerService.ExistCustomerByEmail(ctx, customerProfile.Customer.Email())
+	if customerAlreadyExists {
+		err = errors.ErrCustomerAlreadyExists()
+		span.RecordError(err)
+		c.log.ErrorJSON("Customer already exists",
+			slog.String("trace_id", traceID),
+			slog.Any("error", err))
+		return nil, err
+	}
 
 	var customerResult *entity.Customer
-	uowInstance := c.uow(ctx)
+	uow := c.uow(ctx)
 
-	errUow := uowInstance.Do(ctx, func(ctxUow context.Context) *errors.Error {
+	err = uow.WithTransaction(ctx, func(ctxUow context.Context) *errors.Error {
 		hash, err := c.bcrypt.Hash(customerProfile.Customer.Password())
 		if err != nil {
 			span.RecordError(err)
@@ -108,12 +109,12 @@ func (c *CreateCustomerCommand) Execute(ctx context.Context, input dto.CreateCus
 		return nil
 	})
 
-	if errUow != nil {
-		span.RecordError(errUow)
+	if err != nil {
+		span.RecordError(err)
 		c.log.ErrorJSON("Failed insert customerResult",
 			slog.String("trace_id", traceID),
-			slog.Any("error", errUow))
-		return nil, errUow
+			slog.Any("error", err))
+		return nil, err
 	}
 
 	return customerResult, nil

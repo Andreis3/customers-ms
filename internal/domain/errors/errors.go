@@ -1,7 +1,10 @@
 package errors
 
 import (
+	"encoding/json"
 	"errors"
+	"fmt"
+	"strings"
 )
 
 type Error struct {
@@ -16,7 +19,17 @@ type Error struct {
 type InputError Error
 
 func (e *Error) Error() string {
-	return string(e.Code) + ": " + e.FriendlyMessage
+	joinErrors := strings.Join(e.Errors, " ")
+	m, _ := json.Marshal(e.Map)
+	return fmt.Sprintf("{"+
+		"code: %s, "+
+		"errors: %v, "+
+		"map: %v, "+
+		"originFunc: %s, "+
+		"cause: %s, "+
+		"friendlyMessage: %s"+
+		"}",
+		e.Code, joinErrors, string(m), e.OriginFunc, e.Cause, e.FriendlyMessage)
 }
 
 func Unwrap(err error) error {
