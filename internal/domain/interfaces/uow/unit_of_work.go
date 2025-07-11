@@ -9,5 +9,5 @@ import (
 type RepositoryFactory func(tx any) any
 
 type UnitOfWork interface {
-	Do(ctx context.Context, fn func(ctx context.Context) *errors.Error) *errors.Error
+	WithTransaction(ctx context.Context, fn func(ctx context.Context) *errors.Error) *errors.Error
 }

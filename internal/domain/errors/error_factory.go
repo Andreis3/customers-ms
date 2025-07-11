@@ -38,7 +38,7 @@ func ErrCustomerAlreadyExists() *Error {
 	input := InputError{
 		Code:            BadRequestCode,
 		Errors:          []string{"Already exists a customer with this email."},
-		OriginFunc:      "CustomerProfile.Validate",
+		OriginFunc:      "CreateCustomerCommand.Execute",
 		FriendlyMessage: "Customer already exists",
 	}
 	return New(input)
@@ -49,7 +49,7 @@ func ErrorTransactionAlreadyExists() *Error {
 	input := InputError{
 		Code:            InternalServerErrorCode,
 		Errors:          []string{ServerErrorFriendlyMessage},
-		OriginFunc:      "UnitOfWork.Do",
+		OriginFunc:      "UnitOfWork.WithTransaction",
 		FriendlyMessage: "Transaction already exists",
 	}
 	return New(input)
@@ -59,7 +59,7 @@ func ErrorOpeningTransaction(err error) *Error {
 	input := InputError{
 		Code:            InternalServerErrorCode,
 		Errors:          []string{err.Error()},
-		OriginFunc:      "UnitOfWork.Do",
+		OriginFunc:      "UnitOfWork.WithTransaction",
 		FriendlyMessage: ServerErrorFriendlyMessage,
 	}
 	return New(input)

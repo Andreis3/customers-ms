@@ -26,9 +26,9 @@ func NewUnitOfWork(db *pgxpool.Pool, prometheus adapter.Prometheus, tracer adapt
 	}
 }
 
-// Do handles transaction lifecycle safely.
-func (u *UnitOfWork) Do(ctx context.Context, fn func(ctx context.Context) *errors.Error) *errors.Error {
-	ctx, span := u.tracer.Start(ctx, "UnitOfWork.Do")
+// WithTransaction handles transaction lifecycle safely.
+func (u *UnitOfWork) WithTransaction(ctx context.Context, fn func(ctx context.Context) *errors.Error) *errors.Error {
+	ctx, span := u.tracer.Start(ctx, "UnitOfWork.WithTransaction")
 	defer span.End()
 
 	if u.TX != nil {
@@ -36,11 +36,7 @@ func (u *UnitOfWork) Do(ctx context.Context, fn func(ctx context.Context) *error
 		return errors.ErrorTransactionAlreadyExists()
 	}
 
-	tx, err := u.DB.BeginTx(ctx, pgx.TxOptions{
-		BeginQuery:  "BEGIN",
-		CommitQuery: "COMMIT",
-		AccessMode:  pgx.ReadWrite,
-	})
+	tx, err := u.DB.Begin(ctx)
 	if err != nil {
 		span.RecordError(errors.ErrorOpeningTransaction(err))
 		return errors.ErrorOpeningTransaction(err)
