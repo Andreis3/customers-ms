@@ -1,15 +1,17 @@
-package transport
+package helpers
 
 import "net/http"
 
 type RouteType []RouteFields
+
+type Middlewares []func(http.Handler) http.Handler
 
 type RouteFields struct {
 	Method      string
 	Path        string
 	Handler     any
 	Description string
-	Middlewares []func(http.Handler) http.Handler
+	Middlewares
 }
 
 // Helper function to add a prefix to all routes

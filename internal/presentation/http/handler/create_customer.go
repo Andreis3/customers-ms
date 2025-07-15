@@ -9,7 +9,7 @@ import (
 	"github.com/andreis3/customers-ms/internal/app/mapper"
 	"github.com/andreis3/customers-ms/internal/domain/interfaces/adapter"
 	"github.com/andreis3/customers-ms/internal/domain/interfaces/command"
-	"github.com/andreis3/customers-ms/internal/presentation/http/transport"
+	"github.com/andreis3/customers-ms/internal/presentation/http/helpers"
 )
 
 type CreateCustomerHandler struct {
@@ -47,13 +47,13 @@ func (h *CreateCustomerHandler) Handle(w http.ResponseWriter, r *http.Request) {
 		span.End()
 	}()
 
-	input, err := transport.DecoderBodyRequest[dto.CreateCustomerInput](r)
+	input, err := helpers.RequestDecoder[dto.CreateCustomerInput](r)
 	if err != nil {
 		span.RecordError(err)
 		h.log.ErrorJSON("failed decode request body",
 			slog.String("trace_id", traceID),
 			slog.Any("error", err))
-		transport.ResponseError(w, err)
+		helpers.ResponseError(w, err)
 		return
 	}
 
@@ -64,10 +64,10 @@ func (h *CreateCustomerHandler) Handle(w http.ResponseWriter, r *http.Request) {
 		h.log.ErrorJSON("failed execute create customer command",
 			slog.String("trace_id", traceID),
 			slog.Any("error", err))
-		transport.ResponseError(w, err)
+		helpers.ResponseError(w, err)
 		return
 	}
 
 	h.prometheus.ObserveRequestDuration("/customers", "http", http.StatusCreated, float64(end.Milliseconds()))
-	transport.ResponseSuccess(w, http.StatusCreated, mapper.CustomerOutput(*res))
+	helpers.ResponseSuccess(w, http.StatusCreated, mapper.CustomerOutput(*res))
 }
