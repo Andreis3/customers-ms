@@ -1,4 +1,4 @@
-package transport
+package helpers
 
 import (
 	"fmt"
@@ -8,5 +8,5 @@ import (
 )
 
 func TraceHandler(method, path string, h http.HandlerFunc) http.Handler {
-	return otelhttp.NewHandler(http.HandlerFunc(h), fmt.Sprintf("%s %s", method, path))
+	return otelhttp.NewHandler(h, fmt.Sprintf("%s %s", method, path))
 }

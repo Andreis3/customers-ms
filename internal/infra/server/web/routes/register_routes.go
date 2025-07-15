@@ -7,11 +7,11 @@ import (
 	"github.com/go-chi/chi/v5"
 
 	"github.com/andreis3/customers-ms/internal/domain/interfaces/adapter"
-	"github.com/andreis3/customers-ms/internal/presentation/http/transport"
+	"github.com/andreis3/customers-ms/internal/presentation/http/helpers"
 )
 
 type ModuleRoutes interface {
-	Routes() transport.RouteType
+	Routes() helpers.RouteType
 }
 
 type RegisterRoutes struct {
@@ -42,7 +42,7 @@ func (r *RegisterRoutes) Register() {
 
 // registerRoutes iterates over the returned routes
 // and calls attachRoute for each one.
-func (r *RegisterRoutes) registerRoutes(routeDefs transport.RouteType) {
+func (r *RegisterRoutes) registerRoutes(routeDefs helpers.RouteType) {
 	for _, route := range routeDefs {
 		r.attachRoute(route)
 	}
@@ -52,7 +52,7 @@ func (r *RegisterRoutes) registerRoutes(routeDefs transport.RouteType) {
 // 1) Logging method and path,
 // 2) Applying middlewares (if any),
 // 3) Registering the handler correctly.
-func (r *RegisterRoutes) attachRoute(route transport.RouteFields) {
+func (r *RegisterRoutes) attachRoute(route helpers.RouteFields) {
 	methodAndPath := fmt.Sprintf("%s %s", route.Method, route.Path)
 	r.log.InfoText("[RegisterRoutes] ", "MAPPED_ROUTES", fmt.Sprintf("%s - %s", methodAndPath, route.Description))
 
@@ -69,7 +69,7 @@ func (r *RegisterRoutes) attachRoute(route transport.RouteFields) {
 }
 
 // registerHandler checks whether route.Handler is a Handler
-func (r *RegisterRoutes) registerHandler(m chi.Router, route transport.RouteFields) {
+func (r *RegisterRoutes) registerHandler(m chi.Router, route helpers.RouteFields) {
 	handler, ok := route.Handler.(http.Handler)
 	if !ok {
 		r.log.CriticalText("Route registration error: invalid handler type for Handler")

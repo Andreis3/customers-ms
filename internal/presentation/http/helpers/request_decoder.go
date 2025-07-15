@@ -1,4 +1,4 @@
-package transport
+package helpers
 
 import (
 	"encoding/json"
@@ -7,7 +7,7 @@ import (
 	"github.com/andreis3/customers-ms/internal/domain/errors"
 )
 
-func DecoderBodyRequest[T any](req *http.Request) (T, *errors.Error) {
+func RequestDecoder[T any](req *http.Request) (T, *errors.Error) {
 	defer req.Body.Close()
 	var result T
 	var jsonUnmarshalTypeError *json.UnmarshalTypeError
