@@ -35,5 +35,6 @@ func BuildRoutes(deps *RegisterRoutesDeps) []ModuleRoutes {
 		routes.NewMetrics(),
 		presentation.MakeCustomerRouter(deps.PostgresDB, deps.Log, deps.Prometheus, deps.Tracer),
 		presentation.MakeAuthRouter(deps.PostgresDB, deps.Log, deps.Prometheus, deps.Conf, deps.Tracer),
+		presentation.MakeAddressRouter(deps.PostgresDB, deps.Log, deps.Prometheus, deps.Tracer, deps.Conf),
 	}
 }

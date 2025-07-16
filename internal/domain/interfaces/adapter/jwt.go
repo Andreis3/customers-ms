@@ -10,4 +10,5 @@ type TokenService interface {
 	CreateToken(customer entity.Customer) (*valueobject.TokenClaims, *errors.Error)
 	ValidateToken(tokenString string) (*valueobject.TokenClaims, *errors.Error)
 	RefreshToken(tokenString string) (*valueobject.TokenClaims, *errors.Error)
+	DecodeToken(tokenString string) (*valueobject.TokenClaims, *errors.Error)
 }

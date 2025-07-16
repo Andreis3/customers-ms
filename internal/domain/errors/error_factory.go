@@ -116,6 +116,16 @@ func ErrorFindCustomerByEmail(err error) *Error {
 	return New(input)
 }
 
+func ErrorFindByID(err error) *Error {
+	input := InputError{
+		Code:            InternalServerErrorCode,
+		Errors:          []string{err.Error()},
+		OriginFunc:      "CustomerRepository.FindByID",
+		FriendlyMessage: ServerErrorFriendlyMessage,
+	}
+	return New(input)
+}
+
 func ErrorCreatedBatchAddress(err error) *Error {
 	input := InputError{
 		Code:            InternalServerErrorCode,
@@ -238,6 +248,16 @@ func ErrorJSON(err error) *Error {
 		Cause:           "json error",
 		OriginFunc:      "json.Unmarshal",
 		FriendlyMessage: "json error",
+	}
+	return New(input)
+}
+
+func ErrorInvalidToken() *Error {
+	input := InputError{
+		Code:            BadRequestCode,
+		Errors:          []string{"invalid token"},
+		OriginFunc:      "JWT.ValidateToken",
+		FriendlyMessage: "invalid token",
 	}
 	return New(input)
 }

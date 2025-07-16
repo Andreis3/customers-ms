@@ -27,6 +27,7 @@ func ResponseSuccess[T any](write http.ResponseWriter, status int, data T) {
 	write.Header().Set(ContentType, ApplicationJSON)
 	write.WriteHeader(status)
 	result := data
+
 	_ = json.NewEncoder(write).Encode(result)
 }
 

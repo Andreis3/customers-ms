@@ -125,6 +125,59 @@ func (c *CustomerRepository) FindCustomerByEmail(ctx context.Context, email stri
 	return &result, nil
 }
 
+func (c *CustomerRepository) FindByID(ctx context.Context, id int64) (*entity.Customer, *errors.Error) {
+	ctx, span := c.tracer.Start(ctx, "CustomerRepository.FindByID")
+	start := time.Now()
+
+	defer func() {
+		end := time.Since(start)
+		c.metrics.ObserveInstructionDBDuration("postgres", "customers", "select", float64(end.Milliseconds()))
+		span.End()
+	}()
+
+	var modelCustomer model.Customer
+	db := c.resolveDB(ctx)
+
+	const query = `
+	SELECT id, email, password, first_name, last_name, cpf, date_of_birth, created_at, updated_at
+	FROM customers
+	WHERE id = $1`
+
+	rows, err := db.Query(ctx, query, id)
+	if err != nil {
+		return nil, errors.ErrorFindByID(err)
+	}
+
+	defer rows.Close()
+
+	if !rows.Next() {
+		return nil, nil
+	}
+	err = rows.Scan(
+		&modelCustomer.ID,
+		&modelCustomer.Email,
+		&modelCustomer.Password,
+		&modelCustomer.FirstName,
+		&modelCustomer.LastName,
+		&modelCustomer.CPF,
+		&modelCustomer.DateOfBirth,
+		&modelCustomer.CreatedAT,
+		&modelCustomer.UpdatedAT,
+	)
+	if err != nil {
+		return nil, errors.ErrorFindByID(err)
+	}
+
+	result := modelCustomer.ToEntity()
+
+	// TODO: create SetAttributes in interface otel
+	//span.SetAttributes(
+	//	attribute.Int64("customer_id", *modelCustomer.ID),
+	//)
+
+	return &result, nil
+}
+
 func (c *CustomerRepository) resolveDB(ctx context.Context) adapter.Postgres {
 	if tx, ok := db.TxFromContext(ctx); ok {
 		return tx

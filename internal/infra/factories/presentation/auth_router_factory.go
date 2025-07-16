@@ -15,7 +15,7 @@ import (
 func MakeAuthRouter(postgres adapter.Postgres, log adapter.Logger, prometheus adapter.Prometheus, conf *configs.Configs, tracer adapter.Tracer) *routes.LoginRoutes {
 	customerRepository := repository.NewCustomerRepository(postgres, prometheus, tracer)
 	tokenService := jwt.NewJWT(conf)
-	authService := services.NewAuthService(tokenService)
+	authService := services.NewAuthService(tokenService, customerRepository)
 	bcrypt := crypto.NewBcrypt()
 	commands := app.NewAuthenticateCustomerFactory(log, customerRepository, authService, bcrypt, tracer)
 	authHandler := handler.NewLoginCustomer(log, prometheus, tracer, commands)
