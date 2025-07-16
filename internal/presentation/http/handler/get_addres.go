@@ -15,5 +15,5 @@ func NewGetAddressHandler() GetAddressHandler {
 
 func (h *GetAddressHandler) Handle(w http.ResponseWriter, r *http.Request) {
 
-	helpers.ResponseSuccess[any](w, http.StatusCreated, nil)
+	helpers.ResponseSuccess[any](w, http.StatusOK, nil)
 }

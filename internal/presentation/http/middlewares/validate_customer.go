@@ -3,6 +3,7 @@ package middlewares
 import (
 	"log/slog"
 	"net/http"
+	"strings"
 
 	"github.com/andreis3/customers-ms/internal/domain/errors"
 	"github.com/andreis3/customers-ms/internal/domain/interfaces/adapter"
@@ -28,16 +29,18 @@ func ValidateCustomer(authService service.Auth, logger adapter.Logger, tracer ad
 				return
 			}
 
-			token := authHeader[len("Bearer "):]
-			if token == "" {
-				logger.ErrorJSON("missing token",
+			parts := strings.Split(authHeader, " ")
+			if len(parts) != 2 || strings.ToLower(parts[0]) != "bearer" {
+				err := errors.ErrorInvalidToken()
+				logger.ErrorJSON("invalid authorization header",
 					slog.String("trace_id", traceID),
 					slog.String("method", r.Method),
-					slog.String("path", r.URL.Path))
-				helpers.ResponseError(w, errors.ErrorInvalidToken())
+					slog.String("path", r.URL.Path),
+					slog.Any("error", err))
+				helpers.ResponseError(w, err)
 				return
 			}
-
+			token := parts[1]
 			_, err := authService.DecodeToken(ctx, token)
 			if err != nil {
 				logger.ErrorJSON("failed validate token",
