@@ -254,7 +254,7 @@ func ErrorJSON(err error) *Error {
 
 func ErrorInvalidToken() *Error {
 	input := InputError{
-		Code:            BadRequestCode,
+		Code:            UnauthorizedCode,
 		Errors:          []string{"invalid token"},
 		OriginFunc:      "JWT.ValidateToken",
 		FriendlyMessage: "invalid token",
