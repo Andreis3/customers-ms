@@ -24,8 +24,8 @@ func NewCreateCustomerHandler(
 	prometheus adapter.Prometheus,
 	log adapter.Logger,
 	tracer adapter.Tracer,
-) CreateCustomerHandler {
-	return CreateCustomerHandler{
+) *CreateCustomerHandler {
+	return &CreateCustomerHandler{
 		command:    cmd,
 		log:        log,
 		prometheus: prometheus,

@@ -11,16 +11,16 @@ import (
 )
 
 type CustomerRoutes struct {
-	createCustomer handler.CreateCustomerHandler
-	getAddress     handler.GetCustomerAddressesHandler
+	createCustomer *handler.CreateCustomerHandler
+	getAddress     *handler.GetCustomerAddressesHandler
 	authService    service.Auth
 	log            adapter.Logger
 	tracer         adapter.Tracer
 }
 
 func NewCustomer(
-	createCustomer handler.CreateCustomerHandler,
-	getAddress handler.GetCustomerAddressesHandler,
+	createCustomer *handler.CreateCustomerHandler,
+	getAddress *handler.GetCustomerAddressesHandler,
 	authService service.Auth,
 	log adapter.Logger,
 	tracer adapter.Tracer,

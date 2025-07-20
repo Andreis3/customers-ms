@@ -36,7 +36,7 @@ func MakeCustomerRouter(
 	createCustomerHandler := handler.NewCreateCustomerHandler(command, prometheus, log, tracer)
 	customerRoutes := routes.NewCustomer(
 		createCustomerHandler,
-		*getAddressHandler,
+		getAddressHandler,
 		authService,
 		log,
 		tracer,
