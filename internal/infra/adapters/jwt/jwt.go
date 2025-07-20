@@ -65,6 +65,10 @@ func (j *JWT) RefreshToken(tokenString string) (*valueobject.TokenClaims, *error
 	return tokenClaims, nil
 }
 
+func (j *JWT) DecodeToken(tokenString string) (*valueobject.TokenClaims, *errors.Error) {
+	return j.parseToken(tokenString)
+}
+
 func (j *JWT) parseToken(tokenString string) (*valueobject.TokenClaims, *errors.Error) {
 	token, err := jwt.Parse(tokenString, func(token *jwt.Token) (any, error) {
 		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {

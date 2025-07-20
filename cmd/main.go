@@ -6,6 +6,7 @@ import (
 	"github.com/andreis3/customers-ms/internal/infra/adapters/logger"
 	"github.com/andreis3/customers-ms/internal/infra/configs"
 	"github.com/andreis3/customers-ms/internal/infra/server/web"
+	"github.com/andreis3/customers-ms/internal/util"
 )
 
 func main() {
@@ -14,7 +15,7 @@ func main() {
 
 	if conf == nil {
 		log.CriticalText("Failed to load configuration")
-		os.Exit(1)
+		os.Exit(util.ExitFailure)
 	}
 
 	serverWeb := web.NewServer(conf, *log)

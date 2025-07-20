@@ -33,7 +33,7 @@ func BuildRoutes(deps *RegisterRoutesDeps) []ModuleRoutes {
 	return []ModuleRoutes{
 		routes.NewHealthCheck(),
 		routes.NewMetrics(),
-		presentation.MakeCustomerRouter(deps.PostgresDB, deps.Log, deps.Prometheus, deps.Tracer),
+		presentation.MakeCustomerRouter(deps.PostgresDB, deps.Log, deps.Prometheus, deps.Tracer, deps.Conf),
 		presentation.MakeAuthRouter(deps.PostgresDB, deps.Log, deps.Prometheus, deps.Conf, deps.Tracer),
 	}
 }
