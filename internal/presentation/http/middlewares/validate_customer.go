@@ -1,6 +1,7 @@
 package middlewares
 
 import (
+	"context"
 	"log/slog"
 	"net/http"
 	"strings"
@@ -41,7 +42,7 @@ func ValidateCustomer(authService service.Auth, logger adapter.Logger, tracer ad
 				return
 			}
 			token := parts[1]
-			_, err := authService.DecodeToken(ctx, token)
+			claims, err := authService.DecodeToken(ctx, token)
 			if err != nil {
 				logger.ErrorJSON("failed validate token",
 					slog.String("trace_id", traceID),
@@ -51,6 +52,9 @@ func ValidateCustomer(authService service.Auth, logger adapter.Logger, tracer ad
 				helpers.ResponseError(w, errors.ErrorInvalidToken())
 				return
 			}
+
+			ctx = context.WithValue(ctx, "customer_id", claims.CustomerID)
+			ctx = context.WithValue(ctx, "email", claims.Email)
 
 			next.ServeHTTP(w, r.WithContext(ctx))
 		})

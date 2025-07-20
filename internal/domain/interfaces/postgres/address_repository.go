@@ -9,4 +9,5 @@ import (
 
 type AddressRepository interface {
 	InsertBatchAddress(ctx context.Context, customerID int64, addresses []entity.Address) (*[]entity.Address, *errors.Error)
+	FindAddressesByCustomerID(ctx context.Context, customerID int64) (*[]entity.Address, *errors.Error)
 }

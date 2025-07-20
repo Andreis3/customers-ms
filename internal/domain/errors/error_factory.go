@@ -136,6 +136,26 @@ func ErrorCreatedBatchAddress(err error) *Error {
 	return New(input)
 }
 
+func ErrorFindByCustomerID(err error) *Error {
+	input := InputError{
+		Code:            InternalServerErrorCode,
+		Errors:          []string{err.Error()},
+		OriginFunc:      "CustomerRepository.FindByCustomerID",
+		FriendlyMessage: ServerErrorFriendlyMessage,
+	}
+	return New(input)
+}
+
+func ErrCustomerNotFound() *Error {
+	input := InputError{
+		Code:            NotFoundCode,
+		Errors:          []string{"customer not found"},
+		OriginFunc:      "CustomerRepository.FindByCustomerID",
+		FriendlyMessage: ServerErrorFriendlyMessage,
+	}
+	return New(input)
+}
+
 /********Bcrypt Errors********/
 func ErrorHashPassword(err error) *Error {
 	input := InputError{

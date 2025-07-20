@@ -22,6 +22,7 @@ type Address struct {
 }
 
 func (a Address) ToEntity() entity.Address {
+
 	return entity.BuilderAddress().
 		WithID(util.ToInt64(a.ID)).
 		WithCustomerID(util.ToInt64(a.CustomerID)).

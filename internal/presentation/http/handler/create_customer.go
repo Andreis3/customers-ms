@@ -45,6 +45,7 @@ func (h *CreateCustomerHandler) Handle(w http.ResponseWriter, r *http.Request) {
 			slog.String("trace_id", traceID),
 			slog.Float64("duration", float64(end.Milliseconds())))
 		span.End()
+		h.prometheus.ObserveRequestDuration("/customers", "http", http.StatusCreated, float64(end.Milliseconds()))
 	}()
 
 	input, err := helpers.RequestDecoder[dto.CreateCustomerInput](r)
@@ -68,6 +69,5 @@ func (h *CreateCustomerHandler) Handle(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	h.prometheus.ObserveRequestDuration("/customers", "http", http.StatusCreated, float64(end.Milliseconds()))
 	helpers.ResponseSuccess(w, http.StatusCreated, mapper.CustomerOutput(*res))
 }

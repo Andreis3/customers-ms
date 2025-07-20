@@ -88,6 +88,53 @@ func (c *AddressRepository) InsertBatchAddress(ctx context.Context, customerID i
 	return &addressesResult, nil
 }
 
+func (c *AddressRepository) FindAddressesByCustomerID(ctx context.Context, customerID int64) (*[]entity.Address, *errors.Error) {
+	ctx, span := c.tracer.Start(ctx, "AddressRepository.FindByCustomerID")
+	start := time.Now()
+
+	defer func() {
+		end := time.Since(start)
+		c.metrics.ObserveInstructionDBDuration("postgres", "addresses", "select", float64(end.Milliseconds()))
+		span.End()
+	}()
+
+	const query = `
+	SELECT id, customer_id, street, number, complement, city, state, postal_code, country, created_at, updated_at
+	FROM addresses
+	WHERE customer_id = $1`
+
+	db := c.resolveDB(ctx)
+
+	rows, err := db.Query(ctx, query, customerID)
+	if err != nil {
+		return nil, errors.ErrorFindByCustomerID(err)
+	}
+	defer rows.Close()
+
+	addresses := make([]entity.Address, 0)
+	for rows.Next() {
+		var modelAddress model.Address
+		err = rows.Scan(
+			&modelAddress.ID,
+			&modelAddress.CustomerID,
+			&modelAddress.Street,
+			&modelAddress.Number,
+			&modelAddress.Complement,
+			&modelAddress.City,
+			&modelAddress.State,
+			&modelAddress.PostalCode,
+			&modelAddress.Country,
+			&modelAddress.CreatedAt,
+			&modelAddress.UpdatedAt,
+		)
+		if err != nil {
+			return nil, errors.ErrorFindByCustomerID(err)
+		}
+		addresses = append(addresses, modelAddress.ToEntity())
+	}
+	return &addresses, nil
+}
+
 func (c *AddressRepository) resolveDB(ctx context.Context) adapter.Postgres {
 	if tx, ok := db.TxFromContext(ctx); ok {
 		return tx
