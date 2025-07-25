@@ -62,7 +62,7 @@ func (c *CreateCustomerCommand) Execute(ctx context.Context, input dto.CreateCus
 		return nil, err
 	}
 
-	customerAlreadyExists := c.customerService.ExistCustomerByEmail(ctx, customerProfile.Customer.Email())
+	customerAlreadyExists := c.customerService.ExistCustomerByEmail(ctx, customerProfile.Customer.Email.String())
 	if customerAlreadyExists {
 		err = errors.ErrCustomerAlreadyExists()
 		span.RecordError(err)
@@ -76,7 +76,7 @@ func (c *CreateCustomerCommand) Execute(ctx context.Context, input dto.CreateCus
 	uow := c.uow(ctx)
 
 	err = uow.WithTransaction(ctx, func(ctxUow context.Context) *errors.Error {
-		hash, err := c.bcrypt.Hash(customerProfile.Customer.Password())
+		hash, err := c.bcrypt.Hash(customerProfile.Customer.Password.String())
 		if err != nil {
 			span.RecordError(err)
 			c.log.ErrorJSON("Failed hash password",
@@ -97,7 +97,7 @@ func (c *CreateCustomerCommand) Execute(ctx context.Context, input dto.CreateCus
 		}
 
 		if len(customerProfile.Addresses) > 0 {
-			_, err = c.addressRepository.InsertBatchAddress(ctxUow, customerResult.ID(), customerProfile.Addresses)
+			_, err = c.addressRepository.InsertBatchAddress(ctxUow, customerResult.ID, customerProfile.Addresses)
 			if err != nil {
 				span.RecordError(err)
 				c.log.ErrorJSON("Failed insert address",

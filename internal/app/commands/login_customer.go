@@ -54,7 +54,7 @@ func (a *Login) Execute(ctx context.Context, input dto.LoginInput) (*dto.LoginOu
 		return nil, errors.ErrorInvalidCredentials()
 	}
 
-	isValid := a.bcrypt.CompareHash(input.Password, customer.Password())
+	isValid := a.bcrypt.CompareHash(input.Password, customer.Password.String())
 	if !isValid {
 		return nil, errors.ErrorInvalidCredentials()
 	}

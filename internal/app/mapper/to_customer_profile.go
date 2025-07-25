@@ -42,9 +42,9 @@ func ToCustomerProfile(input dto.CreateCustomerInput) aggregate.CustomerProfile 
 
 func CustomerOutput(customer entity.Customer) dto.CreatedCustomerOutput {
 	return dto.CreatedCustomerOutput{
-		ID:          customer.ID(),
-		Email:       customer.Email(),
+		ID:          customer.ID,
+		Email:       customer.Email.String(),
 		Name:        customer.FullName(),
-		DateOfBirth: customer.DateOfBirth().Format("02-01-2006"),
+		DateOfBirth: customer.DateOfBirth.Format("02-01-2006"),
 	}
 }

@@ -36,6 +36,8 @@ func NewServer(conf *configs.Configs, log logger.Logger) *Server {
 	prometheus := observability.NewPrometheus()
 	pool := db.NewPoolConnections(conf, prometheus)
 
+	redis := db.NewRedis(*conf)
+
 	tracer, _ := observability.InitOtelTracer(context.Background(), "customers-ms")
 
 	mux := chi.NewRouter()
@@ -48,6 +50,7 @@ func NewServer(conf *configs.Configs, log logger.Logger) *Server {
 	setupRoutesInput := routes.RegisterRoutesDeps{
 		Mux:        mux,
 		PostgresDB: pool,
+		Redis:      redis,
 		Log:        &log,
 		Prometheus: prometheus,
 		Conf:       conf,

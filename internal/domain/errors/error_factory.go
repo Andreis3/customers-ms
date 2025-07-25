@@ -156,6 +156,16 @@ func ErrCustomerNotFound() *Error {
 	return New(input)
 }
 
+func ErrorSearchAddresses(err error) *Error {
+	input := InputError{
+		Code:            InternalServerErrorCode,
+		Errors:          []string{err.Error()},
+		OriginFunc:      "CustomerRepository.SearchAddresses",
+		FriendlyMessage: ServerErrorFriendlyMessage,
+	}
+	return New(input)
+}
+
 /********Bcrypt Errors********/
 func ErrorHashPassword(err error) *Error {
 	input := InputError{
@@ -278,6 +288,37 @@ func ErrorInvalidToken() *Error {
 		Errors:          []string{"invalid token"},
 		OriginFunc:      "JWT.ValidateToken",
 		FriendlyMessage: "invalid token",
+	}
+	return New(input)
+}
+
+/*********Redis Errors***************/
+func ErrorGetCache(err error) *Error {
+	input := InputError{
+		Code:            InternalServerErrorCode,
+		Errors:          []string{err.Error()},
+		OriginFunc:      "Redis.GetCache",
+		FriendlyMessage: ServerErrorFriendlyMessage,
+	}
+	return New(input)
+}
+
+func ErrorSetCache(err error) *Error {
+	input := InputError{
+		Code:            InternalServerErrorCode,
+		Errors:          []string{err.Error()},
+		OriginFunc:      "Redis.SetCache",
+		FriendlyMessage: ServerErrorFriendlyMessage,
+	}
+	return New(input)
+}
+
+func ErrorGenerateCacheKey(err error) *Error {
+	input := InputError{
+		Code:            InternalServerErrorCode,
+		Errors:          []string{err.Error()},
+		OriginFunc:      "Redis.GenerateCacheKey",
+		FriendlyMessage: ServerErrorFriendlyMessage,
 	}
 	return New(input)
 }

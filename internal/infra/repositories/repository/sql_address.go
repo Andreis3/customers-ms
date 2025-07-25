@@ -2,6 +2,8 @@ package repository
 
 import (
 	"context"
+	"fmt"
+	"strings"
 	"time"
 
 	"github.com/jackc/pgx/v5"
@@ -10,6 +12,7 @@ import (
 	"github.com/andreis3/customers-ms/internal/domain/errors"
 	"github.com/andreis3/customers-ms/internal/domain/interfaces/adapter"
 	"github.com/andreis3/customers-ms/internal/infra/adapters/db"
+	"github.com/andreis3/customers-ms/internal/infra/repositories/criteria"
 	"github.com/andreis3/customers-ms/internal/infra/repositories/model"
 )
 
@@ -132,6 +135,65 @@ func (c *AddressRepository) FindAddressesByCustomerID(ctx context.Context, custo
 		}
 		addresses = append(addresses, modelAddress.ToEntity())
 	}
+	return &addresses, nil
+}
+
+func (c *AddressRepository) SearchAddresses(ctx context.Context, params criteria.AddressSearchCriteria) (*[]entity.Address, *errors.Error) {
+	var conditions []string
+	var args []interface{}
+	i := 1
+
+	if params.CustomerID != nil {
+		conditions = append(conditions, fmt.Sprintf("customer_id = $%d", i))
+		args = append(args, *params.CustomerID)
+		i++
+	}
+
+	if params.Email != nil {
+		conditions = append(conditions, fmt.Sprintf("email = $%d", i))
+		args = append(args, *params.Email)
+		i++
+	}
+
+	query := `
+	SELECT id, street, number, complement, city, state, postal_code, country, created_at, updated_at
+	FROM addresses`
+
+	if len(conditions) == 0 {
+		return nil, nil
+	}
+
+	query += fmt.Sprintf(" WHERE %s", strings.Join(conditions, " AND "))
+
+	db := c.resolveDB(ctx)
+
+	rows, err := db.Query(ctx, query, args...)
+	if err != nil {
+		return nil, errors.ErrorFindByCustomerID(err)
+	}
+	defer rows.Close()
+
+	addresses := make([]entity.Address, 0)
+	for rows.Next() {
+		var modelAddress model.Address
+		err = rows.Scan(
+			&modelAddress.ID,
+			&modelAddress.Street,
+			&modelAddress.Number,
+			&modelAddress.Complement,
+			&modelAddress.City,
+			&modelAddress.State,
+			&modelAddress.PostalCode,
+			&modelAddress.Country,
+			&modelAddress.CreatedAt,
+			&modelAddress.UpdatedAt,
+		)
+		if err != nil {
+			return nil, errors.ErrorFindByCustomerID(err)
+		}
+		addresses = append(addresses, modelAddress.ToEntity())
+	}
+
 	return &addresses, nil
 }
 
