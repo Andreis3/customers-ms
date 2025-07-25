@@ -29,3 +29,7 @@ func NewRedis(conf configs.Configs) *Redis {
 func (r *Redis) Close() {
 	r.client.Close()
 }
+
+func (r *Redis) Client() *redis.Client {
+	return r.client
+}

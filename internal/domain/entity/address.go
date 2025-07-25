@@ -6,164 +6,94 @@ import (
 	"github.com/andreis3/customers-ms/internal/domain/validator"
 )
 
-type AddressProps struct {
-	id         int64
-	customerID int64
-	street     string
-	number     string
-	complement string
-	city       string
-	state      string
-	postalCode string
-	country    string
-	createdAt  time.Time
-	updatedAt  time.Time
-}
-
-func BuilderAddress() *AddressProps {
-	return &AddressProps{}
-}
-
-func (b *AddressProps) Build() Address {
-	return Address{
-		id:         b.id,
-		customerID: b.customerID,
-		street:     b.street,
-		number:     b.number,
-		complement: b.complement,
-		city:       b.city,
-		state:      b.state,
-		postalCode: b.postalCode,
-		country:    b.country,
-		createdAt:  b.createdAt,
-		updatedAt:  b.updatedAt,
-	}
-}
-
 type Address struct {
-	id         int64
-	customerID int64
-	street     string
-	number     string
-	complement string
-	city       string
-	state      string
-	postalCode string
-	country    string
-	createdAt  time.Time
-	updatedAt  time.Time
+	ID         int64
+	CustomerID int64
+	Street     string
+	Number     string
+	Complement string
+	City       string
+	State      string
+	PostalCode string
+	Country    string
+	CreatedAt  time.Time
+	UpdatedAt  time.Time
+}
+
+func BuilderAddress() *Address {
+	return &Address{}
 }
 
 func (a *Address) AssignID(id int64) {
-	a.id = id
-}
-
-func (a *Address) ID() int64 {
-	return a.id
-}
-
-func (a *Address) CustomerID() int64 {
-	return a.customerID
-}
-
-func (a *Address) Street() string {
-	return a.street
-}
-
-func (a *Address) Number() string {
-	return a.number
-}
-
-func (a *Address) Complement() string {
-	return a.complement
-}
-
-func (a *Address) City() string {
-	return a.city
-}
-
-func (a *Address) State() string {
-	return a.state
-}
-
-func (a *Address) PostalCode() string {
-	return a.postalCode
-}
-
-func (a *Address) Country() string {
-	return a.country
-}
-
-func (a *Address) CreatedAt() time.Time {
-	return a.createdAt
-}
-
-func (a *Address) UpdatedAt() time.Time {
-	return a.updatedAt
+	a.ID = id
 }
 
 func (a *Address) Validate() *validator.Validator {
 	v := validator.New()
-	v.Assert(validator.NotBlank(a.street), "street", validator.ErrNotBlank)
-	v.Assert(validator.NotBlank(a.number), "number", validator.ErrNotBlank)
-	v.Assert(validator.NotBlank(a.city), "city", validator.ErrNotBlank)
-	v.Assert(validator.NotBlank(a.state), "state", validator.ErrNotBlank)
-	v.Assert(validator.NotBlank(a.postalCode), "postal_code", validator.ErrNotBlank)
-	v.Assert(validator.NotBlank(a.country), "country", validator.ErrNotBlank)
+	v.Assert(validator.NotBlank(a.Street), "Street", validator.ErrNotBlank)
+	v.Assert(validator.NotBlank(a.Number), "Number", validator.ErrNotBlank)
+	v.Assert(validator.NotBlank(a.City), "City", validator.ErrNotBlank)
+	v.Assert(validator.NotBlank(a.State), "State", validator.ErrNotBlank)
+	v.Assert(validator.NotBlank(a.PostalCode), "postal_code", validator.ErrNotBlank)
+	v.Assert(validator.NotBlank(a.Country), "Country", validator.ErrNotBlank)
 	return v
 }
 
-func (b *AddressProps) WithID(id int64) *AddressProps {
-	b.id = id
-	return b
+func (a *Address) WithID(id int64) *Address {
+	a.ID = id
+	return a
 }
 
-func (b *AddressProps) WithCustomerID(customerID int64) *AddressProps {
-	b.customerID = customerID
-	return b
+func (a *Address) WithCustomerID(customerID int64) *Address {
+	a.CustomerID = customerID
+	return a
 }
 
-func (b *AddressProps) WithStreet(street string) *AddressProps {
-	b.street = street
-	return b
+func (a *Address) WithStreet(street string) *Address {
+	a.Street = street
+	return a
 }
 
-func (b *AddressProps) WithNumber(number string) *AddressProps {
-	b.number = number
-	return b
+func (a *Address) WithNumber(number string) *Address {
+	a.Number = number
+	return a
 }
 
-func (b *AddressProps) WithComplement(complement string) *AddressProps {
-	b.complement = complement
-	return b
+func (a *Address) WithComplement(complement string) *Address {
+	a.Complement = complement
+	return a
 }
 
-func (b *AddressProps) WithCity(city string) *AddressProps {
-	b.city = city
-	return b
+func (a *Address) WithCity(city string) *Address {
+	a.City = city
+	return a
 }
 
-func (b *AddressProps) WithState(state string) *AddressProps {
-	b.state = state
-	return b
+func (a *Address) WithState(state string) *Address {
+	a.State = state
+	return a
 }
 
-func (b *AddressProps) WithPostalCode(postalCode string) *AddressProps {
-	b.postalCode = postalCode
-	return b
+func (a *Address) WithPostalCode(postalCode string) *Address {
+	a.PostalCode = postalCode
+	return a
 }
 
-func (b *AddressProps) WithCountry(country string) *AddressProps {
-	b.country = country
-	return b
+func (a *Address) WithCountry(country string) *Address {
+	a.Country = country
+	return a
 }
 
-func (b *AddressProps) WithCreatedAt(createdAt time.Time) *AddressProps {
-	b.createdAt = createdAt
-	return b
+func (a *Address) WithCreatedAt(createdAt time.Time) *Address {
+	a.CreatedAt = createdAt
+	return a
 }
 
-func (b *AddressProps) WithUpdatedAt(updatedAt time.Time) *AddressProps {
-	b.updatedAt = updatedAt
-	return b
+func (a *Address) WithUpdatedAt(updatedAt time.Time) *Address {
+	a.UpdatedAt = updatedAt
+	return a
+}
+
+func (a *Address) Build() Address {
+	return *a
 }

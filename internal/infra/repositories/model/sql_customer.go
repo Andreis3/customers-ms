@@ -36,12 +36,12 @@ func (c Customer) ToEntity() entity.Customer {
 func (c Customer) FromModel(customer entity.Customer) *Customer {
 	dateNow := time.Now()
 	return &Customer{
-		Email:       util.ToStringPointer(customer.Email()),
-		Password:    util.ToStringPointer(customer.Password()),
-		FirstName:   util.ToStringPointer(customer.FirstName()),
-		LastName:    util.ToStringPointer(customer.LastName()),
-		CPF:         util.ToStringPointer(customer.CPF()),
-		DateOfBirth: util.ToTimePointer(customer.DateOfBirth()),
+		Email:       util.ToStringPointer(customer.Email.String()),
+		Password:    util.ToStringPointer(customer.Password.String()),
+		FirstName:   util.ToStringPointer(customer.FirstName),
+		LastName:    util.ToStringPointer(customer.LastName),
+		CPF:         util.ToStringPointer(customer.CPF.String()),
+		DateOfBirth: util.ToTimePointer(customer.DateOfBirth),
 		CreatedAT:   util.ToTimePointer(dateNow),
 		UpdatedAT:   util.ToTimePointer(dateNow),
 	}

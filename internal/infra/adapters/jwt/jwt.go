@@ -114,9 +114,9 @@ func (j *JWT) parseToken(tokenString string) (*valueobject.TokenClaims, *errors.
 
 func (j *JWT) createTokenClaims(customer entity.Customer, tokenString string) valueobject.TokenClaims {
 	return valueobject.TokenClaims{
-		CustomerID: customer.ID(),
+		CustomerID: customer.ID,
 		FullName:   customer.FullName(),
-		Email:      customer.Email(),
+		Email:      customer.Email.String(),
 		Token:      tokenString,
 		ExpiresAt:  time.Now().Add(j.expiry),
 	}
@@ -125,9 +125,9 @@ func (j *JWT) createTokenClaims(customer entity.Customer, tokenString string) va
 func (j *JWT) createJWTMapClaims(customer entity.Customer) jwt.MapClaims {
 	now := time.Now()
 	return jwt.MapClaims{
-		"customer_id": customer.ID(),
+		"customer_id": customer.ID,
 		"full_name":   customer.FullName(),
-		"email":       customer.Email(),
+		"email":       customer.Email.String(),
 		"exp":         now.Add(j.expiry).Unix(),
 		"iat":         now.Unix(),
 		"nbf":         now.Unix(),

@@ -119,7 +119,7 @@ func (c *CustomerRepository) FindCustomerByEmail(ctx context.Context, email stri
 
 	// TODO: create SetAttributes in interface otel
 	//span.SetAttributes(
-	//	attribute.Int64("customer_id", *modelCustomer.ID),
+	//	attribute.Int64("customer_id", *modelCustomer.CustomerID),
 	//)
 
 	return &result, nil
@@ -172,7 +172,7 @@ func (c *CustomerRepository) FindByID(ctx context.Context, id int64) (*entity.Cu
 
 	// TODO: create SetAttributes in interface otel
 	//span.SetAttributes(
-	//	attribute.Int64("customer_id", *modelCustomer.ID),
+	//	attribute.Int64("customer_id", *modelCustomer.CustomerID),
 	//)
 
 	return &result, nil

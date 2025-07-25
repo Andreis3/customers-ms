@@ -10,18 +10,20 @@ import (
 	"github.com/andreis3/customers-ms/internal/domain/interfaces/adapter"
 	"github.com/andreis3/customers-ms/internal/domain/interfaces/postgres"
 	"github.com/andreis3/customers-ms/internal/domain/interfaces/service"
+	"github.com/andreis3/customers-ms/internal/infra/repositories/criteria"
+	"github.com/andreis3/customers-ms/internal/util"
 )
 
 type GetCustomerAddresses struct {
 	log               adapter.Logger
-	addressRepository postgres.AddressRepository
+	addressRepository postgres.AddressesSearchRepository
 	customerService   service.CustomerService
 	tracer            adapter.Tracer
 }
 
 func NewGetCustomerAddresses(
 	log adapter.Logger,
-	addressRepository postgres.AddressRepository,
+	addressRepository postgres.AddressesSearchRepository,
 	customerService service.CustomerService,
 	tracer adapter.Tracer,
 ) *GetCustomerAddresses {
@@ -52,7 +54,9 @@ func (q *GetCustomerAddresses) Execute(ctx context.Context, input dto.GetCustome
 		return nil, err
 	}
 
-	customerAddresses, err := q.addressRepository.FindAddressesByCustomerID(ctx, input.CustomerID)
+	customerAddresses, err := q.addressRepository.SearchAddresses(ctx, criteria.AddressSearchCriteria{
+		CustomerID: util.ToInt64Pointer(input.CustomerID),
+	})
 
 	if err != nil {
 		span.RecordError(err)

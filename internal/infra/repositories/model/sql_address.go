@@ -41,14 +41,14 @@ func (a Address) ToEntity() entity.Address {
 func (a Address) FromModel(entity entity.Address) *Address {
 	dateNow := time.Now()
 	return &Address{
-		CustomerID: util.ToInt64Pointer(entity.CustomerID()),
-		Street:     util.ToStringPointer(entity.Street()),
-		Number:     util.ToStringPointer(entity.Number()),
-		Complement: util.ToStringPointer(entity.Complement()),
-		City:       util.ToStringPointer(entity.City()),
-		State:      util.ToStringPointer(entity.State()),
-		PostalCode: util.ToStringPointer(entity.PostalCode()),
-		Country:    util.ToStringPointer(entity.Country()),
+		CustomerID: util.ToInt64Pointer(entity.CustomerID),
+		Street:     util.ToStringPointer(entity.Street),
+		Number:     util.ToStringPointer(entity.Number),
+		Complement: util.ToStringPointer(entity.Complement),
+		City:       util.ToStringPointer(entity.City),
+		State:      util.ToStringPointer(entity.State),
+		PostalCode: util.ToStringPointer(entity.PostalCode),
+		Country:    util.ToStringPointer(entity.Country),
 		CreatedAt:  util.ToTimePointer(dateNow),
 		UpdatedAt:  util.ToTimePointer(dateNow),
 	}

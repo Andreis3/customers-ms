@@ -15,6 +15,7 @@ import (
 
 func MakeCustomerRouter(
 	postgres *db.Postgres,
+	redis *db.Redis,
 	log adapter.Logger,
 	prometheus adapter.Prometheus,
 	tracer adapter.Tracer,
@@ -30,7 +31,7 @@ func MakeCustomerRouter(
 	jwt := jwt.NewJWT(conf)
 	customerRepository := repository.NewCustomerRepository(postgres, prometheus, tracer)
 	authService := services.NewAuthService(jwt, customerRepository)
-	query := app.NewGetCustomerAddressesFactory(postgres, log, tracer, prometheus)
+	query := app.NewGetCustomerAddressesFactory(postgres, redis, log, tracer, prometheus)
 	getAddressHandler := handler.NewGetAddressHandler(query, log, prometheus, tracer)
 
 	createCustomerHandler := handler.NewCreateCustomerHandler(command, prometheus, log, tracer)

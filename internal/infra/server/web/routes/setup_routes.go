@@ -13,6 +13,7 @@ import (
 type RegisterRoutesDeps struct {
 	Mux        *chi.Mux
 	PostgresDB *db.Postgres
+	Redis      *db.Redis
 	Log        adapter.Logger
 	Prometheus adapter.Prometheus
 	Conf       *configs.Configs
@@ -33,7 +34,7 @@ func BuildRoutes(deps *RegisterRoutesDeps) []ModuleRoutes {
 	return []ModuleRoutes{
 		routes.NewHealthCheck(),
 		routes.NewMetrics(),
-		presentation.MakeCustomerRouter(deps.PostgresDB, deps.Log, deps.Prometheus, deps.Tracer, deps.Conf),
+		presentation.MakeCustomerRouter(deps.PostgresDB, deps.Redis, deps.Log, deps.Prometheus, deps.Tracer, deps.Conf),
 		presentation.MakeAuthRouter(deps.PostgresDB, deps.Log, deps.Prometheus, deps.Conf, deps.Tracer),
 	}
 }
