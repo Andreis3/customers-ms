@@ -2,6 +2,7 @@ package commands
 
 import (
 	"context"
+	"fmt"
 	"log/slog"
 
 	"github.com/andreis3/customers-ms/internal/app/dto"
@@ -62,16 +63,17 @@ func (c *CreateCustomerCommand) Execute(ctx context.Context, input dto.CreateCus
 		return nil, err
 	}
 
-	customerAlreadyExists := c.customerService.ExistCustomerByEmail(ctx, customerProfile.Customer.Email.String())
-	if customerAlreadyExists {
-		err = errors.ErrCustomerAlreadyExists()
-		span.RecordError(err)
-		c.log.ErrorJSON("Customer already exists",
-			slog.String("trace_id", traceID),
-			slog.Any("error", err))
-		return nil, err
-	}
+	//customerAlreadyExists := c.customerService.ExistCustomerByEmail(ctx, customerProfile.Customer.Email.String())
+	//if customerAlreadyExists {
+	//	err = errors.ErrCustomerAlreadyExists()
+	//	span.RecordError(err)
+	//	c.log.ErrorJSON("Customer already exists",
+	//		slog.String("trace_id", traceID),
+	//		slog.Any("error", err))
+	//	return nil, err
+	//}
 
+	fmt.Printf("[TARCE] instace customerRepository: %v\n", &c.customerRepository)
 	var customerResult *entity.Customer
 	uow := c.uow(ctx)
 
