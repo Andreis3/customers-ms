@@ -1,13 +1,13 @@
 package handler_factory
 
 import (
-	"github.com/andreis3/customers-ms/internal/app/decorator"
 	"github.com/andreis3/customers-ms/internal/app/queries"
 	"github.com/andreis3/customers-ms/internal/app/services"
 	"github.com/andreis3/customers-ms/internal/domain/interfaces/adapter"
 	"github.com/andreis3/customers-ms/internal/domain/interfaces/query"
 	"github.com/andreis3/customers-ms/internal/infra/adapters/db"
 	"github.com/andreis3/customers-ms/internal/infra/configs"
+	"github.com/andreis3/customers-ms/internal/infra/decorator"
 	"github.com/andreis3/customers-ms/internal/infra/repositories/repository"
 	"github.com/andreis3/customers-ms/internal/presentation/http/handler"
 )
