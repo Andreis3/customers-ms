@@ -39,24 +39,26 @@ func NewPoolConnections(conf *configs.Configs, metrics adapter.Prometheus) *Post
 			log.CriticalText(fmt.Sprintf("NotificationErrors parsing connection string: %v", err))
 		}
 
-		slogLogger := log.SlogJSON()
+		if conf.Env == "local" {
+			slogLogger := log.SlogJSON()
 
-		// integration opentelemetry
-		tracer, err := dbtracer.NewDBTracer(
-			conf.PostgresDBName,
-			dbtracer.WithLogger(slogLogger),
-			dbtracer.WithTraceProvider(otel.GetTracerProvider()),
-			dbtracer.WithMeterProvider(metrics.MeterProvider()),
-			dbtracer.WithLogArgs(false),
-			dbtracer.WithIncludeSQLText(false),
-			dbtracer.WithLogArgsLenLimit(1000),
-		)
-		if err != nil {
-			log.ErrorText(fmt.Sprintf("NotificationsErrors creating connection poll: %v", err))
-			os.Exit(util.ExitFailure)
+			// integration opentelemetry
+			tracer, err := dbtracer.NewDBTracer(
+				conf.PostgresDBName,
+				dbtracer.WithLogger(slogLogger),
+				dbtracer.WithTraceProvider(otel.GetTracerProvider()),
+				dbtracer.WithMeterProvider(metrics.MeterProvider()),
+				dbtracer.WithLogArgs(false),
+				dbtracer.WithIncludeSQLText(false),
+				dbtracer.WithLogArgsLenLimit(1000),
+			)
+			if err != nil {
+				log.ErrorText(fmt.Sprintf("NotificationsErrors creating connection poll: %v", err))
+				os.Exit(util.ExitFailure)
+			}
+
+			connConfig.ConnConfig.Tracer = tracer
 		}
-
-		connConfig.ConnConfig.Tracer = tracer
 		connConfig.MinConns = conf.PostgresMinConnections
 		connConfig.MaxConns = conf.PostgresMaxConnections
 		connConfig.MaxConnIdleTime = conf.PostgresMaxConnLifetime

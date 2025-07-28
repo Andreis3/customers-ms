@@ -1,4 +1,4 @@
-package app
+package command_factory
 
 import (
 	"github.com/andreis3/customers-ms/internal/app/commands"

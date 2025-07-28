@@ -5,27 +5,37 @@ import (
 	"crypto/sha256"
 	"encoding/hex"
 	"encoding/json"
+	"log/slog"
 
 	"github.com/andreis3/customers-ms/internal/domain/entity"
 	"github.com/andreis3/customers-ms/internal/domain/errors"
+	"github.com/andreis3/customers-ms/internal/domain/interfaces/adapter"
 	"github.com/andreis3/customers-ms/internal/domain/interfaces/postgres"
 	"github.com/andreis3/customers-ms/internal/domain/interfaces/redis"
 	"github.com/andreis3/customers-ms/internal/infra/repositories/criteria"
 )
 
 type CachedAddressesRepository struct {
-	inner postgres.AddressRepository
-	cache redis.Cache
+	inner  postgres.AddressRepository
+	cache  redis.Cache
+	log    adapter.Logger
+	tracer adapter.Tracer
 }
 
-func NewCachedAddressesRepository(inner postgres.AddressRepository, cache redis.Cache) postgres.AddressesSearchRepository {
+func NewCachedAddressesRepository(inner postgres.AddressRepository, cache redis.Cache, log adapter.Logger, tracer adapter.Tracer) postgres.AddressesSearchRepository {
 	return &CachedAddressesRepository{
-		inner: inner,
-		cache: cache,
+		inner:  inner,
+		cache:  cache,
+		log:    log,
+		tracer: tracer,
 	}
 }
 
 func (c *CachedAddressesRepository) SearchAddresses(ctx context.Context, params criteria.AddressSearchCriteria) (*[]entity.Address, *errors.Error) {
+	ctx, span := c.tracer.Start(ctx, "CachedAddressesRepository.SearchAddresses")
+	defer func() {
+		span.End()
+	}()
 	cachedKey, err := c.generateCacheKey(params)
 	if err != nil {
 		return nil, errors.ErrorGenerateCacheKey(err)
@@ -35,23 +45,37 @@ func (c *CachedAddressesRepository) SearchAddresses(ctx context.Context, params 
 
 	found, err := c.cache.Get(ctx, cachedKey, &cached)
 	if err != nil {
-		return nil, errors.ErrorGetCache(err)
+		c.log.ErrorJSON("Failed to get cache",
+			slog.String("trace_id", span.SpanContext().TraceID()),
+			slog.Any("error", err))
 	}
 
 	if found {
+		c.log.InfoJSON("Found addresses in cache",
+			slog.String("trace_id", span.SpanContext().TraceID()),
+			slog.Any("addresses", cached))
 		return &cached, nil
 	}
 
 	addresses, err := c.inner.SearchAddresses(ctx, params)
 	if err != nil {
+		c.log.ErrorJSON("Failed to get addresses",
+			slog.String("trace_id", span.SpanContext().TraceID()),
+			slog.Any("error", err))
 		return nil, errors.ErrorSearchAddresses(err)
 	}
 
-	const ttl = 5
+	const ttl = 60
 	err = c.cache.Set(ctx, cachedKey, addresses, ttl)
 	if err != nil {
-		return nil, errors.ErrorSetCache(err)
+		c.log.ErrorJSON("Failed to set cache",
+			slog.String("trace_id", span.SpanContext().TraceID()),
+			slog.Any("error", err))
 	}
+	c.log.InfoJSON("Set addresses in cache",
+		slog.String("trace_id", span.SpanContext().TraceID()),
+		slog.Int("ttl", ttl),
+		slog.Any("addresses", addresses))
 	return addresses, nil
 }
 

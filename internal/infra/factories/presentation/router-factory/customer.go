@@ -1,15 +1,13 @@
-package presentation
+package router_factory
 
 import (
 	"github.com/andreis3/customers-ms/internal/app/services"
 	"github.com/andreis3/customers-ms/internal/domain/interfaces/adapter"
-	"github.com/andreis3/customers-ms/internal/infra/adapters/crypto"
 	"github.com/andreis3/customers-ms/internal/infra/adapters/db"
 	"github.com/andreis3/customers-ms/internal/infra/adapters/jwt"
 	"github.com/andreis3/customers-ms/internal/infra/configs"
-	"github.com/andreis3/customers-ms/internal/infra/factories/app"
+	"github.com/andreis3/customers-ms/internal/infra/factories/presentation/handler-factory"
 	"github.com/andreis3/customers-ms/internal/infra/repositories/repository"
-	"github.com/andreis3/customers-ms/internal/presentation/http/handler"
 	"github.com/andreis3/customers-ms/internal/presentation/http/routes"
 )
 
@@ -20,21 +18,13 @@ func MakeCustomerRouter(
 	prometheus adapter.Prometheus,
 	tracer adapter.Tracer,
 	conf *configs.Configs) *routes.CustomerRoutes {
-	newCrypto := crypto.NewBcrypt()
-	command := app.NewCreateCustomerFactory(
-		postgres,
-		newCrypto,
-		log,
-		tracer,
-		prometheus,
-	)
+
 	jwt := jwt.NewJWT(conf)
 	customerRepository := repository.NewCustomerRepository(postgres, prometheus, tracer)
 	authService := services.NewAuthService(jwt, customerRepository)
-	query := app.NewGetCustomerAddressesFactory(postgres, redis, log, tracer, prometheus)
-	getAddressHandler := handler.NewGetAddressHandler(query, log, prometheus, tracer)
+	getAddressHandler := handler_factory.NewGetCustomerAddresses(postgres, redis, log, prometheus, tracer, conf)
 
-	createCustomerHandler := handler.NewCreateCustomerHandler(command, prometheus, log, tracer)
+	createCustomerHandler := handler_factory.NewCreateCustomer(postgres, redis, log, prometheus, tracer, conf)
 	customerRoutes := routes.NewCustomer(
 		createCustomerHandler,
 		getAddressHandler,

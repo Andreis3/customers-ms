@@ -6,7 +6,7 @@ import (
 	"github.com/andreis3/customers-ms/internal/domain/interfaces/adapter"
 	"github.com/andreis3/customers-ms/internal/infra/adapters/db"
 	"github.com/andreis3/customers-ms/internal/infra/configs"
-	"github.com/andreis3/customers-ms/internal/infra/factories/presentation"
+	"github.com/andreis3/customers-ms/internal/infra/factories/presentation/router-factory"
 	"github.com/andreis3/customers-ms/internal/presentation/http/routes"
 )
 
@@ -34,7 +34,7 @@ func BuildRoutes(deps *RegisterRoutesDeps) []ModuleRoutes {
 	return []ModuleRoutes{
 		routes.NewHealthCheck(),
 		routes.NewMetrics(),
-		presentation.MakeCustomerRouter(deps.PostgresDB, deps.Redis, deps.Log, deps.Prometheus, deps.Tracer, deps.Conf),
-		presentation.MakeAuthRouter(deps.PostgresDB, deps.Log, deps.Prometheus, deps.Conf, deps.Tracer),
+		router_factory.MakeCustomerRouter(deps.PostgresDB, deps.Redis, deps.Log, deps.Prometheus, deps.Tracer, deps.Conf),
+		router_factory.MakeAuthRouter(deps.PostgresDB, deps.Log, deps.Prometheus, deps.Conf, deps.Tracer),
 	}
 }
