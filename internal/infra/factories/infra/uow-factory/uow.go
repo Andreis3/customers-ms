@@ -1,4 +1,4 @@
-package infra
+package uow_factory
 
 import (
 	"context"

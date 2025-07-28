@@ -18,6 +18,9 @@ func ValidateCustomer(authService service.Auth, logger adapter.Logger, tracer ad
 			ctx, span := tracer.Start(r.Context(), "ValidateCustomer")
 			defer span.End()
 			traceID := span.SpanContext().TraceID()
+			logger.InfoJSON("middleware validate token started",
+				slog.String("trace_id", traceID),
+				slog.String("path", r.URL.Path))
 
 			authHeader := r.Header.Get("Authorization")
 
@@ -42,6 +45,9 @@ func ValidateCustomer(authService service.Auth, logger adapter.Logger, tracer ad
 				return
 			}
 			token := parts[1]
+			logger.InfoJSON("validating token",
+				slog.String("trace_id", traceID),
+				slog.String("token", token))
 			claims, err := authService.DecodeToken(ctx, token)
 			if err != nil {
 				logger.ErrorJSON("failed validate token",
@@ -55,6 +61,9 @@ func ValidateCustomer(authService service.Auth, logger adapter.Logger, tracer ad
 
 			ctx = context.WithValue(ctx, "customer_id", claims.CustomerID)
 			ctx = context.WithValue(ctx, "email", claims.Email)
+
+			logger.InfoJSON("token validated successfully",
+				slog.String("trace_id", traceID))
 
 			next.ServeHTTP(w, r.WithContext(ctx))
 		})

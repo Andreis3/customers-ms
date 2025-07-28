@@ -25,6 +25,7 @@ type Configs struct {
 	ApplicationName         string        `mapstructure:"APPLICATION_NAME"`            // name of application
 	JWTSecret               string        `mapstructure:"JWT_SECRET"`                  // JWT secret
 	JWTExpiry               time.Duration `mapstructure:"JWT_EXPIRY"`                  // JWT expiry
+	Env                     string        `mapstructure:"ENV"`                         // Environment
 }
 
 // LoadConfig loads the application configuration from either a .env file or environment variables.
@@ -40,6 +41,7 @@ func LoadConfig() *Configs {
 	viper.SetDefault("POSTGRES_MAX_CONN_LIFETIME", "5m")
 	viper.SetDefault("POSTGRES_MAX_CONN_IDLE_TIME", "1m")
 	viper.SetDefault("REDIS_DB", 0)
+	viper.SetDefault("ENV", "production")
 
 	if err := viper.ReadInConfig(); err != nil {
 		// If the .env file is not found, ignore the error and rely on environment variables

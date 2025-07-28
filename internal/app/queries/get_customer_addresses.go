@@ -53,7 +53,6 @@ func (q *GetCustomerAddresses) Execute(ctx context.Context, input dto.GetCustome
 			slog.Any("error", err))
 		return nil, err
 	}
-
 	customerAddresses, err := q.addressRepository.SearchAddresses(ctx, criteria.AddressSearchCriteria{
 		CustomerID: util.ToInt64Pointer(input.CustomerID),
 	})
