@@ -2,6 +2,7 @@ package middlewares
 
 import (
 	"context"
+	"fmt"
 	"log/slog"
 	"net/http"
 	"strings"
@@ -12,20 +13,34 @@ import (
 	"github.com/andreis3/customers-ms/internal/presentation/http/helpers"
 )
 
-func ValidateCustomer(authService service.Auth, logger adapter.Logger, tracer adapter.Tracer) func(http.Handler) http.Handler {
+type ValidateCustomer struct {
+	authService service.Auth
+	logger      adapter.Logger
+	tracer      adapter.Tracer
+}
+
+func NewValidateCustomerMiddleware(authService service.Auth, logger adapter.Logger, tracer adapter.Tracer) *ValidateCustomer {
+	return &ValidateCustomer{
+		authService: authService,
+		logger:      logger,
+		tracer:      tracer,
+	}
+}
+
+func (v *ValidateCustomer) ValidateCustomer() func(http.Handler) http.Handler {
 	return func(next http.Handler) http.Handler {
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-			ctx, span := tracer.Start(r.Context(), "ValidateCustomer")
+			ctx, span := v.tracer.Start(r.Context(), "ValidateCustomer")
 			defer span.End()
 			traceID := span.SpanContext().TraceID()
-			logger.InfoJSON("middleware validate token started",
+			v.logger.InfoJSON("middleware validate token started",
 				slog.String("trace_id", traceID),
 				slog.String("path", r.URL.Path))
 
 			authHeader := r.Header.Get("Authorization")
 
 			if authHeader == "" {
-				logger.ErrorJSON("missing authorization header",
+				v.logger.ErrorJSON("missing authorization header",
 					slog.String("trace_id", traceID),
 					slog.String("method", r.Method),
 					slog.String("path", r.URL.Path))
@@ -36,7 +51,7 @@ func ValidateCustomer(authService service.Auth, logger adapter.Logger, tracer ad
 			parts := strings.Split(authHeader, " ")
 			if len(parts) != 2 || strings.ToLower(parts[0]) != "bearer" {
 				err := errors.ErrorInvalidToken()
-				logger.ErrorJSON("invalid authorization header",
+				v.logger.ErrorJSON("invalid authorization header",
 					slog.String("trace_id", traceID),
 					slog.String("method", r.Method),
 					slog.String("path", r.URL.Path),
@@ -45,12 +60,12 @@ func ValidateCustomer(authService service.Auth, logger adapter.Logger, tracer ad
 				return
 			}
 			token := parts[1]
-			logger.InfoJSON("validating token",
+			v.logger.InfoJSON("validating token",
 				slog.String("trace_id", traceID),
 				slog.String("token", token))
-			claims, err := authService.DecodeToken(ctx, token)
+			claims, err := v.authService.DecodeToken(ctx, token)
 			if err != nil {
-				logger.ErrorJSON("failed validate token",
+				v.logger.ErrorJSON("failed validate token",
 					slog.String("trace_id", traceID),
 					slog.String("method", r.Method),
 					slog.String("path", r.URL.Path),
@@ -62,9 +77,9 @@ func ValidateCustomer(authService service.Auth, logger adapter.Logger, tracer ad
 			ctx = context.WithValue(ctx, "customer_id", claims.CustomerID)
 			ctx = context.WithValue(ctx, "email", claims.Email)
 
-			logger.InfoJSON("token validated successfully",
+			v.logger.InfoJSON("token validated successfully",
 				slog.String("trace_id", traceID))
-
+			fmt.Printf("[TRACER] authService instance: %v\n", &v.authService)
 			next.ServeHTTP(w, r.WithContext(ctx))
 		})
 	}

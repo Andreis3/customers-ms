@@ -9,6 +9,7 @@ import (
 	"github.com/andreis3/customers-ms/internal/infra/factories/app/command-factory"
 	"github.com/andreis3/customers-ms/internal/infra/repositories/repository"
 	"github.com/andreis3/customers-ms/internal/presentation/http/handler"
+	"github.com/andreis3/customers-ms/internal/presentation/http/middlewares"
 	"github.com/andreis3/customers-ms/internal/presentation/http/routes"
 )
 
@@ -19,5 +20,6 @@ func MakeAuthRouter(postgres adapter.Postgres, log adapter.Logger, prometheus ad
 	bcrypt := crypto.NewBcrypt()
 	commands := command_factory.NewAuthenticateCustomerFactory(log, customerRepository, authService, bcrypt, tracer)
 	authHandler := handler.NewLoginCustomer(log, prometheus, tracer, commands)
-	return routes.NewLoginRoutes(log, authHandler, tracer)
+	loggingMiddleware := middlewares.NewLoggingMiddleware(log, tracer)
+	return routes.NewLoginRoutes(authHandler, loggingMiddleware)
 }

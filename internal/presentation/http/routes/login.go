@@ -3,27 +3,23 @@ package routes
 import (
 	"net/http"
 
-	"github.com/andreis3/customers-ms/internal/domain/interfaces/adapter"
 	"github.com/andreis3/customers-ms/internal/presentation/http/handler"
 	"github.com/andreis3/customers-ms/internal/presentation/http/helpers"
 	"github.com/andreis3/customers-ms/internal/presentation/http/middlewares"
 )
 
 type LoginRoutes struct {
-	log         adapter.Logger
-	authHandler handler.LoginCustomer
-	tracer      adapter.Tracer
+	authHandler       handler.LoginCustomer
+	loggingMiddleware *middlewares.Logging
 }
 
 func NewLoginRoutes(
-	log adapter.Logger,
 	authHandler handler.LoginCustomer,
-	tracer adapter.Tracer,
+	loggingMiddleware *middlewares.Logging,
 ) *LoginRoutes {
 	return &LoginRoutes{
-		log:         log,
-		authHandler: authHandler,
-		tracer:      tracer,
+		authHandler:       authHandler,
+		loggingMiddleware: loggingMiddleware,
 	}
 }
 
@@ -35,7 +31,7 @@ func (r *LoginRoutes) Routes() helpers.RouteType {
 			Handler:     helpers.TraceHandler(http.MethodPost, prefix, r.authHandler.Handle),
 			Description: "Generate Token",
 			Middlewares: helpers.Middlewares{
-				middlewares.LoggingMiddleware(r.log, r.tracer),
+				r.loggingMiddleware.LoggingMiddleware(),
 			},
 		},
 	})
