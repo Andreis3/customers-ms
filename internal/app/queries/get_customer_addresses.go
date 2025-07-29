@@ -2,7 +2,6 @@ package queries
 
 import (
 	"context"
-	"fmt"
 	"log/slog"
 
 	"github.com/andreis3/customers-ms/internal/app/dto"
@@ -54,7 +53,7 @@ func (q *GetCustomerAddresses) Execute(ctx context.Context, input dto.GetCustome
 			slog.Any("error", err))
 		return nil, err
 	}
-	fmt.Printf("[TRACER] q.addressRepository instance: %v\n", &q.addressRepository)
+
 	customerAddresses, err := q.addressRepository.SearchAddresses(ctx, criteria.AddressSearchCriteria{
 		CustomerID: util.ToInt64Pointer(input.CustomerID),
 	})

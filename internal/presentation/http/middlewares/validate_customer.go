@@ -2,7 +2,6 @@ package middlewares
 
 import (
 	"context"
-	"fmt"
 	"log/slog"
 	"net/http"
 	"strings"
@@ -79,7 +78,6 @@ func (v *ValidateCustomer) ValidateCustomer() func(http.Handler) http.Handler {
 
 			v.logger.InfoJSON("token validated successfully",
 				slog.String("trace_id", traceID))
-			fmt.Printf("[TRACER] authService instance: %v\n", &v.authService)
 			next.ServeHTTP(w, r.WithContext(ctx))
 		})
 	}

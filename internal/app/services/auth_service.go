@@ -2,7 +2,6 @@ package services
 
 import (
 	"context"
-	"fmt"
 
 	"github.com/andreis3/customers-ms/internal/domain/entity"
 	"github.com/andreis3/customers-ms/internal/domain/errors"
@@ -45,7 +44,7 @@ func (a *AuthService) DecodeToken(ctx context.Context, tokenString string) (*val
 	}
 
 	customer, err := a.customerRepository.FindByID(ctx, tokenClaims.CustomerID)
-	fmt.Printf("[TRACER] a.customerRepository instance: %v\n", &a.customerRepository)
+
 	if err != nil {
 		return nil, err
 	}
