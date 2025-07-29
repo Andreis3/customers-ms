@@ -24,11 +24,12 @@ func NewLoginRoutes(
 }
 
 func (r *LoginRoutes) Routes() helpers.RouteType {
-	prefix := "/v1/api/login"
+	prefix := "/v1/api"
 	return helpers.WithPrefix(prefix, helpers.RouteType{
 		{
 			Method:      http.MethodPost,
-			Handler:     helpers.TraceHandler(http.MethodPost, prefix, r.authHandler.Handle),
+			Path:        "/login",
+			Handler:     helpers.TraceHandler(http.MethodPost, prefix+"/login", r.authHandler.Handle),
 			Description: "Generate Token",
 			Middlewares: helpers.Middlewares{
 				r.loggingMiddleware.LoggingMiddleware(),
