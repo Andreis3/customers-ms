@@ -19,10 +19,10 @@ type HealthCheckResponse struct {
 type SystemInformation struct {
 	Version          string `json:"version"`
 	GoroutinesCount  int    `json:"goroutines_count"`
-	TotalAllocBytes  uint64 `json:"total_alloc_bytes"`
+	TotalAlloc       string `json:"total_alloc"`
 	HeapObjectsCount uint64 `json:"heap_objects_count"`
-	AllocBytes       uint64 `json:"alloc_bytes"`
-	HealAllocBytes   uint64 `json:"heal_alloc_bytes"`
+	Alloc            string `json:"alloc"`
+	HeapAlloc        string `json:"heap_alloc"`
 }
 type ComponentInfo struct {
 	ServiceName string `json:"service_name"`
@@ -57,9 +57,14 @@ func getSystemInformation() SystemInformation {
 	return SystemInformation{
 		Version:          runtime.Version(),
 		GoroutinesCount:  runtime.NumGoroutine(),
-		TotalAllocBytes:  memStats.TotalAlloc,
+		TotalAlloc:       formatBytesToMB(memStats.TotalAlloc),
 		HeapObjectsCount: memStats.HeapObjects,
-		AllocBytes:       memStats.Alloc,
-		HealAllocBytes:   memStats.HeapAlloc,
+		Alloc:            formatBytesToMB(memStats.Alloc),
+		HeapAlloc:        formatBytesToMB(memStats.HeapAlloc),
 	}
+}
+
+func formatBytesToMB(bytes uint64) string {
+	const mb = 1024 * 1024
+	return fmt.Sprintf("%.2f MB", float64(bytes)/float64(mb))
 }
